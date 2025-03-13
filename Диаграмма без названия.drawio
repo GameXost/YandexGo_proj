@@ -4,6 +4,9 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="BMWsFA4zCxu33dVuHz_g-57" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="320" y="545" width="135" height="135" as="geometry" />
+        </mxCell>
         <mxCell id="BMWsFA4zCxu33dVuHz_g-49" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="BMWsFA4zCxu33dVuHz_g-4">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="180.05882352941182" y="460" as="targetPoint" />
@@ -71,8 +74,11 @@
         <mxCell id="BMWsFA4zCxu33dVuHz_g-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="BMWsFA4zCxu33dVuHz_g-37" target="BMWsFA4zCxu33dVuHz_g-8">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="BMWsFA4zCxu33dVuHz_g-37" value="Redis" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="BMWsFA4zCxu33dVuHz_g-37" value="Redis&#39;ка" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="360" y="270" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="BMWsFA4zCxu33dVuHz_g-56" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.star;rotation=-180;" vertex="1" parent="1">
+          <mxGeometry x="337.5" y="565" width="100" height="95" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
