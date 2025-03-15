@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package coffeeshop;
+
+option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/test/proto_example"; 
+
+service CoffeeShop {
+    rpc GetMenu(MenuRequest) returns (stream Menu) {}
+    rpc PlaceOrder(Order) returns (Receipt){}
+    rpc GetOerder(Order) returns (OrderStatus){}
+}
+
+message MenuRequest{}
+
+message Order{
+    repeated Item items = 1;
+}
+
+message Receipt{
+    string id = 1;
+}
+
+message OrderStatus{
+    string orderId = 1;
+    string status = 2;
+}
+
+message Menu{
+    repeated Item items = 1;
+}
+
+message Item{
+    string id = 1;
+    string name = 2;
+
+}
