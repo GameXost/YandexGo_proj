@@ -50,7 +50,7 @@
         <mxCell id="J9xx-93wzo_tRQhmg1nY-15" value="БД водители" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="600" y="480" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="J9xx-93wzo_tRQhmg1nY-16" value="ФИ, ID, email, телефон, паспортные данные, марка машины, номер, цвет" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+        <mxCell id="J9xx-93wzo_tRQhmg1nY-16" value="ФИ, ID, email, телефон, паспортные данные, марка машины, номер, цвет, флаг активности" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="600" y="560" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="J9xx-93wzo_tRQhmg1nY-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="J9xx-93wzo_tRQhmg1nY-17" target="J9xx-93wzo_tRQhmg1nY-15">
@@ -70,7 +70,7 @@
         <mxCell id="J9xx-93wzo_tRQhmg1nY-18" value="фронт таксисты" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="600" y="110" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="J9xx-93wzo_tRQhmg1nY-24" value="кэш хранит ID атксиста" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+        <mxCell id="J9xx-93wzo_tRQhmg1nY-24" value="кэш хранит ID таксиста, координаты&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="740" y="110" width="70" height="50" as="geometry" />
         </mxCell>
       </root>
