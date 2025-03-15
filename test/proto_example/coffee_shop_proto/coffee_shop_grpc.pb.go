@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CoffeeShop_GetMenu_FullMethodName    = "/coffeeshop.CoffeeShop/GetMenu"
-	CoffeeShop_PlaceOrder_FullMethodName = "/coffeeshop.CoffeeShop/PlaceOrder"
-	CoffeeShop_GetOerder_FullMethodName  = "/coffeeshop.CoffeeShop/GetOerder"
+	CoffeeShop_GetMenu_FullMethodName        = "/coffeeshop.CoffeeShop/GetMenu"
+	CoffeeShop_PlaceOrder_FullMethodName     = "/coffeeshop.CoffeeShop/PlaceOrder"
+	CoffeeShop_GetOrderStatus_FullMethodName = "/coffeeshop.CoffeeShop/GetOrderStatus"
 )
 
 // CoffeeShopClient is the client API for CoffeeShop service.
@@ -30,7 +30,7 @@ const (
 type CoffeeShopClient interface {
 	GetMenu(ctx context.Context, in *MenuRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Menu], error)
 	PlaceOrder(ctx context.Context, in *Order, opts ...grpc.CallOption) (*Receipt, error)
-	GetOerder(ctx context.Context, in *Order, opts ...grpc.CallOption) (*OrderStatus, error)
+	GetOrderStatus(ctx context.Context, in *Receipt, opts ...grpc.CallOption) (*OrderStatus, error)
 }
 
 type coffeeShopClient struct {
@@ -70,10 +70,10 @@ func (c *coffeeShopClient) PlaceOrder(ctx context.Context, in *Order, opts ...gr
 	return out, nil
 }
 
-func (c *coffeeShopClient) GetOerder(ctx context.Context, in *Order, opts ...grpc.CallOption) (*OrderStatus, error) {
+func (c *coffeeShopClient) GetOrderStatus(ctx context.Context, in *Receipt, opts ...grpc.CallOption) (*OrderStatus, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(OrderStatus)
-	err := c.cc.Invoke(ctx, CoffeeShop_GetOerder_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, CoffeeShop_GetOrderStatus_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (c *coffeeShopClient) GetOerder(ctx context.Context, in *Order, opts ...grp
 type CoffeeShopServer interface {
 	GetMenu(*MenuRequest, grpc.ServerStreamingServer[Menu]) error
 	PlaceOrder(context.Context, *Order) (*Receipt, error)
-	GetOerder(context.Context, *Order) (*OrderStatus, error)
+	GetOrderStatus(context.Context, *Receipt) (*OrderStatus, error)
 	mustEmbedUnimplementedCoffeeShopServer()
 }
 
@@ -103,8 +103,8 @@ func (UnimplementedCoffeeShopServer) GetMenu(*MenuRequest, grpc.ServerStreamingS
 func (UnimplementedCoffeeShopServer) PlaceOrder(context.Context, *Order) (*Receipt, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PlaceOrder not implemented")
 }
-func (UnimplementedCoffeeShopServer) GetOerder(context.Context, *Order) (*OrderStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOerder not implemented")
+func (UnimplementedCoffeeShopServer) GetOrderStatus(context.Context, *Receipt) (*OrderStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrderStatus not implemented")
 }
 func (UnimplementedCoffeeShopServer) mustEmbedUnimplementedCoffeeShopServer() {}
 func (UnimplementedCoffeeShopServer) testEmbeddedByValue()                    {}
@@ -156,20 +156,20 @@ func _CoffeeShop_PlaceOrder_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CoffeeShop_GetOerder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Order)
+func _CoffeeShop_GetOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Receipt)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CoffeeShopServer).GetOerder(ctx, in)
+		return srv.(CoffeeShopServer).GetOrderStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CoffeeShop_GetOerder_FullMethodName,
+		FullMethod: CoffeeShop_GetOrderStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoffeeShopServer).GetOerder(ctx, req.(*Order))
+		return srv.(CoffeeShopServer).GetOrderStatus(ctx, req.(*Receipt))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -186,8 +186,8 @@ var CoffeeShop_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CoffeeShop_PlaceOrder_Handler,
 		},
 		{
-			MethodName: "GetOerder",
-			Handler:    _CoffeeShop_GetOerder_Handler,
+			MethodName: "GetOrderStatus",
+			Handler:    _CoffeeShop_GetOrderStatus_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

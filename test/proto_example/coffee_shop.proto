@@ -7,7 +7,7 @@ option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/test/pro
 service CoffeeShop {
     rpc GetMenu(MenuRequest) returns (stream Menu) {}
     rpc PlaceOrder(Order) returns (Receipt){}
-    rpc GetOerder(Order) returns (OrderStatus){}
+    rpc GetOrderStatus(Receipt) returns (OrderStatus){}
 }
 
 message MenuRequest{}
