@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
-	pb "github.com/GameXost/YandexGo_proj/tree/gRPCservice/test/proto_example/coffee_shop_proto"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"fmt"
 	"io"
 	"log"
 	"time"
+
+	pb "github.com/GameXost/YandexGo_proj/tree/gRPCservice/test/proto_example/coffee_shop_proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -53,4 +55,5 @@ func main() {
 
 	status, err := c.GetOrderStatus(ctx, receipt)
 	log.Printf("%v", status)
+	fmt.Print("sagsfg")
 }
