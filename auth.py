@@ -97,7 +97,12 @@ class UserRepository:
 
     def create_users_table(self):
         query = """
-        CREATE TABLE users (id, first_name, last_name, email, phone_number)
+        CREATE TABLE users (id BIGINT, 
+        first_name VARCHAR(50) NOT NULL, 
+        last_name VARCHAR(50) NOT NULL, 
+        email VARCHAR(50) NOT NULL, 
+        phone_number BIGINT
+        );
         """
 
     def add_user(self, user: User):
