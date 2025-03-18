@@ -8,6 +8,7 @@ import psycopg2
 
 class User:
     def __init__(self, first_name: str, last_name: str, email: str, phone_number: str):
+        self.id = self.generate_id()
         self.first_name = first_name.strip()
         self.last_name = last_name.strip()
         self.email = email.strip()
@@ -17,13 +18,16 @@ class User:
         self.validate_email()
         self.validate_phone_number()
 
-    def validate_name(name: str, field_name: str):
+    def validate_name(self,name: str, field_name: str):
         if not name:
             raise NameError(f"{field_name} не может быть пустым")
         if not name.isalpha():
             raise NameError(
                 f"{field_name} должно содержать только буквы")
 
+    def generate_id(self):
+        alphabet = string.ascii_letters + string.digits
+        return ''.join(secrets.choice(alphabet) for _ in range(16))
     def validate_email(self):
         try:
             validated_email = email_validator.validate_email(
@@ -91,11 +95,12 @@ class UserRepository:
 
     def create_users_table(self):
         query = """
-        CREATE TABLE users (id BIGINT, 
+        CREATE TABLE users (
+        id VARCHAR(16) NOT NULL, 
         first_name VARCHAR(50) NOT NULL, 
         last_name VARCHAR(50) NOT NULL, 
         email VARCHAR(50) NOT NULL, 
-        phone_number BIGINT
+        phone_number VARCHAR(10) NOT NULL
         );
         """
 
@@ -107,21 +112,22 @@ class UserRepository:
                """
 
         user_data = {
-            "id": user.generate_id,
+            "id": user.id,
             "first_name": user.first_name,
             "last_name": user.last_name,
             "email": user.email,
             "phone_number": user.phone_number
         }
 
-        self.cur.execute(query, (user_data["user_id"], user_data["first_name"],
+        self.cur.execute(query, (user_data["id"], user_data["first_name"],
                                  user_data["last_name"], user_data["email"],
                                  user_data["phone_number"]))
 
         self.conn.commit()
 
-    def delete_User(self, user: User):
-        self.cur.execute("DELETE FROM users WHERE id = %s", (id, ))
+    def delete_user(self, user: User):
+        self.cur.execute("DELETE FROM users WHERE email = %s", (user.email, ))
+        self.conn.commit()
 
     def list_all(self, user: User):
         self.cur.execute("SELECT * FROM users")
@@ -137,9 +143,10 @@ class UserRepository:
 
 
 def main():
-    user1 = User("Афелок", "Конченный", "bogdanovmihail129@gmail.com")
-    print(user1.first_validate(), user1.second_validate())
-
+    user1 = User("Афелок", "Конченный",
+                 "bogdanovmihail129@gmail.com", '9937222035')
+    Repository = UserRepository()
+    Repository.delete_user(user1)
 
 if __name__ == "__main__":
     main()
