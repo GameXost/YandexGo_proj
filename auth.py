@@ -1,36 +1,30 @@
 import secrets
 import string
-import json
 import email_validator
 import smtplib
 import psycopg2
 
+
+
 class User:
-    def __init__(self, first_name: str, last_name: str, email: str):
-        self.id = self.generate_id()
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
+    def __init__(self, first_name: str, last_name: str, email: str, phone_number: str):
+        self.first_name = first_name.strip()
+        self.last_name = last_name.strip()
+        self.email = email.strip()
+        self.phone_number = phone_number.strip()  # без +7
+        self.validate_name(self.first_name, 'Имя')
+        self.validate_name(self.last_name, 'Фамилия')
+        self.validate_email()
+        self.validate_phone_number()
 
-    def generate_id(self):
-        alphabet = string.ascii_letters + string.digits
-        return ''.join(secrets.choice(alphabet) for _ in range(16))
+    def validate_name(name: str, field_name: str):
+        if not name:
+            raise NameError(f"{field_name} не может быть пустым")
+        if not name.isalpha():
+            raise NameError(
+                f"{field_name} должно содержать только буквы")
 
-    def to_json(self):  # Егыч тут тож, какой тебе формат удобнее, сделай
-        userJson = {'first_name': self.first_name,
-                    'last_name': self.last_name, 'email': self.email, 'id': self.id}
-        return userJson
-
-    def first_validate(self):
-        if any(char.isdigit() for char in self.first_name):
-            # (бэк)Я это так чисто написал как заглушки, надо что то поадыкватнее придумать
-            if not self.first_name.strip() or not self.first_name.isalpha():
-                raise ValueError("Недействительное имя")
-
-        if any(char.isdigit() for char in self.last_name):
-            if not self.last_name.strip() or not self.last_name.isalpha():
-                raise ValueError("Недействительная фамилия")
-
+    def validate_email(self):
         try:
             validated_email = email_validator.validate_email(
                 self.email, check_deliverability=True)
@@ -38,15 +32,15 @@ class User:
         except email_validator.EmailNotValidError:
             raise email_validator.EmailNotValidError(
                 f"Недействительный email")
-        return True
 
-    def second_validate(self):
+    def validate_phone_number(self):
+        if len(self.phone_number) != 10:
+            raise NameError("Неверный формат телефона")
+
+    def verificate_email(self, user_code: str):
         emailvalidator = EmailValidator(self.email)
         emailvalidator.send_verification_email()
-        user_code = input()  # (фронт)точка входа для ввода кода потдтверждения
-        if emailvalidator.compare_codes(user_code=user_code):
-            return True
-        else:
+        if not emailvalidator.compare_codes(user_code=user_code):
             raise KeyError("Неверный код")
 
 
@@ -80,10 +74,10 @@ class EmailValidator:
         else:
             raise KeyError("Неверный код")
 
-# Егыч это тебе ебаться с этим классом, как в базу пихать пользователей. json формат для заглушки(оно даже не работает если что, не юзайте)
+
 class UserRepository:
     def __init__(self):
-        ### conn to pg
+        # conn to pg
         self.conn = psycopg2.connect(
             dbname="users",
             user="test",
@@ -92,7 +86,7 @@ class UserRepository:
             port="5432"
         )
 
-        ### cursor 4 req
+        # cursor 4 req
         self.cur = self.conn.cursor()
 
     def create_users_table(self):
@@ -106,11 +100,7 @@ class UserRepository:
         """
 
     def add_user(self, user: User):
-        # if user.first_validate() and user.second_validate():
-        #     with open("BASE.json", "w") as UserBase:
-        #         json.dump(user.to_json(), UserBase, ensure_ascii=False)   ###хз че с этим делать. я пишу через sql запрос
-
-        ### sql req
+        # sql req
         query = """
                INSERT INTO users (id, first_name, last_name, email, phone_number)
                VALUES (%s, %s, %s, %s, %s::jsonb);
@@ -144,6 +134,7 @@ class UserRepository:
     def close_conn(self):
         self.cur.close()
         self.conn.close()
+
 
 def main():
     user1 = User("Афелок", "Конченный", "bogdanovmihail129@gmail.com")
