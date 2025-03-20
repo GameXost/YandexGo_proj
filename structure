@@ -1,0 +1,46 @@
+/taxi-service
+│── /cmd
+│   ├── /server
+│   │   ├── main.go               # Точка входа в gRPC-сервер пользователей
+│   │   ├── config.go             # Конфигурация сервера
+│   │   ├── server.go             # Запуск сервера
+│── /api
+│   ├── /proto
+│   │   ├── client.proto          # gRPC-протокол для пользователей (включает поездки и аутентификацию)
+│   │   ├── driver.proto          # gRPC-протокол для водителей (включает координаты)
+│   ├── /generated
+│   │   ├── /client
+│   │   │   ├── client.pb.go      # Сгенерированные файлы gRPC для пользователей
+│   │   ├── /driver
+│   │   │   ├── driver.pb.go      # Сгенерированные файлы gRPC для водителей
+│── /internal
+│   ├── /server
+│   │   ├── client_server.go      # Реализация gRPC-сервера пользователей
+│   │   ├── driver_server.go      # Реализация gRPC-сервера водителей
+│   ├── /db
+│   │   ├── postgres.go           # Подключение к PostgreSQL
+│   │   ├── redis.go              # Подключение к Redis
+│   ├── /models
+│   │   ├── user.go               # Структура пользователя
+│   │   ├── driver.go             # Структура водителя
+│   │   ├── ride.go               # Структура поездки (если нужно в Go-коде)
+│   │   ├── auth.go               # Структура аутентификации (если нужна в Go-коде)
+│   ├── /repository
+│   │   ├── user_repository.go    # Логика работы с пользователями в БД
+│   │   ├── driver_repository.go  # Логика работы с водителями в БД
+│   ├── /services
+│   │   ├── user_service.go       # Бизнес-логика пользователей
+│   │   ├── driver_service.go     # Бизнес-логика водителей
+│── /config
+│   ├── config.yaml               # Конфигурационный файл (БД, порты, кеш)
+│   ├── .env                      # Переменные окружения (DB_HOST, REDIS_HOST и т.д.)
+│── /scripts
+│   ├── migrate.sh                # Скрипты для миграции базы данных
+│   ├── generate_proto.sh         # Скрипт генерации gRPC-кода
+│── /deploy
+│   ├── Dockerfile                # Файл Docker
+│   ├── docker-compose.yml        # Docker Compose для запуска всех сервисов
+│   ├── /k8s                      # Манифесты Kubernetes (deployment.yaml, service.yaml)
+│── go.mod                         # Go-модуль проекта
+│── go.sum                         # Файл зависимостей
+│── README.md                      # Документация проекта

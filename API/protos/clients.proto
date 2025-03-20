@@ -1,0 +1,102 @@
+syntax ="proto3";
+
+package client_service;
+
+option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/grpc_services/proto_files";
+
+service Client {
+    // операции с пользовательским профилем
+    rpc GetUserProfile(AuthToken) returns (User){}
+    rpc UpdateUserProfile(UpdateProfileRequest) returns (User){}
+
+    // операции с заказами
+    rpc RequestRide(RideRequest) returns (Ride){}
+    rpc CancelRide(RideIdRequest) returns (StatusResponse){}
+    rpc GetRideStatus(UserIdRequest) returns (Ride){}
+    rpc GetRideHistory(UserIdRequest) returns (RideHistoryResponse){}
+
+    // сведения о водителе
+    rpc GetDriverLocation(DriverIdRequest) returns (Location){}
+    rpc GetDriverInfo(DriverIdRequest) returns (Driver){}
+
+}
+
+// основные структуры
+message User {
+    string id = 1;
+    string username = 2;
+    string email = 3;
+    string phone = 4;
+}
+
+message Driver{
+    string id = 1;
+    string username = 2;
+    string phone = 3;
+    string car_model = 4;
+    Location location = 5;
+}
+
+message Location{
+    double latitude = 1;
+    double longitude = 2;
+}
+
+message Ride {
+    string id = 1;
+    string user_id = 2;
+    string driver_id = 3;
+    Location start_location = 4;
+    Location end_location = 5;
+    string status = 6;
+    int64 timestamp = 7;
+  }
+
+
+message Payment {
+    string ride_id = 1;
+    string user_id = 2;
+    double amount = 3;
+    string payment_method = 4;
+    string status = 5;
+}
+
+
+// основные операции
+message AuthToken {
+    string token = 1;
+}
+
+message UpdateProfileRequest {
+    string id = 1;
+    string username = 2;
+    string phone = 3;
+    string email = 4;
+}
+
+message RideRequest {
+    string user_id = 1;
+    Location start_location = 2;
+    Location end_location = 3;
+}
+
+message RideIdRequest {
+    string id = 1;
+}
+
+message UserIdRequest {
+    string id = 1;
+}
+
+message DriverIdRequest {
+    string id = 1;
+}
+
+message StatusResponse {
+    bool status = 1;
+    string message = 2;
+}
+
+message RideHistoryResponse {
+    repeated Ride rides = 1;
+}
