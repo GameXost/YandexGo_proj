@@ -1,9 +1,9 @@
 import secrets
+import uuid
 import string
 import email_validator
 import smtplib
 import psycopg2
-
 
 
 class User:
@@ -18,7 +18,7 @@ class User:
         self.validate_email()
         self.validate_phone_number()
 
-    def validate_name(self,name: str, field_name: str):
+    def validate_name(self, name: str, field_name: str):
         if not name:
             raise NameError(f"{field_name} не может быть пустым")
         if not name.isalpha():
@@ -26,8 +26,8 @@ class User:
                 f"{field_name} должно содержать только буквы")
 
     def generate_id(self):
-        alphabet = string.ascii_letters + string.digits
-        return ''.join(secrets.choice(alphabet) for _ in range(16))
+        return str(uuid.uuid4())
+
     def validate_email(self):
         try:
             validated_email = email_validator.validate_email(
@@ -147,6 +147,7 @@ def main():
                  "bogdanovmihail129@gmail.com", '9937222035')
     Repository = UserRepository()
     Repository.delete_user(user1)
+
 
 if __name__ == "__main__":
     main()
