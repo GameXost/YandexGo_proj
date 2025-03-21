@@ -3,6 +3,9 @@ syntax ="proto3";
 package driver_service;
 
 option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/grpc_services/proto_files";
+import "google/api/annotations.proto";
+
+
 
 service Drivers {
     // операции с профилем водителя

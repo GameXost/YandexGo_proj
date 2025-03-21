@@ -1,0 +1,182 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "clients.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Client"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/get/{token}": {
+      "get": {
+        "summary": "операции с пользовательским профилем",
+        "operationId": "Client_GetUserProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/client_serviceUser"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Client"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "client_serviceDriver": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "carModel": {
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/definitions/client_serviceLocation"
+        }
+      }
+    },
+    "client_serviceLocation": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "client_serviceRide": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "driverId": {
+          "type": "string"
+        },
+        "startLocation": {
+          "$ref": "#/definitions/client_serviceLocation"
+        },
+        "endLocation": {
+          "$ref": "#/definitions/client_serviceLocation"
+        },
+        "status": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "client_serviceRideHistoryResponse": {
+      "type": "object",
+      "properties": {
+        "rides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/client_serviceRide"
+          }
+        }
+      }
+    },
+    "client_serviceStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "client_serviceUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        }
+      },
+      "title": "основные структуры"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

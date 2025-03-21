@@ -2,11 +2,21 @@ syntax ="proto3";
 
 package client_service;
 
-option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/grpc_services/proto_files";
+
+option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protos";
+
+
+import "google/api/annotations.proto";
+
+
 
 service Client {
     // операции с пользовательским профилем
-    rpc GetUserProfile(AuthToken) returns (User){}
+    rpc GetUserProfile(AuthToken) returns (User){
+        option (google.api.http) = {
+            get: "/get/{token}"
+          };
+    }
     rpc UpdateUserProfile(UpdateProfileRequest) returns (User){}
 
     // операции с заказами
