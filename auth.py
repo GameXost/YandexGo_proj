@@ -17,6 +17,7 @@ class User:
         self.validate_name(self.last_name, 'Фамилия')
         self.validate_email()
         self.validate_phone_number()
+        self.email_in_base(self.email)
 
     def validate_name(self, name: str, field_name: str):
         if not name:
@@ -46,6 +47,11 @@ class User:
         emailvalidator.send_verification_email()
         if not emailvalidator.compare_codes(user_code=user_code):
             raise KeyError("Неверный код")
+
+    def email_in_base(self, email: str):
+        Rep = UserRepository()
+        if not (Rep.find_by_email == []):
+            raise KeyError("Такой пользователь уже существует")
 
 
 # (фронт)было бы неплохо если бы это выводилось красиво а не просто строка с кодом
@@ -125,10 +131,6 @@ class UserRepository:
 
         self.conn.commit()
 
-    def close_conn(self):
-        self.cur.close()
-        self.conn.close()
-
     def delete_user(self, user: User):
         self.cur.execute("DELETE FROM users WHERE email = %s", (user.email, ))
         self.conn.commit()
@@ -136,26 +138,28 @@ class UserRepository:
     def list_all(self, user: User):
         self.cur.execute("SELECT * FROM users")
         all_users = self.cur.fetchall()
-        self.close_conn()   #почекайте че как вообще
         return all_users
 
     def find_by_id(self, id: str):
         self.cur.execute("SELECT * FROM users WHERE id = %s", (id, ))
         id_result = self.cur.fetchall()
-        self.close_conn()
         return id_result
 
     def find_by_email(self, email: str):
         self.cur.execute("SELECT * FROM users WHERE email = %s", (email, ))
         email_result = self.cur.fetchall()
-        self.close_conn()
         return email_result
+
+    def close_conn(self):
+        self.cur.close()
+        self.conn.close()
+
 
 def main():
     user1 = User("Афелок", "Конченный",
                  "bogdanovmihail129@gmail.com", '9937222035')
     Repository = UserRepository()
-    Repository.delete_user(user1)
+    Repository.add_user(user1)
 
 
 if __name__ == "__main__":
