@@ -1,427 +1,505 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.1",
   "info": {
     "title": "clients.proto",
     "version": "version not set"
   },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
   "tags": [
     {
       "name": "Client"
     }
   ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
   "paths": {
     "/driver/{id}": {
       "get": {
+        "tags": [
+          "Client"
+        ],
         "operationId": "Client_GetDriverInfo",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/client_serviceDriver"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "tags": [
-          "Client"
-        ]
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/client_serviceDriver"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/driver/{id}/location": {
       "get": {
+        "tags": [
+          "Client"
+        ],
         "summary": "сведения о водителе",
         "operationId": "Client_GetDriverLocation",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/client_serviceLocation"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "tags": [
-          "Client"
-        ]
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/client_serviceLocation"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/ride/history": {
       "get": {
+        "tags": [
+          "Client"
+        ],
         "operationId": "Client_GetRideHistory",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/client_serviceRideHistoryResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
             "in": "query",
-            "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "tags": [
-          "Client"
-        ]
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/client_serviceRideHistoryResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/ride/request": {
       "post": {
+        "tags": [
+          "Client"
+        ],
         "summary": "операции с заказами",
         "operationId": "Client_RequestRide",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/client_serviceRideRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/client_serviceRide"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/client_serviceRide"
+                }
+              }
             }
           },
           "default": {
             "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/client_serviceRideRequest"
-            }
-          }
-        ],
-        "tags": [
-          "Client"
-        ]
+        "x-codegen-request-body-name": "body"
       }
     },
     "/ride/{id}": {
       "get": {
+        "tags": [
+          "Client"
+        ],
         "operationId": "Client_GetRideStatus",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/client_serviceRide"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "tags": [
-          "Client"
-        ]
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/client_serviceRide"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/ride/{id}/cancel": {
       "post": {
+        "tags": [
+          "Client"
+        ],
         "operationId": "Client_CancelRide",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/client_serviceStatusResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "tags": [
-          "Client"
-        ]
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/client_serviceStatusResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/user/profile": {
       "get": {
+        "tags": [
+          "Client"
+        ],
         "summary": "операции с пользовательским профилем",
         "operationId": "Client_GetUserProfile",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/client_serviceUser"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
         "parameters": [
           {
             "name": "token",
             "in": "query",
-            "required": false,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "tags": [
-          "Client"
-        ]
-      },
-      "put": {
-        "operationId": "Client_UpdateUserProfile",
         "responses": {
           "200": {
             "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/client_serviceUser"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/client_serviceUser"
+                }
+              }
             }
           },
           "default": {
             "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Client"
+        ],
+        "operationId": "Client_UpdateUserProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/client_serviceUpdateProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/client_serviceUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/client_serviceUpdateProfileRequest"
-            }
-          }
-        ],
-        "tags": [
-          "Client"
-        ]
+        "x-codegen-request-body-name": "body"
       }
     }
   },
-  "definitions": {
-    "client_serviceDriver": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "username": {
-          "type": "string"
-        },
-        "phone": {
-          "type": "string"
-        },
-        "carModel": {
-          "type": "string"
-        },
-        "location": {
-          "$ref": "#/definitions/client_serviceLocation"
-        }
-      }
-    },
-    "client_serviceLocation": {
-      "type": "object",
-      "properties": {
-        "latitude": {
-          "type": "number",
-          "format": "double"
-        },
-        "longitude": {
-          "type": "number",
-          "format": "double"
-        }
-      }
-    },
-    "client_serviceRide": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "userId": {
-          "type": "string"
-        },
-        "driverId": {
-          "type": "string"
-        },
-        "startLocation": {
-          "$ref": "#/definitions/client_serviceLocation"
-        },
-        "endLocation": {
-          "$ref": "#/definitions/client_serviceLocation"
-        },
-        "status": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
-    },
-    "client_serviceRideHistoryResponse": {
-      "type": "object",
-      "properties": {
-        "rides": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/client_serviceRide"
+  "components": {
+    "schemas": {
+      "client_serviceDriver": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "carModel": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/client_serviceLocation"
           }
         }
-      }
-    },
-    "client_serviceRideRequest": {
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string"
-        },
-        "startLocation": {
-          "$ref": "#/definitions/client_serviceLocation"
-        },
-        "endLocation": {
-          "$ref": "#/definitions/client_serviceLocation"
-        }
-      }
-    },
-    "client_serviceStatusResponse": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "boolean"
-        },
-        "message": {
-          "type": "string"
-        }
-      }
-    },
-    "client_serviceUpdateProfileRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "username": {
-          "type": "string"
-        },
-        "phone": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        }
-      }
-    },
-    "client_serviceUser": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "username": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "phone": {
-          "type": "string"
+      },
+      "client_serviceLocation": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          }
         }
       },
-      "title": "основные структуры"
-    },
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "@type": {
-          "type": "string"
+      "client_serviceRide": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "driverId": {
+            "type": "string"
+          },
+          "startLocation": {
+            "$ref": "#/components/schemas/client_serviceLocation"
+          },
+          "endLocation": {
+            "$ref": "#/components/schemas/client_serviceLocation"
+          },
+          "status": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "int64"
+          }
         }
       },
-      "additionalProperties": {}
-    },
-    "rpcStatus": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int32"
+      "client_serviceRideHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "rides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/client_serviceRide"
+            }
+          }
+        }
+      },
+      "client_serviceRideRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "startLocation": {
+            "$ref": "#/components/schemas/client_serviceLocation"
+          },
+          "endLocation": {
+            "$ref": "#/components/schemas/client_serviceLocation"
+          }
+        }
+      },
+      "client_serviceStatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "client_serviceUpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "client_serviceUser": {
+        "title": "основные структуры",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "protobufAny": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string"
+          }
         },
-        "message": {
-          "type": "string"
-        },
-        "details": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/protobufAny"
+        "additionalProperties": {
+          "type": "object"
+        }
+      },
+      "rpcStatus": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/protobufAny"
+            }
           }
         }
       }
     }
-  }
+  },
+  "x-original-swagger-version": "2.0"
 }

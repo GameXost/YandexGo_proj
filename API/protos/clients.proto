@@ -4,8 +4,6 @@ package client_service;
 
 
 option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protos";
-
-
 import "google/api/annotations.proto";
 
 

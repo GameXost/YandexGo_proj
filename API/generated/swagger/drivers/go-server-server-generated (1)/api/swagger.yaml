@@ -1,0 +1,419 @@
+openapi: 3.0.1
+info:
+  title: drivers.proto
+  version: version not set
+servers:
+- url: /
+tags:
+- name: Drivers
+paths:
+  /driver/current_ride/{id}:
+    get:
+      tags:
+      - Drivers
+      operationId: Drivers_GetCurrentRide
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/driver_serviceRide"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rpcStatus"
+  /driver/location:
+    post:
+      tags:
+      - Drivers
+      summary: операции с местоположением
+      operationId: Drivers_UpdateLocation
+      requestBody:
+        description: ' (streaming inputs)'
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/driver_serviceLocationUpdateRequest"
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/driver_serviceStatusResponse"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rpcStatus"
+      x-codegen-request-body-name: body
+  /driver/nearby_req:
+    get:
+      tags:
+      - Drivers
+      operationId: Drivers_GetNearbyRequests
+      parameters:
+      - name: latitude
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: number
+          format: double
+      - name: longitude
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: number
+          format: double
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/driver_serviceRideRequestsResponse"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rpcStatus"
+  /driver/profile:
+    get:
+      tags:
+      - Drivers
+      summary: операции с профилем водителя
+      operationId: Drivers_GetDriverProfile
+      parameters:
+      - name: token
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/driver_serviceDriver"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rpcStatus"
+    put:
+      tags:
+      - Drivers
+      operationId: Drivers_UpdateDriverProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/driver_serviceUpdateDriverProfileRequest"
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/driver_serviceDriver"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rpcStatus"
+      x-codegen-request-body-name: body
+  /ride/{id}/accept:
+    post:
+      tags:
+      - Drivers
+      summary: операции с заказами
+      operationId: Drivers_AcceptRide
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/driver_serviceStatusResponse"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rpcStatus"
+  /ride/{id}/cancel:
+    post:
+      tags:
+      - Drivers
+      operationId: Drivers_CancelRide
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/driver_serviceStatusResponse"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rpcStatus"
+  /ride/{id}/complete:
+    post:
+      tags:
+      - Drivers
+      operationId: Drivers_CompleteRide
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/driver_serviceStatusResponse"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rpcStatus"
+  /user/{id}:
+    get:
+      tags:
+      - Drivers
+      summary: сведения о пассажире
+      operationId: Drivers_GetPassengerInfo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/driver_serviceUser"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rpcStatus"
+components:
+  schemas:
+    driver_serviceDriver:
+      title: основные структуры
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        phone:
+          type: string
+        carModel:
+          type: string
+        location:
+          $ref: "#/components/schemas/driver_serviceLocation"
+        email:
+          type: string
+      example:
+        phone: phone
+        location:
+          latitude: 0.80082819046101150206595775671303272247314453125
+          longitude: 6.02745618307040320615897144307382404804229736328125
+        id: id
+        email: email
+        username: username
+        carModel: carModel
+    driver_serviceLocation:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+      example:
+        latitude: 0.80082819046101150206595775671303272247314453125
+        longitude: 6.02745618307040320615897144307382404804229736328125
+    driver_serviceLocationUpdateRequest:
+      type: object
+      properties:
+        driverId:
+          type: string
+        location:
+          $ref: "#/components/schemas/driver_serviceLocation"
+    driver_serviceRide:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        driverId:
+          type: string
+        startLocation:
+          $ref: "#/components/schemas/driver_serviceLocation"
+        endLocation:
+          $ref: "#/components/schemas/driver_serviceLocation"
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: int64
+      example:
+        driverId: driverId
+        startLocation:
+          latitude: 0.80082819046101150206595775671303272247314453125
+          longitude: 6.02745618307040320615897144307382404804229736328125
+        id: id
+        userId: userId
+        endLocation: null
+        status: status
+        timestamp: timestamp
+    driver_serviceRideRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+        startLocation:
+          $ref: "#/components/schemas/driver_serviceLocation"
+        endLocation:
+          $ref: "#/components/schemas/driver_serviceLocation"
+      example:
+        startLocation:
+          latitude: 0.80082819046101150206595775671303272247314453125
+          longitude: 6.02745618307040320615897144307382404804229736328125
+        userId: userId
+        endLocation: null
+    driver_serviceRideRequestsResponse:
+      type: object
+      properties:
+        rideRequests:
+          type: array
+          items:
+            $ref: "#/components/schemas/driver_serviceRideRequest"
+      example:
+        rideRequests:
+        - startLocation:
+            latitude: 0.80082819046101150206595775671303272247314453125
+            longitude: 6.02745618307040320615897144307382404804229736328125
+          userId: userId
+          endLocation: null
+        - startLocation:
+            latitude: 0.80082819046101150206595775671303272247314453125
+            longitude: 6.02745618307040320615897144307382404804229736328125
+          userId: userId
+          endLocation: null
+    driver_serviceStatusResponse:
+      type: object
+      properties:
+        status:
+          type: boolean
+        message:
+          type: string
+      example:
+        message: message
+        status: true
+    driver_serviceUpdateDriverProfileRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        phone:
+          type: string
+        carModel:
+          type: string
+        email:
+          type: string
+    driver_serviceUser:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        phone:
+          type: string
+      example:
+        phone: phone
+        id: id
+        username: username
+    protobufAny:
+      type: object
+      properties:
+        '@type':
+          type: string
+      additionalProperties:
+        type: object
+      x-schema-name: protobufAny
+    rpcStatus:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: "#/components/schemas/protobufAny"
+x-original-swagger-version: "2.0"
