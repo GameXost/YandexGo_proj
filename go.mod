@@ -1,4 +1,4 @@
-module github.com/GameXost/YandexGo_proj/tree/gRPCservice
+module github.com/GameXost/YandexGo_proj
 
 go 1.23.4
 

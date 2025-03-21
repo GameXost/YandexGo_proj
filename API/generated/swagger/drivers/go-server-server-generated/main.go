@@ -19,7 +19,7 @@ import (
 	//
 	//    sw "github.com/myname/myrepo/go"
 	//
-	sw "github.com/GameXost/YandexGo_proj/tree/gRPCservice"
+	sw "github.com/GameXost/YandexGo_proj"
 )
 
 func main() {
