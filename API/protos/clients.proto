@@ -14,20 +14,50 @@ service Client {
     // операции с пользовательским профилем
     rpc GetUserProfile(AuthToken) returns (User){
         option (google.api.http) = {
-            get: "/get/{token}"
+            get: "/user/profile"
           };
     }
-    rpc UpdateUserProfile(UpdateProfileRequest) returns (User){}
+    rpc UpdateUserProfile(UpdateProfileRequest) returns (User){
+        option (google.api.http) = {
+            put: "/user/profile"
+            body: "*"
+        };
+    }
 
     // операции с заказами
-    rpc RequestRide(RideRequest) returns (Ride){}
-    rpc CancelRide(RideIdRequest) returns (StatusResponse){}
-    rpc GetRideStatus(UserIdRequest) returns (Ride){}
-    rpc GetRideHistory(UserIdRequest) returns (RideHistoryResponse){}
+    rpc RequestRide(RideRequest) returns (Ride){
+        option (google.api.http) = {
+            post: "/ride/request"
+            body: "*"
+        };
+    }
+    rpc CancelRide(RideIdRequest) returns (StatusResponse){
+        option (google.api.http) ={
+            post: "/ride/{id}/cancel"
+        };
+    }
+    rpc GetRideStatus(UserIdRequest) returns (Ride){
+        option (google.api.http) = {
+            get: "/ride/{id}"
+        };
+    }
+    rpc GetRideHistory(UserIdRequest) returns (RideHistoryResponse){
+        option (google.api.http) = {
+            get: "/ride/history"
+        };
+    }
 
     // сведения о водителе
-    rpc GetDriverLocation(DriverIdRequest) returns (Location){}
-    rpc GetDriverInfo(DriverIdRequest) returns (Driver){}
+    rpc GetDriverLocation(DriverIdRequest) returns (Location){
+        option (google.api.http) = {
+            get: "/driver/{id}/location"
+        };
+    }
+    rpc GetDriverInfo(DriverIdRequest) returns (Driver){
+        option (google.api.http) = {
+            get: "/driver/{id}"
+        };
+    }
 
 }
 

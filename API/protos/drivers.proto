@@ -2,29 +2,66 @@ syntax ="proto3";
 
 package driver_service;
 
-option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/grpc_services/proto_files";
+option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protos";
 import "google/api/annotations.proto";
 
 
 
 service Drivers {
     // операции с профилем водителя
-    rpc GetDriverProfile(AuthToken) returns (Driver){}
-    rpc UpdateDriverProfile(UpdateDriverProfileRequest) returns (Driver){}
+    rpc GetDriverProfile(AuthToken) returns (Driver){
+        option (google.api.http) = {
+            get : "/driver/profile"
+        };
+    }
+    rpc UpdateDriverProfile(UpdateDriverProfileRequest) returns (Driver){
+        option (google.api.http) = {
+            put : "/driver/profile"
+            body: "*"
+        };
+    }
 
     // операции с заказами
-    rpc AcceptRide(RideIdRequest) returns (StatusResponse){}
-    rpc CompleteRide(RideIdRequest) returns (StatusResponse){}
-    rpc CancelRide(RideIdRequest) returns (StatusResponse){}
-    rpc GetCurrentRide(DriverIdRequest) returns (Ride){}
-    rpc GetRideHistory(DriverIdRequest) returns (RideHistoryResponse){}
+    rpc AcceptRide(RideIdRequest) returns (StatusResponse){
+        option (google.api.http) = {
+            post :  "/ride/{id}/accept"
+        };
+    }
+    rpc CompleteRide(RideIdRequest) returns (StatusResponse){
+        option (google.api.http) = {
+            post : "/ride/{id}/complete"
+        };
+    }
+    rpc CancelRide(RideIdRequest) returns (StatusResponse){
+        option (google.api.http) = {
+            post: "/ride/{id}/cancel"
+        };
+    }
+    rpc GetCurrentRide(DriverIdRequest) returns (Ride){
+        option (google.api.http) = {
+            get : "/driver/current_ride/{id}"
+        };
+    }
 
     // операции с местоположением
-    rpc UpdateLocation(stream LocationUpdateRequest) returns (StatusResponse){}
-    rpc GetNearbyRequests(Location) returns (RideRequestsResponse){}
+    rpc UpdateLocation(stream LocationUpdateRequest) returns (StatusResponse){
+        option (google.api.http) = {
+            post : "/driver/location"
+            body: "*"
+        };
+    }
+    rpc GetNearbyRequests(Location) returns (RideRequestsResponse){
+        option (google.api.http) = {
+            get : "/driver/nearby_req"
+        };
+    }
 
     // сведения о пассажире
-    rpc GetPassengerInfo(UserIdRequest) returns (User){}
+    rpc GetPassengerInfo(UserIdRequest) returns (User){
+        option (google.api.http) = {
+            get : "/user/{id}"
+        };
+    }
 }
 
 // основные структуры

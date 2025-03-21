@@ -15,7 +15,293 @@
   "produces": [
     "application/json"
   ],
-  "paths": {},
+  "paths": {
+    "/driver/current_ride/{id}": {
+      "get": {
+        "operationId": "Drivers_GetCurrentRide",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceRide"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Drivers"
+        ]
+      }
+    },
+    "/driver/location": {
+      "post": {
+        "summary": "операции с местоположением",
+        "operationId": "Drivers_UpdateLocation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": " (streaming inputs)",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/driver_serviceLocationUpdateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Drivers"
+        ]
+      }
+    },
+    "/driver/nearby_req": {
+      "get": {
+        "operationId": "Drivers_GetNearbyRequests",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceRideRequestsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "latitude",
+            "in": "query",
+            "required": false,
+            "type": "number",
+            "format": "double"
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "required": false,
+            "type": "number",
+            "format": "double"
+          }
+        ],
+        "tags": [
+          "Drivers"
+        ]
+      }
+    },
+    "/driver/profile": {
+      "get": {
+        "summary": "операции с профилем водителя",
+        "operationId": "Drivers_GetDriverProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceDriver"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Drivers"
+        ]
+      },
+      "put": {
+        "operationId": "Drivers_UpdateDriverProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceDriver"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/driver_serviceUpdateDriverProfileRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Drivers"
+        ]
+      }
+    },
+    "/ride/{id}/accept": {
+      "post": {
+        "summary": "операции с заказами",
+        "operationId": "Drivers_AcceptRide",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Drivers"
+        ]
+      }
+    },
+    "/ride/{id}/cancel": {
+      "post": {
+        "operationId": "Drivers_CancelRide",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Drivers"
+        ]
+      }
+    },
+    "/ride/{id}/complete": {
+      "post": {
+        "operationId": "Drivers_CompleteRide",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Drivers"
+        ]
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "summary": "сведения о пассажире",
+        "operationId": "Drivers_GetPassengerInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceUser"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Drivers"
+        ]
+      }
+    }
+  },
   "definitions": {
     "driver_serviceDriver": {
       "type": "object",
@@ -54,6 +340,17 @@
         }
       }
     },
+    "driver_serviceLocationUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "driverId": {
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/definitions/driver_serviceLocation"
+        }
+      }
+    },
     "driver_serviceRide": {
       "type": "object",
       "properties": {
@@ -78,18 +375,6 @@
         "timestamp": {
           "type": "string",
           "format": "int64"
-        }
-      }
-    },
-    "driver_serviceRideHistoryResponse": {
-      "type": "object",
-      "properties": {
-        "rides": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/driver_serviceRide"
-          }
         }
       }
     },
@@ -126,6 +411,26 @@
           "type": "boolean"
         },
         "message": {
+          "type": "string"
+        }
+      }
+    },
+    "driver_serviceUpdateDriverProfileRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "carModel": {
+          "type": "string"
+        },
+        "email": {
           "type": "string"
         }
       }

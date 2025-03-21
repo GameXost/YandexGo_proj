@@ -4,7 +4,7 @@
 // - protoc             v5.29.3
 // source: drivers.proto
 
-package proto_files
+package protos
 
 import (
 	context "context"
@@ -25,7 +25,6 @@ const (
 	Drivers_CompleteRide_FullMethodName        = "/driver_service.Drivers/CompleteRide"
 	Drivers_CancelRide_FullMethodName          = "/driver_service.Drivers/CancelRide"
 	Drivers_GetCurrentRide_FullMethodName      = "/driver_service.Drivers/GetCurrentRide"
-	Drivers_GetRideHistory_FullMethodName      = "/driver_service.Drivers/GetRideHistory"
 	Drivers_UpdateLocation_FullMethodName      = "/driver_service.Drivers/UpdateLocation"
 	Drivers_GetNearbyRequests_FullMethodName   = "/driver_service.Drivers/GetNearbyRequests"
 	Drivers_GetPassengerInfo_FullMethodName    = "/driver_service.Drivers/GetPassengerInfo"
@@ -43,7 +42,6 @@ type DriversClient interface {
 	CompleteRide(ctx context.Context, in *RideIdRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	CancelRide(ctx context.Context, in *RideIdRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	GetCurrentRide(ctx context.Context, in *DriverIdRequest, opts ...grpc.CallOption) (*Ride, error)
-	GetRideHistory(ctx context.Context, in *DriverIdRequest, opts ...grpc.CallOption) (*RideHistoryResponse, error)
 	// операции с местоположением
 	UpdateLocation(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[LocationUpdateRequest, StatusResponse], error)
 	GetNearbyRequests(ctx context.Context, in *Location, opts ...grpc.CallOption) (*RideRequestsResponse, error)
@@ -119,16 +117,6 @@ func (c *driversClient) GetCurrentRide(ctx context.Context, in *DriverIdRequest,
 	return out, nil
 }
 
-func (c *driversClient) GetRideHistory(ctx context.Context, in *DriverIdRequest, opts ...grpc.CallOption) (*RideHistoryResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RideHistoryResponse)
-	err := c.cc.Invoke(ctx, Drivers_GetRideHistory_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *driversClient) UpdateLocation(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[LocationUpdateRequest, StatusResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Drivers_ServiceDesc.Streams[0], Drivers_UpdateLocation_FullMethodName, cOpts...)
@@ -174,7 +162,6 @@ type DriversServer interface {
 	CompleteRide(context.Context, *RideIdRequest) (*StatusResponse, error)
 	CancelRide(context.Context, *RideIdRequest) (*StatusResponse, error)
 	GetCurrentRide(context.Context, *DriverIdRequest) (*Ride, error)
-	GetRideHistory(context.Context, *DriverIdRequest) (*RideHistoryResponse, error)
 	// операции с местоположением
 	UpdateLocation(grpc.ClientStreamingServer[LocationUpdateRequest, StatusResponse]) error
 	GetNearbyRequests(context.Context, *Location) (*RideRequestsResponse, error)
@@ -207,9 +194,6 @@ func (UnimplementedDriversServer) CancelRide(context.Context, *RideIdRequest) (*
 }
 func (UnimplementedDriversServer) GetCurrentRide(context.Context, *DriverIdRequest) (*Ride, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentRide not implemented")
-}
-func (UnimplementedDriversServer) GetRideHistory(context.Context, *DriverIdRequest) (*RideHistoryResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetRideHistory not implemented")
 }
 func (UnimplementedDriversServer) UpdateLocation(grpc.ClientStreamingServer[LocationUpdateRequest, StatusResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method UpdateLocation not implemented")
@@ -349,24 +333,6 @@ func _Drivers_GetCurrentRide_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Drivers_GetRideHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DriverIdRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(DriversServer).GetRideHistory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Drivers_GetRideHistory_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DriversServer).GetRideHistory(ctx, req.(*DriverIdRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Drivers_UpdateLocation_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(DriversServer).UpdateLocation(&grpc.GenericServerStream[LocationUpdateRequest, StatusResponse]{ServerStream: stream})
 }
@@ -440,10 +406,6 @@ var Drivers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCurrentRide",
 			Handler:    _Drivers_GetCurrentRide_Handler,
-		},
-		{
-			MethodName: "GetRideHistory",
-			Handler:    _Drivers_GetRideHistory_Handler,
 		},
 		{
 			MethodName: "GetNearbyRequests",
