@@ -125,22 +125,31 @@ class UserRepository:
 
         self.conn.commit()
 
+    def close_conn(self):
+        self.cur.close()
+        self.conn.close()
+
     def delete_user(self, user: User):
         self.cur.execute("DELETE FROM users WHERE email = %s", (user.email, ))
         self.conn.commit()
 
     def list_all(self, user: User):
         self.cur.execute("SELECT * FROM users")
-        users = self.cur.fetchall()
-        return users
+        all_users = self.cur.fetchall()
+        self.close_conn()   #почекайте че как вообще
+        return all_users
 
     def find_by_id(self, id: str):
         self.cur.execute("SELECT * FROM users WHERE id = %s", (id, ))
+        id_result = self.cur.fetchall()
+        self.close_conn()
+        return id_result
 
-    def close_conn(self):
-        self.cur.close()
-        self.conn.close()
-
+    def find_by_email(self, email: str):
+        self.cur.execute("SELECT * FROM users WHERE email = %s", (email, ))
+        email_result = self.cur.fetchall()
+        self.close_conn()
+        return email_result
 
 def main():
     user1 = User("Афелок", "Конченный",
