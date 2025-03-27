@@ -1,4 +1,4 @@
-module github.com/GameXost/YandexGo_proj
+module github.com/GameXost/YandexGo_proj/USERS
 
 go 1.23.4
 
