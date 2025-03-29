@@ -66,6 +66,8 @@ class User(BaseModel):
         str_strip_whitespace = True
 
 # (фронт)было бы неплохо если бы это выводилось красиво а не просто строка с кодом
+
+
 class EmailValidator:
     def __init__(self, reciever: str):
         self.sender = "email_sender89@mail.ru"
@@ -165,6 +167,7 @@ class UserRepository:
 
 def get_repository():
     return UserRepository()
+
 
 class Server():
     @app.post('/users/')
