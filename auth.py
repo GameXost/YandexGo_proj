@@ -1,58 +1,65 @@
+from email_validator import validate_email, EmailNotValidError
 import secrets
 import uuid
 import string
-import email_validator
 import smtplib
 import psycopg2
+from pydantic import BaseModel, field_validator, model_validator, Field
 
+class User(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    first_name: str
+    last_name: str
+    email: str
+    phone_number: str
 
-class User:
-    def __init__(self, first_name: str, last_name: str, email: str, phone_number: str):
-        self.id = self.generate_id()
-        self.first_name = first_name.strip()
-        self.last_name = last_name.strip()
-        self.email = email.strip()
-        self.phone_number = phone_number.strip()  # без +7
-        self.validate_name(self.first_name, 'Имя')
-        self.validate_name(self.last_name, 'Фамилия')
-        self.validate_email()
-        self.validate_phone_number()
-        self.email_in_base(self.email)
+    @field_validator('first_name', 'last_name', mode='before')
+    @classmethod
+    def clean_and_validate_name(cls, value: str, info):
+        field_name = info.field_name
+        value = value.strip()
 
-    def validate_name(self, name: str, field_name: str):
-        if not name:
-            raise NameError(f"{field_name} не может быть пустым")
-        if not name.isalpha():
-            raise NameError(
-                f"{field_name} должно содержать только буквы")
+        if not value:
+            raise ValueError(f"{field_name} не может быть пустым")
+        if not value.isalpha():
+            raise ValueError(f"{field_name} должно содержать только буквы")
 
-    def generate_id(self):
-        return str(uuid.uuid4())
+        return value
 
-    def validate_email(self):
+    @field_validator('email')
+    @classmethod
+    def validate_and_normalize_email(cls, v: str) -> str:
         try:
-            validated_email = email_validator.validate_email(
-                self.email, check_deliverability=True)
-            self.email = validated_email.email
-        except email_validator.EmailNotValidError:
-            raise email_validator.EmailNotValidError(
-                f"Недействительный email")
+            validated = validate_email(v, check_deliverability=True)
+            return validated.email
+        except EmailNotValidError as e:
+            raise ValueError("Недействительный email") from e
 
-    def validate_phone_number(self):
-        if len(self.phone_number) != 10:
-            raise NameError("Неверный формат телефона")
+    @field_validator('phone_number')
+    @classmethod
+    def validate_phone(cls, v: str) -> str:
+        v = v.strip()
+        if len(v) != 10 or not v.isdigit():
+            raise ValueError("Неверный формат телефона")
+        return v
 
-    def verificate_email(self, user_code: str):
-        emailvalidator = EmailValidator(self.email)
-        emailvalidator.send_verification_email()
-        if not emailvalidator.compare_codes(user_code=user_code):
-            raise KeyError("Неверный код")
+    @model_validator(mode='after')
+    def check_email_uniqueness(self):
+        repo = UserRepository()
+        if repo.find_by_email(self.email):
+            raise ValueError("Такой пользователь уже существует")
+        return self
 
-    def email_in_base(self, email: str):
-        Rep = UserRepository()
-        if not (Rep.find_by_email == []):
-            raise KeyError("Такой пользователь уже существует")
+    def verificate_email(self):
+        user_code=input()#точка входа
+        email_validator = EmailValidator(self.email)
+        email_validator.send_verification_email()
+        if not email_validator.compare_codes(user_code=user_code):
+            raise ValueError("Неверный код")
 
+    class Config:
+        frozen = True
+        str_strip_whitespace = True
 
 # (фронт)было бы неплохо если бы это выводилось красиво а не просто строка с кодом
 class EmailValidator:
@@ -154,12 +161,12 @@ class UserRepository:
         self.cur.close()
         self.conn.close()
 
+class Server:
+    ...
 
 def main():
-    user1 = User("Афелок", "Конченный",
-                 "bogdanovmihail129@gmail.com", '9937222035')
-    Repository = UserRepository()
-    Repository.add_user(user1)
+    user=User(first_name="ssdsd",last_name="sdsds",email='bogdanovmihail129.2.0@gmail.com',phone_number='9937222035')
+    user.verificate_email(1223)
 
 
 if __name__ == "__main__":
