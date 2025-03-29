@@ -1,10 +1,14 @@
-from email_validator import validate_email, EmailNotValidError
 import secrets
 import uuid
 import string
 import smtplib
 import psycopg2
+import uvicorn
 from pydantic import BaseModel, field_validator, model_validator, Field
+from email_validator import validate_email, EmailNotValidError
+from fastapi import FastAPI, HTTPException, Depends
+app = FastAPI()
+
 
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -51,7 +55,7 @@ class User(BaseModel):
         return self
 
     def verificate_email(self):
-        user_code=input()#точка входа
+        user_code = input()  # точка входа
         email_validator = EmailValidator(self.email)
         email_validator.send_verification_email()
         if not email_validator.compare_codes(user_code=user_code):
@@ -109,7 +113,7 @@ class UserRepository:
     def create_users_table(self):
         query = """
         CREATE TABLE users (
-        id VARCHAR(16) NOT NULL, 
+        id VARCHAR(50) NOT NULL, 
         first_name VARCHAR(50) NOT NULL, 
         last_name VARCHAR(50) NOT NULL, 
         email VARCHAR(50) NOT NULL, 
@@ -119,10 +123,7 @@ class UserRepository:
 
     def add_user(self, user: User):
         # sql req
-        query = """
-               INSERT INTO users (id, first_name, last_name, email, phone_number)
-               VALUES (%s, %s, %s, %s, %s::jsonb);
-               """
+        query = """INSERT INTO users (id, first_name, last_name, email, phone_number)VALUES (%s, %s, %s, %s, %s)"""
 
         user_data = {
             "id": user.id,
@@ -161,13 +162,24 @@ class UserRepository:
         self.cur.close()
         self.conn.close()
 
-class Server:
-    ...
+
+def get_repository():
+    return UserRepository()
+
+class Server():
+    @app.post('/users/')
+    def add_user(user: User, Repository: UserRepository = Depends(get_repository)):
+        try:
+            Repository.add_user(user)
+            return {"status": "success"}
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
 
 def main():
-    user=User(first_name="ssdsd",last_name="sdsds",email='bogdanovmihail129.2.0@gmail.com',phone_number='9937222035')
-    user.verificate_email(1223)
+    ...
 
 
 if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)
     main()
