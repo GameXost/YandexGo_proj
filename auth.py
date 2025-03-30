@@ -4,10 +4,15 @@ import string
 import smtplib
 import psycopg2
 import uvicorn
+import redis
 from pydantic import BaseModel, field_validator, model_validator, Field
 from email_validator import validate_email, EmailNotValidError
 from fastapi import FastAPI, HTTPException, Depends
 app = FastAPI()
+REDIS_HOST = "localhost"
+REDIS_PORT = 6379
+REDIS_DB = 0
+CODE_TTL = 600
 
 
 class User(BaseModel):
@@ -54,12 +59,15 @@ class User(BaseModel):
             raise ValueError("Такой пользователь уже существует")
         return self
 
-    def verificate_email(self):
-        user_code = input()  # точка входа
-        email_validator = EmailValidator(self.email)
-        email_validator.send_verification_email()
-        if not email_validator.compare_codes(user_code=user_code):
-            raise ValueError("Неверный код")
+    def jsonify_user(self):
+        user_data = {
+            "id": self.id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "phone_number": self.phone_number
+        }
+        return user_data
 
     class Config:
         frozen = True
@@ -100,7 +108,6 @@ class EmailValidator:
 
 class UserRepository:
     def __init__(self):
-        # conn to pg
         self.conn = psycopg2.connect(
             dbname="users",
             user="test",
@@ -108,8 +115,6 @@ class UserRepository:
             host="localhost",
             port="5432"
         )
-
-        # cursor 4 req
         self.cur = self.conn.cursor()
 
     def create_users_table(self):
@@ -127,13 +132,7 @@ class UserRepository:
         # sql req
         query = """INSERT INTO users (id, first_name, last_name, email, phone_number)VALUES (%s, %s, %s, %s, %s)"""
 
-        user_data = {
-            "id": user.id,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "phone_number": user.phone_number
-        }
+        user_data = user.jsonify_user()
 
         self.cur.execute(query, (user_data["id"], user_data["first_name"],
                                  user_data["last_name"], user_data["email"],
@@ -169,12 +168,63 @@ def get_repository():
     return UserRepository()
 
 
+class UserCreateRequest(User):
+    verification_code: str
+
+
+def get_redis_client():
+    return redis.Redis(
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        db=REDIS_DB,
+        decode_responses=True
+    )
+
+
 class Server():
-    @app.post('/users/')
-    def add_user(user: User, Repository: UserRepository = Depends(get_repository)):
+    def __init__(self):
+        self.ip = '95.163.222.30'
+        self.port = '8080'
+
+    @app.post("/users/send_verification_code")
+    def send_verification_code(user: User, redis_client: redis.Redis = Depends(get_redis_client)):
         try:
-            Repository.add_user(user)
-            return {"status": "success"}
+            email_validator = EmailValidator(user.email)
+            email_validator.send_verification_email()
+            redis_client.setex(
+                name=f"verification:{user.email}",
+                time=CODE_TTL,
+                value=email_validator.verification_code
+            )
+            return {"status": "Code sent"}
+
+        except redis.RedisError as e:
+            raise HTTPException(500, detail=f"Redis error: {str(e)}")
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+    @app.post("/users/add")
+    def add_user(request: UserCreateRequest, redis_client: redis.Redis = Depends(get_redis_client), repository: UserRepository = Depends(UserRepository)):
+        try:
+            stored_code = redis_client.get(f"verification:{request.email}")
+            if not stored_code:
+                raise HTTPException(400, detail="Verification code expired or not requested")
+            if stored_code != request.verification_code:
+                raise HTTPException(403, detail="Invalid verification code")
+            redis_client.delete(f"verification:{request.email}")
+            user = User(**request.dict(exclude={"verification_code"}))
+            repository.add_user(user)
+            return {"status": "User created successfully"}
+        except redis.RedisError as e:
+            raise HTTPException(500, detail=f"Redis error: {str(e)}")
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+    @app.post("/users/delete")
+    def delete_user(user: User, repository: UserRepository = Depends(UserRepository)):
+        try:
+            repository.delete_user(user)
+            return {"status": "User deleted successfully"}
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
