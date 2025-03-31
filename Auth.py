@@ -182,10 +182,10 @@ class DriverCreateRequest(Driver):
 
 # (фронт)было бы неплохо если бы это выводилось красиво а не просто строка с кодом
 class EmailValidator:
-    def __init__(self, reciever: str):
+    def __init__(self, receiver: str):
         self.sender = "email_sender89@mail.ru"
         self.password = "kfgcuQSTttK10Bymbs8B"
-        self.reciever = reciever
+        self.receiver = receiver
         self.verification_code = self.verification_code_generator()
 
     def verification_code_generator(self):
@@ -197,8 +197,8 @@ class EmailValidator:
             server = smtplib.SMTP("smtp.mail.ru", 587)
             server.starttls()
             server.login(self.sender, self.password)
-            message = f"Subject: Verification code\nFrom: {self.sender}\nTo: {self.reciever}\n\nThis is your verification code:{self.verification_code}"
-            server.sendmail(self.sender, self.reciever, message)
+            message = f"Subject: Verification code\nFrom: {self.sender}\nTo: {self.receiver}\n\nThis is your verification code:{self.verification_code}"
+            server.sendmail(self.sender, self.receiver, message)
         except Exception as e:
             print(f"Ошибка при отправке: {str(e)}")
         finally:
