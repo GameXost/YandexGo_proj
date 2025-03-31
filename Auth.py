@@ -214,7 +214,7 @@ class EmailValidator:
 class UsersRepository:
     def __init__(self):
         self.conn = psycopg2.connect(
-            dbname="Users_info",
+            dbname="users_info",
             user="test",
             password="0000",
             host="localhost",
@@ -272,7 +272,7 @@ class UsersRepository:
 class DriversRepository:
     def __init__(self):
         self.conn = psycopg2.connect(
-            dbname="Users_info",
+            dbname="users_info",
             user="test",
             password="0000",
             host="localhost",
