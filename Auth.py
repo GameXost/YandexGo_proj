@@ -160,8 +160,8 @@ class DriverCreateRequest(Driver):
 
 class EmailValidator:
     def __init__(self, receiver: str):
-        self.sender = "email_sender89@mail.ru"
-        self.password = "kfgcuQSTttK10Bymbs8B"
+        self.sender = "master.pro3425@gmail.com"
+        self.password = "rquxeknmobwjctdz"
         self.receiver = receiver
         self.verification_code = self.verification_code_generator()
 
@@ -171,7 +171,7 @@ class EmailValidator:
 
     def send_verification_email(self):
         try:
-            server = smtplib.SMTP("smtp.mail.ru", 587)
+            server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
             server.starttls()
             server.login(self.sender, self.password)
             message = f"Subject: Verification code\nFrom: {self.sender}\nTo: {self.receiver}\n\nThis is your verification code:{self.verification_code}"
