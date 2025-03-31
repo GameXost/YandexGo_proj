@@ -3,13 +3,11 @@ import uuid
 import string
 import smtplib
 import psycopg2
-import uvicorn
 import redis
 from pydantic import BaseModel, field_validator, model_validator, Field
 from email_validator import validate_email, EmailNotValidError
-from fastapi import FastAPI, HTTPException, Depends
 from datetime import date
-app = FastAPI()
+
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 REDIS_DB = 0
@@ -67,14 +65,13 @@ class User(BaseModel):
             return self
 
     def jsonify_user(self):
-        user_data = {
+        return {
             "id": self.id,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "email": self.email,
             "phone_number": self.phone_number
         }
-        return user_data
 
     class Config:
         frozen = True
@@ -82,12 +79,12 @@ class User(BaseModel):
 
 
 class Driver(User):
-    driver_license: str  # 11111111111
-    driver_license_date: date  # 12-05-2022
-    car_number: str  # A777AA77
-    car_model: str  # McLaren
-    car_marks: str  # 650S
-    car_color: str  # Черный
+    driver_license: str
+    driver_license_date: date
+    car_number: str
+    car_model: str
+    car_marks: str
+    car_color: str
     level_access: int = 2
 
     @field_validator('driver_license', mode='after')
@@ -119,32 +116,14 @@ class Driver(User):
     @field_validator('car_color', mode='after')
     @classmethod
     def validate_car_color(cls, value):
-        if value not in [
-            "Белый",
-            "Чёрный",
-            "Красный",
-            "Синий",
-            "Зелёный",
-            "Серый",
-            "Серебристый",
-            "Бежевый",
-            "Коричневый",
-            "Жёлтый",
-            "Оранжевый",
-            "Бордовый",
-            "Фиолетовый",
-            "Бирюзовый",
-            "Золотой",
-            "Розовый",
-            "Хамелеон",
-            "Охра",
-            "Голубой",
-            "Шоколадный",
-            "Коралловый",
-            "Антрацитовый",
-            "Индиго",
-            "Кармин"
-        ]:
+        allowed_colors = [
+            "Белый", "Чёрный", "Красный", "Синий", "Зелёный", "Серый",
+            "Серебристый", "Бежевый", "Коричневый", "Жёлтый", "Оранжевый",
+            "Бордовый", "Фиолетовый", "Бирюзовый", "Золотой", "Розовый",
+            "Хамелеон", "Охра", "Голубой", "Шоколадный", "Коралловый",
+            "Антрацитовый", "Индиго", "Кармин"
+        ]
+        if value not in allowed_colors:
             raise ValueError("Неверный формат цвета машины")
         return value
 
@@ -156,7 +135,7 @@ class Driver(User):
         return self
 
     def jsonify_driver(self):
-        driver_data = {
+        return {
             "id": self.id,
             "first_name": self.first_name,
             "last_name": self.last_name,
@@ -169,7 +148,6 @@ class Driver(User):
             "car_number": self.car_number,
             "car_color": self.car_color
         }
-        return driver_data
 
 
 class UserCreateRequest(User):
@@ -180,7 +158,6 @@ class DriverCreateRequest(Driver):
     verification_code: str
 
 
-# (фронт)было бы неплохо если бы это выводилось красиво а не просто строка с кодом
 class EmailValidator:
     def __init__(self, receiver: str):
         self.sender = "email_sender89@mail.ru"
@@ -234,51 +211,41 @@ class UsersRepository:
         """
 
     def add_user(self, user: User):
-        # sql req
-        query = """INSERT INTO users (id, first_name, last_name, email, phone_number)VALUES (%s, %s, %s, %s, %s)"""
-
+        query = """INSERT INTO users (id, first_name, last_name, email, phone_number) VALUES (%s, %s, %s, %s, %s)"""
         driver_data = user.jsonify_user()
-
-        self.cur.execute(query, (driver_data["id"], driver_data["first_name"],
-                                 driver_data["last_name"], driver_data["email"],
-                                 driver_data["phone_number"]))
-
+        self.cur.execute(query, (
+            driver_data["id"],
+            driver_data["first_name"],
+            driver_data["last_name"],
+            driver_data["email"],
+            driver_data["phone_number"]
+        ))
         self.conn.commit()
 
     def delete_user(self, user: User):
-        self.cur.execute("DELETE FROM users WHERE email = %s", (user.email, ))
+        self.cur.execute("DELETE FROM users WHERE email = %s", (user.email,))
         self.conn.commit()
 
-    def list_all(self, user: User):
+    def list_all(self):
         self.cur.execute("SELECT * FROM users")
-        all_users = self.cur.fetchall()
-        return all_users
+        return self.cur.fetchall()
 
     def find_by_id(self, id: str):
-        self.cur.execute("SELECT * FROM users WHERE id = %s", (id, ))
-        id_result = self.cur.fetchall()
-        return id_result
+        self.cur.execute("SELECT * FROM users WHERE id = %s", (id,))
+        return self.cur.fetchall()
 
     def find_by_email(self, email: str):
-        self.cur.execute("SELECT * FROM users WHERE email = %s", (email, ))
-        email_result = self.cur.fetchall()
-        return email_result
+        self.cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+        return self.cur.fetchall()
 
     def close_conn(self):
         self.cur.close()
         self.conn.close()
 
 
-class DriversRepository:
+class DriversRepository(UsersRepository):
     def __init__(self):
-        self.conn = psycopg2.connect(
-            dbname="users_info",
-            user="test",
-            password="0000",
-            host="localhost",
-            port="5432"
-        )
-        self.cur = self.conn.cursor()
+        super().__init__()
 
     def create_drivers_table(self):
         query = """
@@ -289,7 +256,7 @@ class DriversRepository:
         email VARCHAR(50) NOT NULL, 
         phone_number VARCHAR(10) NOT NULL,
         driver_license VARCHAR(10) NOT NULL,
-        driver_license_date VARCHAR(10) NOT NULL,
+        driver_license_date DATE NOT NULL,
         car_number VARCHAR(10) NOT NULL,
         car_model VARCHAR(20) NOT NULL,
         car_marks VARCHAR(20) NOT NULL,
@@ -299,165 +266,39 @@ class DriversRepository:
 
     def validate_car(self, model: str, marks: str):
         self.cur.execute(
-            "SELECT * FROM cars WHERE model = %s AND marks = %s", (model, marks))
-        result = self.cur.fetchall()
-        return result
+            "SELECT * FROM cars WHERE model = %s AND marks = %s",
+            (model, marks)
+        )
+        return self.cur.fetchall()
 
     def add_driver(self, dr: Driver):
-        query = """INSERT INTO drivers (id, first_name, last_name, email, phone_number, driver_license, driver_license_date, car_number, car_model, car_marks, car_color)VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-
+        query = """INSERT INTO drivers (id, first_name, last_name, email, phone_number, 
+                  driver_license, driver_license_date, car_number, car_model, car_marks, car_color)
+                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         driver_data = dr.jsonify_driver()
-
-        self.cur.execute(query, (driver_data["id"], driver_data["first_name"],
-                                 driver_data["last_name"], driver_data["email"],
-                                 driver_data["phone_number"], driver_data["driver_license"],
-                                 driver_data['driver_license_date'], driver_data['car_number'],
-                                 driver_data['car_model'], driver_data['car_marks'],
-                                 driver_data['car_color']))
-
+        self.cur.execute(query, (
+            driver_data["id"],
+            driver_data["first_name"],
+            driver_data["last_name"],
+            driver_data["email"],
+            driver_data["phone_number"],
+            driver_data["driver_license"],
+            driver_data['driver_license_date'],
+            driver_data['car_number'],
+            driver_data['car_model'],
+            driver_data['car_marks'],
+            driver_data['car_color']
+        ))
         self.conn.commit()
 
     def delete_driver(self, dr: Driver):
-        self.cur.execute("DELETE FROM drivers WHERE email = %s", (dr.email, ))
+        self.cur.execute("DELETE FROM drivers WHERE email = %s", (dr.email,))
         self.conn.commit()
 
-    def list_all(self, dr: Driver):
+    def list_all_drivers(self):
         self.cur.execute("SELECT * FROM drivers")
-        all_drivers = self.cur.fetchall()
-        return all_drivers
+        return self.cur.fetchall()
 
-    def find_by_id(self, id: str):
-        self.cur.execute("SELECT * FROM drivers WHERE id = %s", (id, ))
-        id_result = self.cur.fetchall()
-        return id_result
-
-    def find_by_email(self, email: str):
-        self.cur.execute("SELECT * FROM drivers WHERE email = %s", (email, ))
-        email_result = self.cur.fetchall()
-        return email_result
-
-    def close_conn(self):
-        self.cur.close()
-        self.conn.close()
-
-
-def get_repository():
-    return UsersRepository()
-
-
-def get_redis_client():
-    return redis.Redis(
-        host=REDIS_HOST,
-        port=REDIS_PORT,
-        db=REDIS_DB,
-        decode_responses=True
-    )
-
-
-class Users_auth_server():
-    def __init__(self):
-        self.ip = '95.163.222.30'
-        self.port = '8080'
-
-    @app.post("/users/send_email_verification_code", summary='Отправить код верификации', tags=['User_auth'])
-    def send_email_verification_code(user: User, redis_client: redis.Redis = Depends(get_redis_client)):
-        try:
-            email_validator = EmailValidator(user.email)
-            email_validator.send_verification_email()
-            redis_client.setex(
-                name=f"verification:{user.email}",
-                time=CODE_TTL,
-                value=email_validator.verification_code
-            )
-            return {"status": "Code sent"}
-
-        except redis.RedisError as e:
-            raise HTTPException(500, detail=f"Redis error: {str(e)}")
-        except Exception as e:
-            raise HTTPException(500, detail=str(e))
-
-    @app.post("/users/add", summary='Добавить пользователя в базу', tags=['User_auth'])
-    def add_user(request: UserCreateRequest, redis_client: redis.Redis = Depends(get_redis_client), repository: UsersRepository = Depends(UsersRepository)):
-        try:
-            stored_code = redis_client.get(f"verification:{request.email}")
-            if not stored_code:
-                raise HTTPException(
-                    400, detail="Verification code expired or not requested")
-            if stored_code != request.verification_code:
-                raise HTTPException(403, detail="Invalid verification code")
-            redis_client.delete(f"verification:{request.email}")
-            user = User(**request.dict(exclude={"verification_code"}))
-            user.check_email_uniqueness()
-            repository.add_user(user)
-            return {"status": "User created successfully"}
-        except redis.RedisError as e:
-            raise HTTPException(500, detail=f"Redis error: {str(e)}")
-        except Exception as e:
-            raise HTTPException(500, detail=str(e))
-
-    @app.post("/users/delete", summary='Удалить пользователя из базы', tags=['User_auth'])
-    def delete_user(user: User, repository: UsersRepository = Depends(UsersRepository)):
-        try:
-            repository.delete_user(user)
-            return {"status": "User deleted successfully"}
-        except Exception as e:
-            raise HTTPException(500, detail=str(e))
-
-
-class Drivers_auth_server():
-    def __init__(self):
-        self.ip = '95.163.222.30'
-        self.port = '8080'
-
-    @app.post("/drivers/send_email_verification_code", summary='Отправить код верификации', tags=['Driver_auth'])
-    def send_email_verification_code(dr: Driver, redis_client: redis.Redis = Depends(get_redis_client)):
-        try:
-            email_validator = EmailValidator(dr.email)
-            email_validator.send_verification_email()
-            redis_client.setex(
-                name=f"verification:{dr.email}",
-                time=CODE_TTL,
-                value=email_validator.verification_code
-            )
-            return {"status": "Code sent"}
-
-        except redis.RedisError as e:
-            raise HTTPException(500, detail=f"Redis error: {str(e)}")
-        except Exception as e:
-            raise HTTPException(500, detail=str(e))
-
-    @app.post("/drivers/add", summary='Добавить водителя в базу', tags=['Driver_auth'])
-    def add_driver(request: DriverCreateRequest, redis_client: redis.Redis = Depends(get_redis_client), repository: DriversRepository = Depends(DriversRepository)):
-        try:
-            stored_code = redis_client.get(f"verification:{request.email}")
-            if not stored_code:
-                raise HTTPException(
-                    400, detail="Verification code expired or not requested")
-            if stored_code != request.verification_code:
-                raise HTTPException(403, detail="Invalid verification code")
-            redis_client.delete(f"verification:{request.email}")
-            driver = Driver(**request.dict(exclude={"verification_code"}))
-            driver.check_email_uniqueness()
-            repository.add_driver(driver)
-            return {"status": "Driver created successfully"}
-        except redis.RedisError as e:
-            raise HTTPException(500, detail=f"Redis error: {str(e)}")
-        except Exception as e:
-            raise HTTPException(500, detail=str(e))
-
-    @app.post("/drivers/delete", summary='Удалить водителя из базы', tags=['Driver_auth'])
-    def delete_user(dr: Driver, repository: DriversRepository = Depends(DriversRepository)):
-        try:
-            repository.delete_dri(dr)
-            return {"status": "Driver deleted successfully"}
-        except Exception as e:
-            raise HTTPException(500, detail=str(e))
-
-
-def main():
-    ...
-
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
-    main()
+    def find_driver_by_email(self, email: str):
+        self.cur.execute("SELECT * FROM drivers WHERE email = %s", (email,))
+        return self.cur.fetchall()
