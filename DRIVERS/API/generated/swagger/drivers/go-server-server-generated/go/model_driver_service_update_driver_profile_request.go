@@ -9,7 +9,6 @@
 package swagger
 
 type DriverServiceUpdateDriverProfileRequest struct {
-
 	Id string `json:"id,omitempty"`
 
 	Username string `json:"username,omitempty"`
@@ -19,4 +18,8 @@ type DriverServiceUpdateDriverProfileRequest struct {
 	CarModel string `json:"carModel,omitempty"`
 
 	Email string `json:"email,omitempty"`
+
+	CarColor string `json:"carColor,omitempty"`
+
+	CarMark string `json:"carMark,omitempty"`
 }

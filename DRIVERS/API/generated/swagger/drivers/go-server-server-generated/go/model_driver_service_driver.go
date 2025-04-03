@@ -9,7 +9,6 @@
 package swagger
 
 type DriverServiceDriver struct {
-
 	Id string `json:"id,omitempty"`
 
 	Username string `json:"username,omitempty"`
@@ -21,4 +20,8 @@ type DriverServiceDriver struct {
 	Location *DriverServiceLocation `json:"location,omitempty"`
 
 	Email string `json:"email,omitempty"`
+
+	CarColor string `json:"carColor,omitempty"`
+
+	CarMark string `json:"carMark,omitempty"`
 }

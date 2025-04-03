@@ -1,14 +1,18 @@
-FROM golang:1.10 AS build
-WORKDIR /go/src
-COPY go ./go
-COPY main.go .
 
-ENV CGO_ENABLED=0
-RUN go get -d -v ./...
+FROM golang:1.23.4 AS build
 
-RUN go build -a -installsuffix cgo -o swagger .
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
 
-FROM scratch AS runtime
-COPY --from=build /go/src/swagger ./
-EXPOSE 8080/tcp
+COPY . .
+WORKDIR /app/API/generated/swagger/drivers/go-server-server-generated
+# Собираем статически слинкованный бинарник
+RUN CGO_ENABLED=0 go build -a -installsuffix cgo -o swagger .
+
+FROM alpine:latest
+WORKDIR /root/
+# Копируем только скомпилированный бинарный файл
+COPY --from=build /app/API/generated/swagger/drivers/go-server-server-generated/swagger .
+EXPOSE 8081
 ENTRYPOINT ["./swagger"]

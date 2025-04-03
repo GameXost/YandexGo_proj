@@ -233,8 +233,8 @@ components:
       example:
         phone: phone
         location:
-          latitude: 0.80082819046101150206595775671303272247314453125
-          longitude: 6.02745618307040320615897144307382404804229736328125
+          latitude: 0.8008281904610115
+          longitude: 6.027456183070403
         id: id
         username: username
         carModel: carModel
@@ -248,8 +248,8 @@ components:
           type: number
           format: double
       example:
-        latitude: 0.80082819046101150206595775671303272247314453125
-        longitude: 6.02745618307040320615897144307382404804229736328125
+        latitude: 0.8008281904610115
+        longitude: 6.027456183070403
     client_serviceRide:
       type: object
       properties:
@@ -271,8 +271,8 @@ components:
       example:
         driverId: driverId
         startLocation:
-          latitude: 0.80082819046101150206595775671303272247314453125
-          longitude: 6.02745618307040320615897144307382404804229736328125
+          latitude: 0.8008281904610115
+          longitude: 6.027456183070403
         id: id
         userId: userId
         endLocation: null
@@ -289,8 +289,8 @@ components:
         rides:
         - driverId: driverId
           startLocation:
-            latitude: 0.80082819046101150206595775671303272247314453125
-            longitude: 6.02745618307040320615897144307382404804229736328125
+            latitude: 0.8008281904610115
+            longitude: 6.027456183070403
           id: id
           userId: userId
           endLocation: null
@@ -298,8 +298,8 @@ components:
           timestamp: timestamp
         - driverId: driverId
           startLocation:
-            latitude: 0.80082819046101150206595775671303272247314453125
-            longitude: 6.02745618307040320615897144307382404804229736328125
+            latitude: 0.8008281904610115
+            longitude: 6.027456183070403
           id: id
           userId: userId
           endLocation: null

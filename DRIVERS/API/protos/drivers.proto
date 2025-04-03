@@ -72,6 +72,10 @@ message Driver {
     string car_model = 4;
     Location location = 5;
     string email = 6;
+    // туту хуйня еще
+    string car_color = 7;
+    string car_mark = 8;
+    string car_number = 9;
 }
 
 message User {
@@ -106,6 +110,8 @@ message UpdateDriverProfileRequest {
     string phone = 3;
     string car_model = 4;
     string email = 5;
+    string car_color = 7;
+    string car_mark = 8;
 }
 
 message RideIdRequest {

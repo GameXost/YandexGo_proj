@@ -9,9 +9,20 @@
 package main
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/models"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/stats"
+	"google.golang.org/grpc/status"
 	"log"
 	"net/http"
-
+	"os"
 	// WARNING!
 	// Change this to a fully-qualified import path
 	// once you place this file into your project.
@@ -22,10 +33,107 @@ import (
 	sw "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/swagger/drivers/go-server-server-generated/go"
 )
 
+type UnimplementedDriversServer struct{}
+
+type DriverServer struct {
+	pb.UnimplementedDriversServer
+	db *pgxpool.Pool
+}
+
+func (s *DriverServer) GetDriverProfile(ctx context.Context, AT *pb.AuthToken) (*pb.Driver, error) {
+	driverID, err := getDriverId(AT)
+	if err != nil {
+		return nil, status.Errorf(codes.Unimplemented, "method GetDriverProfile not implemented %v", err)
+	}
+
+	var driver models.Driver
+	query := "SELECT id, first_name, email, phone_number, car_number, car_model, car_marks, car_color FROM drivers WHERE id=$1"
+	err = s.db.QueryRow(ctx, query, driverID).Scan(
+		&driver.ID,
+		&driver.UserName,
+		&driver.Email,
+		&driver.Phone,
+		&driver.Car_number,
+		&driver.Car_model,
+		&driver.Car_marks,
+		&driver.Car_model)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "Driver not found")
+		}
+		return nil, status.Errorf(codes.Internal, "error getting driver profile %v", err)
+	}
+	return &pb.Driver{
+		Id:        driver.ID,
+		Username:  driver.UserName,
+		Email:     driver.Email,
+		Phone:     driver.Phone,
+		CarModel:  driver.Car_model,
+		CarColor:  driver.Car_color,
+		CarMark:   driver.Car_marks,
+		CarNumber: driver.Car_number,
+	}, nil
+
+}
+func (s *DriverServer) UpdateDriverProfile(ctx context.Context, UP *pb.UpdateDriverProfileRequest) (*pb.Driver, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDriverProfile not implemented")
+}
+func (s *DriverServer) AcceptRide(ctx context.Context, RIR *pb.RideIdRequest) (*pb.StatusResponse, error) {
+
+	return nil, status.Errorf(codes.Unimplemented, "method AcceptRide not implemented")
+}
+func (s *DriverServer) CompleteRide(ctx context.Context, RIR *pb.RideIdRequest) (*pb.StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CompleteRide not implemented")
+}
+func (s *DriverServer) CancelRide(ctx context.Context, RIR *pb.RideIdRequest) (*pb.StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelRide not implemented")
+}
+func (s *DriverServer) GetCurrentRide(ctx context.Context, DIR *pb.DriverIdRequest) (*pb.Ride, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentRide not implemented")
+}
+func (s *DriverServer) UpdateLocation(stream grpc.ClientStreamingServer[pb.LocationUpdateRequest, pb.StatusResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method UpdateLocation not implemented")
+}
+func (s *DriverServer) GetNearbyRequests(ctx context.Context, Loc *pb.Location) (*pb.RideRequestsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNearbyRequests not implemented")
+}
+func (s *DriverServer) GetPassengerInfo(ctx context.Context, UIR *pb.UserIdRequest) (*pb.User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPassengerInfo not implemented")
+}
+
 func main() {
 	log.Printf("Server started")
+	// подключение к БД, работает :)
+	connStr := "host=localhost dbname=postgres ser=postgres password=1234 sslmode=disable"
+	dbpool, err := pgxpool.New(context.Background(), connStr)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
+		os.Exit(1)
+	}
+
+	// отложенное закрытие мммм
+	defer dbpool.Close()
+
+	// первый запросик на
+	query := "select first_name, email, phone_number, car_number, car_marks from drivers"
+	rows, err := dbpool.Query(context.Background(), query)
+	if err != nil {
+		log.Fatalf("Unable to execute query: %v\n", err)
+	}
+
+	for rows.Next() {
+		var driver models.Driver
+		err := rows.Scan(&driver.UserName, &driver.Email, &driver.Phone, &driver.Car_number, &driver.Car)
+		if err != nil {
+			log.Fatalf("Unable to scan row: %v\n", err)
+		}
+		fmt.Println("driver %+v: ", driver)
+	}
+	if err := rows.Err(); err != nil {
+		log.Fatalf("Iteration error: %v", err)
+	}
 
 	router := sw.NewRouter()
-
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

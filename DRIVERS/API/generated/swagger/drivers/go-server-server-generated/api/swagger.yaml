@@ -269,12 +269,19 @@ components:
         location:
           $ref: "#/components/schemas/driver_serviceLocation"
         email:
+          title: туту хуйня еще
+          type: string
+        carColor:
+          type: string
+        carMark:
           type: string
       example:
+        carColor: carColor
         phone: phone
+        carMark: carMark
         location:
-          latitude: 0.80082819046101150206595775671303272247314453125
-          longitude: 6.02745618307040320615897144307382404804229736328125
+          latitude: 0.8008281904610115
+          longitude: 6.027456183070403
         id: id
         email: email
         username: username
@@ -289,8 +296,8 @@ components:
           type: number
           format: double
       example:
-        latitude: 0.80082819046101150206595775671303272247314453125
-        longitude: 6.02745618307040320615897144307382404804229736328125
+        latitude: 0.8008281904610115
+        longitude: 6.027456183070403
     driver_serviceLocationUpdateRequest:
       type: object
       properties:
@@ -319,8 +326,8 @@ components:
       example:
         driverId: driverId
         startLocation:
-          latitude: 0.80082819046101150206595775671303272247314453125
-          longitude: 6.02745618307040320615897144307382404804229736328125
+          latitude: 0.8008281904610115
+          longitude: 6.027456183070403
         id: id
         userId: userId
         endLocation: null
@@ -337,8 +344,8 @@ components:
           $ref: "#/components/schemas/driver_serviceLocation"
       example:
         startLocation:
-          latitude: 0.80082819046101150206595775671303272247314453125
-          longitude: 6.02745618307040320615897144307382404804229736328125
+          latitude: 0.8008281904610115
+          longitude: 6.027456183070403
         userId: userId
         endLocation: null
     driver_serviceRideRequestsResponse:
@@ -351,13 +358,13 @@ components:
       example:
         rideRequests:
         - startLocation:
-            latitude: 0.80082819046101150206595775671303272247314453125
-            longitude: 6.02745618307040320615897144307382404804229736328125
+            latitude: 0.8008281904610115
+            longitude: 6.027456183070403
           userId: userId
           endLocation: null
         - startLocation:
-            latitude: 0.80082819046101150206595775671303272247314453125
-            longitude: 6.02745618307040320615897144307382404804229736328125
+            latitude: 0.8008281904610115
+            longitude: 6.027456183070403
           userId: userId
           endLocation: null
     driver_serviceStatusResponse:
@@ -382,6 +389,10 @@ components:
         carModel:
           type: string
         email:
+          type: string
+        carColor:
+          type: string
+        carMark:
           type: string
     driver_serviceUser:
       type: object
