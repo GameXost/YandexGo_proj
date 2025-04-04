@@ -3,15 +3,9 @@ import uuid
 import string
 import smtplib
 import psycopg2
-import redis
 from pydantic import BaseModel, field_validator, model_validator, Field
 from email_validator import validate_email, EmailNotValidError
 from datetime import date
-
-REDIS_HOST = "localhost"
-REDIS_PORT = 6379
-REDIS_DB = 0
-CODE_TTL = 600
 
 
 class User(BaseModel):
@@ -56,12 +50,18 @@ class User(BaseModel):
         if self.level_access == 1:
             repo = UsersRepository()
             if repo.find_by_email(self.email):
-                raise ValueError("Такой пользователь уже существует")
+                raise ValueError("Пользователь с такой почтой уже существует")
+            if repo.find_by_phone_number(self.phone_number):
+                raise ValueError(
+                    "Пользователь с таким номером телефона уже существует")
             return self
         if self.level_access == 2:
             repo = DriversRepository()
             if repo.find_by_email(self.email):
-                raise ValueError("Такой водитель уже существует")
+                raise ValueError("Водитель с такой почтой уже существует")
+            if repo.find_by_phone_number(self.phone_number):
+                raise ValueError(
+                    "Водитель с таким номером телефона уже существует")
             return self
 
     def jsonify_user(self):
@@ -150,51 +150,13 @@ class Driver(User):
         }
 
 
-class UserCreateRequest(User):
-    verification_code: str
-
-
-class DriverCreateRequest(Driver):
-    verification_code: str
-
-
-class EmailValidator:
-    def __init__(self, receiver: str):
-        self.sender = "master.pro3425@gmail.com"
-        self.password = "rquxeknmobwjctdz"
-        self.receiver = receiver
-        self.verification_code = self.verification_code_generator()
-
-    def verification_code_generator(self):
-        alphabet = string.digits
-        return ''.join(secrets.choice(alphabet) for _ in range(5))
-
-    def send_verification_email(self):
-        try:
-            server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-            server.starttls()
-            server.login(self.sender, self.password)
-            message = f"Subject: Verification code\nFrom: {self.sender}\nTo: {self.receiver}\n\nThis is your verification code:{self.verification_code}"
-            server.sendmail(self.sender, self.receiver, message)
-        except Exception as e:
-            print(f"Ошибка при отправке: {str(e)}")
-        finally:
-            server.quit()
-
-    def compare_codes(self, user_code: str):
-        if user_code == self.verification_code:
-            return True
-        else:
-            raise KeyError("Неверный код")
-
-
 class UsersRepository:
     def __init__(self):
         self.conn = psycopg2.connect(
-            dbname="users_info",
-            user="test",
-            password="0000",
-            host="localhost",
+            dbname="Auth",
+            user="admin",
+            password="secret",
+            host="95.163.222.30",
             port="5432"
         )
         self.cur = self.conn.cursor()
@@ -236,6 +198,11 @@ class UsersRepository:
 
     def find_by_email(self, email: str):
         self.cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+        return self.cur.fetchall()
+
+    def find_by_phone_number(self, phone_number: str):
+        self.cur.execute(
+            "SELECT * FROM users WHERE phone_number = %s", (phone_number,))
         return self.cur.fetchall()
 
     def close_conn(self):
@@ -299,6 +266,11 @@ class DriversRepository(UsersRepository):
         self.cur.execute("SELECT * FROM drivers")
         return self.cur.fetchall()
 
-    def find_driver_by_email(self, email: str):
+    def find_by_email(self, email: str):
         self.cur.execute("SELECT * FROM drivers WHERE email = %s", (email,))
+        return self.cur.fetchall()
+
+    def find_by_phone_number(self, phone_number: str):
+        self.cur.execute(
+            "SELECT * FROM drivers WHERE phone_number = %s", (phone_number,))
         return self.cur.fetchall()
