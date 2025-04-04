@@ -431,23 +431,8 @@
         "id": {
           "type": "string"
         },
-        "username": {
-          "type": "string"
-        },
-        "phone": {
-          "type": "string"
-        },
-        "carModel": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "carColor": {
-          "type": "string"
-        },
-        "carMark": {
-          "type": "string"
+        "driver": {
+          "$ref": "#/definitions/driver_serviceDriver"
         }
       }
     },

@@ -41,7 +41,8 @@ type DriverServer struct {
 }
 
 func (s *DriverServer) GetDriverProfile(ctx context.Context, AT *pb.AuthToken) (*pb.Driver, error) {
-	driverID, err := getDriverId(AT)
+	// getDriverID нужно чет сделать,jwt токены или так и оставим хзхз
+	driverID, err := getDriverId(AT.Token)
 	if err != nil {
 		return nil, status.Errorf(codes.Unimplemented, "method GetDriverProfile not implemented %v", err)
 	}
@@ -76,7 +77,37 @@ func (s *DriverServer) GetDriverProfile(ctx context.Context, AT *pb.AuthToken) (
 
 }
 func (s *DriverServer) UpdateDriverProfile(ctx context.Context, UP *pb.UpdateDriverProfileRequest) (*pb.Driver, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateDriverProfile not implemented")
+	driverID, err := getDriverId(UP.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "error getting driver id %v", err)
+	}
+	updated := UP.Driver
+	query := `UPDATE drivers SET first_name=$1, phone_number=$2, email=$3, car_number=$4, 
+                   car_model=$5, car_marks=$6, car_color=$7 WHERE id=$8
+                   RETURNING id, first_name, email, phone_number, car_number, car_model,car_marks,car_color`
+	var driver models.Driver
+	err = s.db.QueryRow(ctx, query,
+		updated.Username,
+		updated.Email,
+		updated.Phone,
+		updated.CarNumber,
+		updated.CarModel,
+		updated.CarMark,
+		updated.CarColor,
+		driverID).Scan(&driver.UserName, &driver.Phone, &driver.Email, &driver.Car_number, &driver.Car_model, &driver.Car_marks, &driver.Car_color)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error getting driver %v", err)
+	}
+	return &pb.Driver{
+		Id:        driver.ID,
+		Username:  driver.UserName,
+		Email:     driver.Email,
+		Phone:     driver.Phone,
+		CarNumber: driver.Car_number,
+		CarModel:  driver.Car_model,
+		CarMark:   driver.Car_marks,
+		CarColor:  driver.Car_color,
+	}, nil
 }
 func (s *DriverServer) AcceptRide(ctx context.Context, RIR *pb.RideIdRequest) (*pb.StatusResponse, error) {
 
