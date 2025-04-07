@@ -1,6 +1,6 @@
-from models import User, Driver
-from config import settings
-from utils import repo_utils
+from Auth.models import User, Driver
+from Auth.config import settings
+from Auth.utils import repo_utils
 import psycopg2
 
 
@@ -16,15 +16,16 @@ class UsersRepository:
         self.cur = self.conn.cursor()
 
     def add_user(self, user: User):
-        query = """INSERT INTO registered_users (id, first_name, last_name, email, phone_number, password) VALUES (%s, %s, %s, %s, %s,%s)"""
-        user_data = repo_utils.jsonify_user(id=user.id, first_name=user.first_name, last_name=user.last_name, email=user.email, phone_number=user.phone_number, password=user.password)
+        query = """INSERT INTO registered_users (id, first_name, last_name, email, phone_number, password,level_access) VALUES (%s, %s, %s, %s, %s,%s,%s)"""
+        user_data = repo_utils.jsonify_user(id=user.id, first_name=user.first_name, last_name=user.last_name, email=user.email, phone_number=user.phone_number, password=user.password, level_access=user.level_access)
         self.cur.execute(query, (
             user_data["id"],
             user_data["first_name"],
             user_data["last_name"],
             user_data["email"],
             user_data["phone_number"],
-            user_data["password"]
+            user_data["password"],
+            user_data["level_access"]
         ))
         self.conn.commit()
 
@@ -78,11 +79,11 @@ class DriversRepository(UsersRepository):
         return self.cur.fetchall()
 
     def add_driver(self, dr: Driver):
-        query = """INSERT INTO registered_drivers (id, first_name, last_name, email, phone_number, password,
+        query = """INSERT INTO registered_drivers (id, first_name, last_name, email, phone_number, password, level_access,
                   driver_license, driver_license_date, car_number, car_model, car_marks, car_color)
-                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)"""
         driver_data = repo_utils.jsonify_driver(id=dr.id, first_name=dr.first_name, last_name=dr.last_name,
-                                        email=dr.email, phone_number=dr.phone_number, password=dr.password, driver_license=dr.driver_license, driver_license_date=dr.driver_license_date, car_number=dr.car_number, car_model=dr.car_model, car_marks=dr.car_marks, car_color=dr.car_color)
+                                        email=dr.email, phone_number=dr.phone_number, password=dr.password,level_access=dr.level_access, driver_license=dr.driver_license, driver_license_date=dr.driver_license_date, car_number=dr.car_number, car_model=dr.car_model, car_marks=dr.car_marks, car_color=dr.car_color)
         self.cur.execute(query, (
             driver_data["id"],
             driver_data["first_name"],
@@ -90,6 +91,7 @@ class DriversRepository(UsersRepository):
             driver_data["email"],
             driver_data["phone_number"],
             driver_data["password"],
+            driver_data["level_access"],
             driver_data["driver_license"],
             driver_data['driver_license_date'],
             driver_data['car_number'],

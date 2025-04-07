@@ -1,6 +1,6 @@
 import jwt
 import bcrypt
-from config import settings
+from Auth.config import settings
 
 
 class JWT_utils():
@@ -35,17 +35,18 @@ class JWT_utils():
 
 
 class repo_utils():
-    def jsonify_user(id: str, first_name: str, last_name: str, email: str, phone_number: str, password: str | bytes):
+    def jsonify_user(id: str, first_name: str, last_name: str, email: str, phone_number: str, password: str | bytes, level_access: int):
         return {
             "id": id,
             "first_name": first_name,
             "last_name": last_name,
             "email": email,
             "phone_number": phone_number,
-            "password": password
+            "password": password,
+            "level_access": level_access
         }
 
-    def jsonify_driver(id: str, first_name: str, last_name: str, email: str, phone_number: str, password: str | bytes, driver_license: str, driver_license_date: str, car_model: str, car_marks: str, car_number: str, car_color: str):
+    def jsonify_driver(id: str, first_name: str, last_name: str, email: str, phone_number: str, password: str | bytes, driver_license: str, driver_license_date: str, car_model: str, car_marks: str, car_number: str, car_color: str, level_access: int):
         return {
             "id": id,
             "first_name": first_name,
@@ -58,5 +59,6 @@ class repo_utils():
             "car_model": car_model,
             "car_marks": car_marks,
             "car_number": car_number,
-            "car_color": car_color
+            "car_color": car_color,
+            "level_access": level_access
         }
