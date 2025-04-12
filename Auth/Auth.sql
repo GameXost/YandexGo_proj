@@ -50,7 +50,8 @@ CREATE TABLE public.registered_drivers (
     car_model character varying(20) NOT NULL,
     car_marks character varying(20) NOT NULL,
     car_color character varying(20) NOT NULL,
-    password character varying(50)
+    password character varying(100),
+    level_access integer
 );
 
 
@@ -66,7 +67,8 @@ CREATE TABLE public.registered_users (
     last_name character varying(50) NOT NULL,
     email character varying(50) NOT NULL,
     phone_number character varying(10) NOT NULL,
-    password character varying(50)
+    password character varying(100),
+    level_access integer
 );
 
 
@@ -1591,7 +1593,7 @@ Zeekr	X	2023	-
 -- Data for Name: registered_drivers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.registered_drivers (id, first_name, last_name, email, phone_number, driver_license, driver_license_date, car_number, car_model, car_marks, car_color, password) FROM stdin;
+COPY public.registered_drivers (id, first_name, last_name, email, phone_number, driver_license, driver_license_date, car_number, car_model, car_marks, car_color, password, level_access) FROM stdin;
 \.
 
 
@@ -1599,7 +1601,7 @@ COPY public.registered_drivers (id, first_name, last_name, email, phone_number, 
 -- Data for Name: registered_users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.registered_users (id, first_name, last_name, email, phone_number, password) FROM stdin;
+COPY public.registered_users (id, first_name, last_name, email, phone_number, password, level_access) FROM stdin;
 \.
 
 
