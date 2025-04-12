@@ -35,10 +35,10 @@ CREATE TABLE public.cars (
 ALTER TABLE public.cars OWNER TO postgres;
 
 --
--- Name: drivers; Type: TABLE; Schema: public; Owner: postgres
+-- Name: registered_drivers; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.drivers (
+CREATE TABLE public.registered_drivers (
     id character varying(50) NOT NULL,
     first_name character varying(50) NOT NULL,
     last_name character varying(50) NOT NULL,
@@ -49,26 +49,28 @@ CREATE TABLE public.drivers (
     car_number character varying(10) NOT NULL,
     car_model character varying(20) NOT NULL,
     car_marks character varying(20) NOT NULL,
-    car_color character varying(20) NOT NULL
+    car_color character varying(20) NOT NULL,
+    password character varying(50)
 );
 
 
-ALTER TABLE public.drivers OWNER TO postgres;
+ALTER TABLE public.registered_drivers OWNER TO postgres;
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: postgres
+-- Name: registered_users; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.users (
+CREATE TABLE public.registered_users (
     id text NOT NULL,
     first_name character varying(50) NOT NULL,
     last_name character varying(50) NOT NULL,
     email character varying(50) NOT NULL,
-    phone_number character varying(10) NOT NULL
+    phone_number character varying(10) NOT NULL,
+    password character varying(50)
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
+ALTER TABLE public.registered_users OWNER TO postgres;
 
 --
 -- Data for Name: cars; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -1586,18 +1588,18 @@ Zeekr	X	2023	-
 
 
 --
--- Data for Name: drivers; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: registered_drivers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.drivers (id, first_name, last_name, email, phone_number, driver_license, driver_license_date, car_number, car_model, car_marks, car_color) FROM stdin;
+COPY public.registered_drivers (id, first_name, last_name, email, phone_number, driver_license, driver_license_date, car_number, car_model, car_marks, car_color, password) FROM stdin;
 \.
 
 
 --
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: registered_users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.users (id, first_name, last_name, email, phone_number) FROM stdin;
+COPY public.registered_users (id, first_name, last_name, email, phone_number, password) FROM stdin;
 \.
 
 
