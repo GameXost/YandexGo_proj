@@ -12,6 +12,7 @@ class UsersRepository:
             password = settings.db_info.password,
             host = settings.db_info.host,
             port = settings.db_info.port
+            
         )
         self.cur = self.conn.cursor()
 
