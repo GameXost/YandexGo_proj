@@ -2,8 +2,6 @@ from pydantic import BaseModel,Field, field_validator, model_validator
 from email_validator import validate_email, EmailNotValidError
 from uuid import uuid4
 from datetime import date
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.remote.webelement import WebElement
 
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
@@ -44,8 +42,6 @@ class User(BaseModel):
             raise ValueError("Неверный формат телефона")
         return v
     
-
-
 class Driver(User):
     driver_license: str
     driver_license_date: date
@@ -54,7 +50,6 @@ class Driver(User):
     car_marks: str
     car_color: str
     level_access: int = 2
-    valid: str
 
     @field_validator('driver_license', mode='after')
     @classmethod
@@ -62,17 +57,6 @@ class Driver(User):
         if not driver_license.isalnum() or len(driver_license) != 10:
             raise ValueError("Неверный формат водительских прав")
         return driver_license
-
-    @field_validator('valid', mode='before') #почекай, мб я непон mode
-    @classmethod
-    def validate_driver_id(cls, v: WebElement):
-                try:
-                    if v.text.strip() == 'Действует':
-                        return v.text
-                    else:
-                        raise ValueError('ВУ не действует или не удалось получить данные')
-                except NoSuchElementException:
-                    raise ValueError('Элемент не найден')
 
     @field_validator('driver_license_date', mode='before')
     @classmethod

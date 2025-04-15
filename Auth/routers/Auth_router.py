@@ -46,6 +46,7 @@ def add_driver(dr: Driver, repository: DriversRepository = Depends(get_drivers_r
     try:
         validations.check_driver_uniqueness(dr)
         validations.validate_car_model(dr.car_model, dr.car_marks)
+        validations.validate_driver_licence(dr.driver_license, dr.driver_license_date)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     dr.password = JWT_utils.hash_password(dr.password).decode('utf-8')

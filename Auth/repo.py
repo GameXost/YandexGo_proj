@@ -149,10 +149,10 @@ class DriversRepository(UsersRepository):
         return result[0].encode('utf-8')
 
 class validations:
-    def validate_driver(driver_licence: str, driver_licence_data: str):
+    def validate_driver_licence(driver_licence: str, driver_licence_data: str):
         options = Options()
         options.add_argument("--disable-infobars")
-        driver_path = r'C:\Users\User\AppData\Local\Temp\Rar$EXa7140.26164\chromedriver-win64\chromedriver.exe'
+        driver_path = r'C:\Users\User\AppData\Local\Temp\Rar$EXa7140.26164\chromedriver-win64\chromedriver.exe' #поправим еще
         service = Service(driver_path)
         browser = webdriver.Chrome(service=service, options=options)
 
@@ -199,8 +199,13 @@ class validations:
 
             valid = browser.find_element(By.CLASS_NAME, 'field doc-status')
 
-            status_id = validate_driver_id(valid)
-            return status_id
+            try:
+                if valid.text.strip() == 'Действует':
+                    return valid.text
+                else:
+                    raise ValueError('ВУ не действует или не удалось получить данные')
+            except NoSuchElementException:
+                raise ValueError('Элемент не найден')
 
         except Exception as e:
             raise ValueError("Ошибка при распознавании капчи:", e)
@@ -208,9 +213,7 @@ class validations:
         finally:
             if os.path.exists(captcha_filename):
                 os.remove(captcha_filename)
-
-        browser.quit()
-        return True
+            browser.quit()
 
     def validate_car_model(car_model: str, car_marks: str):
         repo = DriversRepository()
