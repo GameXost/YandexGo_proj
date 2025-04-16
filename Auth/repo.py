@@ -152,7 +152,7 @@ class validations:
     def validate_driver_licence(driver_licence: str, driver_licence_data: str):
         options = Options()
         options.add_argument("--disable-infobars")
-        driver_path = r'C:\Users\User\AppData\Local\Temp\Rar$EXa7140.26164\chromedriver-win64\chromedriver.exe' #поправим еще
+        driver_path = r'/usr/local/bin/chromedriver'
         service = Service(driver_path)
         browser = webdriver.Chrome(service=service, options=options)
 
