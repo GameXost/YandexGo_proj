@@ -1,13 +1,26 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "drivers.proto",
-    "version": "version not set"
+    "title": "Driver Service API",
+    "description": "API for managing drivers and ride operations",
+    "version": "2.0",
+    "contact": {
+      "name": "YandexGo Project Team",
+      "url": "https://github.com/GameXost/YandexGo_proj",
+      "email": "sergejs.dyldin@yandex.ru"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
   },
   "tags": [
     {
       "name": "Drivers"
     }
+  ],
+  "schemes": [
+    "https"
   ],
   "consumes": [
     "application/json"
@@ -18,10 +31,11 @@
   "paths": {
     "/driver/current_ride/{id}": {
       "get": {
-        "operationId": "Drivers_GetCurrentRide",
+        "summary": "Get current ride information",
+        "operationId": "getCurrentRide",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "Successfully retrieved current ride",
             "schema": {
               "$ref": "#/definitions/driver_serviceRide"
             }
@@ -36,23 +50,24 @@
         "parameters": [
           {
             "name": "id",
+            "description": "driver's id",
             "in": "path",
             "required": true,
             "type": "string"
           }
         ],
         "tags": [
-          "Drivers"
+          "rides"
         ]
       }
     },
     "/driver/location": {
       "post": {
-        "summary": "операции с местоположением",
-        "operationId": "Drivers_UpdateLocation",
+        "summary": "Update driver location (streaming)",
+        "operationId": "updateLocation",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "Location updates received successfully",
             "schema": {
               "$ref": "#/definitions/driver_serviceStatusResponse"
             }
@@ -76,16 +91,17 @@
           }
         ],
         "tags": [
-          "Drivers"
+          "location"
         ]
       }
     },
     "/driver/nearby_req": {
       "get": {
-        "operationId": "Drivers_GetNearbyRequests",
+        "summary": "Get nearby ride requests",
+        "operationId": "getNearbyRequests",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "Successfully retrieved nearby requests",
             "schema": {
               "$ref": "#/definitions/driver_serviceRideRequestsResponse"
             }
@@ -100,6 +116,7 @@
         "parameters": [
           {
             "name": "latitude",
+            "description": "Latitude",
             "in": "query",
             "required": false,
             "type": "number",
@@ -107,6 +124,7 @@
           },
           {
             "name": "longitude",
+            "description": "Longitude",
             "in": "query",
             "required": false,
             "type": "number",
@@ -114,17 +132,17 @@
           }
         ],
         "tags": [
-          "Drivers"
+          "location"
         ]
       }
     },
     "/driver/profile": {
       "get": {
-        "summary": "операции с профилем водителя",
-        "operationId": "Drivers_GetDriverProfile",
+        "summary": "Get driver profile",
+        "operationId": "getDriverProfile",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "Successfully retrieved driver profile",
             "schema": {
               "$ref": "#/definitions/driver_serviceDriver"
             }
@@ -139,20 +157,22 @@
         "parameters": [
           {
             "name": "token",
+            "description": "JWT auth token",
             "in": "query",
             "required": false,
             "type": "string"
           }
         ],
         "tags": [
-          "Drivers"
+          "driver"
         ]
       },
       "put": {
-        "operationId": "Drivers_UpdateDriverProfile",
+        "summary": "Update driver profile",
+        "operationId": "updateDriverProfile",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "Successfully updated driver profile",
             "schema": {
               "$ref": "#/definitions/driver_serviceDriver"
             }
@@ -175,17 +195,17 @@
           }
         ],
         "tags": [
-          "Drivers"
+          "driver"
         ]
       }
     },
     "/ride/{id}/accept": {
       "post": {
-        "summary": "операции с заказами",
-        "operationId": "Drivers_AcceptRide",
+        "summary": "Accept a ride",
+        "operationId": "acceptRide",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "Ride accepted successfully",
             "schema": {
               "$ref": "#/definitions/driver_serviceStatusResponse"
             }
@@ -200,22 +220,24 @@
         "parameters": [
           {
             "name": "id",
+            "description": "Ride ID",
             "in": "path",
             "required": true,
             "type": "string"
           }
         ],
         "tags": [
-          "Drivers"
+          "rides"
         ]
       }
     },
     "/ride/{id}/cancel": {
       "post": {
-        "operationId": "Drivers_CancelRide",
+        "summary": "Cancel a ride",
+        "operationId": "cancelRide",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "Ride canceled successfully",
             "schema": {
               "$ref": "#/definitions/driver_serviceStatusResponse"
             }
@@ -230,22 +252,24 @@
         "parameters": [
           {
             "name": "id",
+            "description": "Ride ID",
             "in": "path",
             "required": true,
             "type": "string"
           }
         ],
         "tags": [
-          "Drivers"
+          "rides"
         ]
       }
     },
     "/ride/{id}/complete": {
       "post": {
-        "operationId": "Drivers_CompleteRide",
+        "summary": "Complete a ride",
+        "operationId": "completeRide",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "Ride completed successfully",
             "schema": {
               "$ref": "#/definitions/driver_serviceStatusResponse"
             }
@@ -260,23 +284,24 @@
         "parameters": [
           {
             "name": "id",
+            "description": "Ride ID",
             "in": "path",
             "required": true,
             "type": "string"
           }
         ],
         "tags": [
-          "Drivers"
+          "rides"
         ]
       }
     },
     "/user/{id}": {
       "get": {
-        "summary": "сведения о пассажире",
-        "operationId": "Drivers_GetPassengerInfo",
+        "summary": "Get passenger information",
+        "operationId": "getPassengerInfo",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "Successfully retrieved passenger info",
             "schema": {
               "$ref": "#/definitions/driver_serviceUser"
             }
@@ -291,13 +316,14 @@
         "parameters": [
           {
             "name": "id",
+            "description": "user's id",
             "in": "path",
             "required": true,
             "type": "string"
           }
         ],
         "tags": [
-          "Drivers"
+          "passengers"
         ]
       }
     }
@@ -307,46 +333,53 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Unic driver identificator"
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "Driver's first_name"
         },
         "phone": {
-          "type": "string"
+          "type": "string",
+          "description": "contact number"
         },
         "carModel": {
-          "type": "string"
-        },
-        "location": {
-          "$ref": "#/definitions/driver_serviceLocation"
+          "type": "string",
+          "description": "Car model"
         },
         "email": {
-          "type": "string"
+          "type": "string",
+          "description": "Email address"
         },
         "carColor": {
           "type": "string",
-          "title": "туту хуйня еще"
+          "description": "Car color"
         },
         "carMark": {
-          "type": "string"
+          "type": "string",
+          "description": "Car manufacturer"
         },
         "carNumber": {
-          "type": "string"
+          "type": "string",
+          "description": "License plate number"
         }
-      },
-      "title": "основные структуры"
+      }
     },
     "driver_serviceLocation": {
       "type": "object",
       "properties": {
         "latitude": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "example": "55.755825",
+          "description": "Latitude"
         },
         "longitude": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "example": "37.617298",
+          "description": "Longitude"
         }
       }
     },
@@ -354,10 +387,13 @@
       "type": "object",
       "properties": {
         "driverId": {
-          "type": "string"
+          "type": "string",
+          "example": "driver_123",
+          "description": "Driver ID"
         },
         "location": {
-          "$ref": "#/definitions/driver_serviceLocation"
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "updated coords"
         }
       }
     },
@@ -365,26 +401,40 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "unic id of ride"
         },
         "userId": {
-          "type": "string"
+          "type": "string",
+          "description": "unic user's id"
         },
         "driverId": {
-          "type": "string"
+          "type": "string",
+          "description": "unic drivers id"
         },
         "startLocation": {
-          "$ref": "#/definitions/driver_serviceLocation"
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "start coords"
         },
         "endLocation": {
-          "$ref": "#/definitions/driver_serviceLocation"
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "end coords"
         },
         "status": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "in_progress",
+            "completed",
+            "canceled"
+          ],
+          "description": "ride status"
         },
         "timestamp": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "description": "time mark for start point"
         }
       }
     },
@@ -392,13 +442,17 @@
       "type": "object",
       "properties": {
         "userId": {
-          "type": "string"
+          "type": "string",
+          "example": "user_456",
+          "description": "User ID"
         },
         "startLocation": {
-          "$ref": "#/definitions/driver_serviceLocation"
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "start coords"
         },
         "endLocation": {
-          "$ref": "#/definitions/driver_serviceLocation"
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "end coords"
         }
       }
     },
@@ -410,7 +464,8 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/driver_serviceRideRequest"
-          }
+          },
+          "description": "available rides"
         }
       }
     },
@@ -418,10 +473,12 @@
       "type": "object",
       "properties": {
         "status": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "ride status"
         },
         "message": {
-          "type": "string"
+          "type": "string",
+          "description": "details"
         }
       }
     },
@@ -429,10 +486,12 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Driver ID"
         },
         "driver": {
-          "$ref": "#/definitions/driver_serviceDriver"
+          "$ref": "#/definitions/driver_serviceDriver",
+          "description": "New driver's data"
         }
       }
     },
@@ -440,13 +499,16 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Unic user's identificator"
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "USer's first name"
         },
         "phone": {
-          "type": "string"
+          "type": "string",
+          "description": "contact number"
         }
       }
     },

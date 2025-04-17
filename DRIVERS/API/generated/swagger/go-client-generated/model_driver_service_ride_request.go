@@ -8,12 +8,8 @@
  */
 package swagger
 
-type DriverServiceRide struct {
-	Id string `json:"id,omitempty"`
-	UserId string `json:"userId,omitempty"`
-	DriverId string `json:"driverId,omitempty"`
+type DriverServiceRideRequest struct {
+	UserId        string                 `json:"userId,omitempty"`
 	StartLocation *DriverServiceLocation `json:"startLocation,omitempty"`
-	EndLocation *DriverServiceLocation `json:"endLocation,omitempty"`
-	Status string `json:"status,omitempty"`
-	Timestamp string `json:"timestamp,omitempty"`
+	EndLocation   *DriverServiceLocation `json:"endLocation,omitempty"`
 }

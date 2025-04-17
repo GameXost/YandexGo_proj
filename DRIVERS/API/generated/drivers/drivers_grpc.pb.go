@@ -34,18 +34,14 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DriversClient interface {
-	// операции с профилем водителя
 	GetDriverProfile(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Driver, error)
 	UpdateDriverProfile(ctx context.Context, in *UpdateDriverProfileRequest, opts ...grpc.CallOption) (*Driver, error)
-	// операции с заказами
 	AcceptRide(ctx context.Context, in *RideIdRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	CompleteRide(ctx context.Context, in *RideIdRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	CancelRide(ctx context.Context, in *RideIdRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	GetCurrentRide(ctx context.Context, in *DriverIdRequest, opts ...grpc.CallOption) (*Ride, error)
-	// операции с местоположением
 	UpdateLocation(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[LocationUpdateRequest, StatusResponse], error)
 	GetNearbyRequests(ctx context.Context, in *Location, opts ...grpc.CallOption) (*RideRequestsResponse, error)
-	// сведения о пассажире
 	GetPassengerInfo(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*User, error)
 }
 
@@ -154,18 +150,14 @@ func (c *driversClient) GetPassengerInfo(ctx context.Context, in *UserIdRequest,
 // All implementations must embed UnimplementedDriversServer
 // for forward compatibility.
 type DriversServer interface {
-	// операции с профилем водителя
 	GetDriverProfile(context.Context, *AuthToken) (*Driver, error)
 	UpdateDriverProfile(context.Context, *UpdateDriverProfileRequest) (*Driver, error)
-	// операции с заказами
 	AcceptRide(context.Context, *RideIdRequest) (*StatusResponse, error)
 	CompleteRide(context.Context, *RideIdRequest) (*StatusResponse, error)
 	CancelRide(context.Context, *RideIdRequest) (*StatusResponse, error)
 	GetCurrentRide(context.Context, *DriverIdRequest) (*Ride, error)
-	// операции с местоположением
 	UpdateLocation(grpc.ClientStreamingServer[LocationUpdateRequest, StatusResponse]) error
 	GetNearbyRequests(context.Context, *Location) (*RideRequestsResponse, error)
-	// сведения о пассажире
 	GetPassengerInfo(context.Context, *UserIdRequest) (*User, error)
 	mustEmbedUnimplementedDriversServer()
 }

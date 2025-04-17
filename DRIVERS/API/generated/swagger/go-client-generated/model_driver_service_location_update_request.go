@@ -9,6 +9,6 @@
 package swagger
 
 type DriverServiceLocationUpdateRequest struct {
-	DriverId string `json:"driverId,omitempty"`
+	DriverId string                 `json:"driverId,omitempty"`
 	Location *DriverServiceLocation `json:"location,omitempty"`
 }
