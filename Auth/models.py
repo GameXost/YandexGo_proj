@@ -1,7 +1,8 @@
-from pydantic import BaseModel,Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from email_validator import validate_email, EmailNotValidError
 from uuid import uuid4
 from datetime import date
+
 
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
@@ -10,7 +11,7 @@ class User(BaseModel):
     email: str
     phone_number: str
     level_access: int = 1
-    password: str | bytes
+    password: str
 
     @field_validator('first_name', 'last_name', mode='before')
     @classmethod
@@ -41,10 +42,11 @@ class User(BaseModel):
         if len(v) != 10 or not v.isdigit():
             raise ValueError("Неверный формат телефона")
         return v
-    
+
+
 class Driver(User):
     driver_license: str
-    driver_license_date: date
+    driver_license_date: str
     car_number: str
     car_model: str
     car_marks: str
@@ -57,18 +59,6 @@ class Driver(User):
         if not driver_license.isalnum() or len(driver_license) != 10:
             raise ValueError("Неверный формат водительских прав")
         return driver_license
-
-    @field_validator('driver_license_date', mode='before')
-    @classmethod
-    def validate_driver_license_date(cls, v):
-        if isinstance(v, str):
-            try:
-                return date.fromisoformat(v)
-            except ValueError:
-                raise ValueError("Неверный формат даты (требуется YYYY-MM-DD)")
-        if isinstance(v, date):
-            return v
-        raise ValueError("Неверный формат даты")
 
     @field_validator('car_number', mode='after')
     @classmethod
@@ -90,4 +80,3 @@ class Driver(User):
         if value not in allowed_colors:
             raise ValueError("Неверный формат цвета машины")
         return value
-

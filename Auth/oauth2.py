@@ -7,7 +7,7 @@ from Auth.utils import JWT_utils
 from Auth.repo import UsersRepository, DriversRepository
 
 # OAuth2 схема для получения токена через пароль
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="JWT/token")
 
 # Модель для токена
 

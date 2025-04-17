@@ -19,6 +19,7 @@ class db_config(BaseModel):
     port: str = "5432"
 
 
+
 class Settings(BaseSettings):
     auth_jwt: AuthJWT = AuthJWT()
     db_info: db_config = db_config()

@@ -2,6 +2,13 @@ from Auth.models import User, Driver
 from Auth.config import settings
 from Auth.utils import repo_utils
 import psycopg2
+import logging
+import os
+import re
+import tempfile
+import time
+from datetime import datetime
+from typing import Optional
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -9,13 +16,16 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 from twocaptcha import TwoCaptcha
 import requests
-import time
-import os
+
+# Настройка логирования
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 class UsersRepository:
     def __init__(self):
@@ -148,72 +158,106 @@ class DriversRepository(UsersRepository):
             return None
         return result[0].encode('utf-8')
 
+
 class validations:
-    def validate_driver_licence(driver_licence: str, driver_licence_data: str):
+    @staticmethod
+    def _create_driver() -> webdriver.Chrome:
+        """Создает и возвращает настроенный экземпляр Chrome WebDriver"""
         options = Options()
-        options.add_argument("--disable-infobars")
-        driver_path = r'/usr/local/bin/chromedriver'
-        service = Service(driver_path)
-        browser = webdriver.Chrome(service=service, options=options)
+        options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--disable-extensions")
 
-        browser.get('https://xn--80aebkobnwfcnsfk1e0h.xn--p1ai/check/driver/#+')
+        # Настройки для обхода детекта автоматизации
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_experimental_option(
+            "excludeSwitches", ["enable-automation"])
+        options.add_experimental_option("useAutomationExtension", False)
 
-        # серия и номер
-        wait = WebDriverWait(browser, 10)
-        elem = wait.until(EC.presence_of_element_located((By.ID, 'checkDriverNum')))
-        elem.send_keys(driver_licence + Keys.RETURN)
+        service = ChromeService(executable_path='/usr/local/bin/chromedriver')
+        return webdriver.Chrome(service=service, options=options)
 
-        # дата выдачи
-        elem = browser.find_element(By.ID, 'checkDriverDate')
-        elem.send_keys(driver_licence_data + Keys.RETURN)
-
-        share = browser.find_element(By.CLASS_NAME, 'checker')
-        share.click()
-
-        captcha_img = wait.until(EC.presence_of_element_located((By.XPATH, '//img[contains(@src, "jpeg")]')))
-        captcha_src = captcha_img.get_attribute('src')
-
-        captcha_filename = 'captcha.jpeg'
-        with open(captcha_filename, 'wb') as f:
-            f.write(requests.get(captcha_src).content)
-
-        solver = TwoCaptcha('82f3d764e011909dc97cb4fd5f874074')
+    @staticmethod
+    def validate_driver_licence(driver_licence: str, driver_licence_data: str) -> str:
+        """Основной метод проверки водительского удостоверения"""
+        captcha_filename = None
 
         try:
-            result = solver.normal(
-                captcha_filename,
-                caseSensitive=True,
-                numeric=1,
-                minLength=1,
-                maxLength=5
-            )
+            with tempfile.TemporaryDirectory() as user_data_dir:
+                with validations._create_driver() as browser:
+                    browser.get(
+                        'https://xn--80aebkobnwfcnsfk1e0h.xn--p1ai/check/driver/#+')
 
-            captcha_input = browser.find_element(By.ID, 'captcha_num')
-            captcha_input.send_keys(result['code'])
+                    wait = WebDriverWait(browser, 20)
 
-            submit_btn = browser.find_element(By.CLASS_NAME, 'button')
-            submit_btn.click()
+                    # Ввод данных водительского удостоверения
+                    elem = wait.until(EC.presence_of_element_located(
+                        (By.ID, 'checkDriverNum')))
+                    elem.clear()
+                    elem.send_keys(driver_licence)
 
-            time.sleep(5)
-            page_source = browser.page_source
+                    # Ввод даты выдачи
+                    date_elem = wait.until(
+                        EC.presence_of_element_located((By.ID, 'checkDriverDate')))
+                    date_elem.clear()
+                    date_elem.send_keys(driver_licence_data + Keys.RETURN)
 
-            valid = browser.find_element(By.CLASS_NAME, 'field doc-status')
+                    # Нажатие кнопки проверки
+                    share_btn = wait.until(
+                        EC.element_to_be_clickable((By.CLASS_NAME, 'checker')))
+                    share_btn.click()
 
-            try:
-                if valid.text.strip() == 'Действует':
-                    return valid.text
-                else:
-                    raise ValueError('ВУ не действует или не удалось получить данные')
-            except NoSuchElementException:
-                raise ValueError('Элемент не найден')
+                    # Обработка капчи
+                    captcha_img = wait.until(
+                        EC.presence_of_element_located(
+                            (By.XPATH, '//img[contains(@src, "jpeg")]'))
+                    )
+                    captcha_src = captcha_img.get_attribute('src')
+
+                    # Скачивание и решение капчи
+                    response = requests.get(captcha_src, stream=True)
+                    response.raise_for_status()
+
+                    solver = TwoCaptcha('82f3d764e011909dc97cb4fd5f874074')
+                    result = solver.normal(
+                        response.content, caseSensitive=True, numeric=1)
+
+                    # Ввод решения капчи
+                    captcha_input = wait.until(
+                        EC.presence_of_element_located((By.ID, 'captcha_num')))
+                    captcha_input.clear()
+                    captcha_input.send_keys(result['code'] + Keys.RETURN)
+
+                    # Проверка результата
+                    time.sleep(3)  # Необходимо для прогрузки результатов
+                    status_element = wait.until(
+                        EC.presence_of_element_located(
+                            (By.CSS_SELECTOR, '.field.doc-status'))
+                    )
+
+                    if status_element.text.strip() == 'Действует':
+                        return status_element.text
+                    raise ValueError(
+                        'ВУ не действует или не удалось получить данные')
+
+        except TimeoutException as e:
+            logger.error(f"Timeout exception: {str(e)}")
+            raise ValueError("Превышено время ожидания элементов на странице")
+
+        except requests.RequestException as e:
+            logger.error(f"Request failed: {str(e)}")
+            raise ValueError("Ошибка при загрузке капчи")
 
         except Exception as e:
-            raise ValueError("Ошибка при распознавании капчи:", e)
+            logger.error(f"Validation error: {str(e)}")
+            raise RuntimeError(f"Ошибка при проверке ВУ: {str(e)}")
 
         finally:
-            if os.path.exists(captcha_filename):
+            if captcha_filename and os.path.exists(captcha_filename):
                 os.remove(captcha_filename)
-            browser.quit()
 
     def validate_car_model(car_model: str, car_marks: str):
         repo = DriversRepository()
