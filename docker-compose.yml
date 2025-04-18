@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: awak3r/main_db:1.0
+    environment:
+      POSTGRES_DB: Auth
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  app:
+    image: awak3r/taxi:1.0
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+volumes:
+  postgres_data:
