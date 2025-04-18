@@ -1,9 +1,7 @@
---
--- PostgreSQL database dump
---
+CREATE DATABASE Auth;
+\connect Auth;
 
--- Dumped from database version 14.17 (Ubuntu 14.17-0ubuntu0.22.04.1)
--- Dumped by pg_dump version 14.17 (Ubuntu 14.17-0ubuntu0.22.04.1)
+
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -32,7 +30,6 @@ CREATE TABLE public.cars (
 );
 
 
-ALTER TABLE public.cars OWNER TO postgres;
 
 --
 -- Name: registered_drivers; Type: TABLE; Schema: public; Owner: postgres
@@ -55,7 +52,8 @@ CREATE TABLE public.registered_drivers (
 );
 
 
-ALTER TABLE public.registered_drivers OWNER TO postgres;
+
+
 
 --
 -- Name: registered_users; Type: TABLE; Schema: public; Owner: postgres
@@ -72,7 +70,6 @@ CREATE TABLE public.registered_users (
 );
 
 
-ALTER TABLE public.registered_users OWNER TO postgres;
 
 --
 -- Data for Name: cars; Type: TABLE DATA; Schema: public; Owner: postgres
