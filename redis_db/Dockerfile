@@ -1,0 +1,5 @@
+FROM redis:alpine
+
+
+ENV REDIS_PASSWORD=secret
+EXPOSE 6379

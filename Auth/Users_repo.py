@@ -1,5 +1,5 @@
 from Auth.models import User, Driver
-from Auth.config import settings
+from config import settings
 from Auth.utils import repo_utils
 import psycopg2
 import logging

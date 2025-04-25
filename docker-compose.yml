@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  db:
+  psql_db:
     image: awak3r/main_db:1.0
     environment:
       POSTGRES_DB: Auth
@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./psql_db/Auth.sql:/docker-entrypoint-initdb.d/Auth.sql
     deploy:
       resources:
         limits:
@@ -22,7 +22,21 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      - psql_db
+      - redis_db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  redis_db:
+    image: awak3r/redis_db:1.0
+    environment:
+      - REDIS_PASSWORD=secret
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
     deploy:
       resources:
         limits:
@@ -31,3 +45,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:

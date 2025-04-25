@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, APIRouter, status
 from Auth.models import *
-from Auth.repo import *
+from YandexGo_proj.Auth.Users_repo import *
 from Auth.utils import *
 from Auth.oauth2 import Token, authenticate_user, create_access_token, get_current_active_user, get_user_by_level, TokenData
 from pydantic import BaseModel

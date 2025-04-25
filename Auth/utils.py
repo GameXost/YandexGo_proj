@@ -1,6 +1,6 @@
 import jwt
 import bcrypt
-from Auth.config import settings
+from config import settings
 
 
 class JWT_utils():

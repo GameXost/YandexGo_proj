@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from Auth.utils import JWT_utils
-from Auth.repo import UsersRepository, DriversRepository
+from YandexGo_proj.Auth.Users_repo import UsersRepository, DriversRepository
 
 # OAuth2 схема для получения токена через пароль
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="JWT/token")
