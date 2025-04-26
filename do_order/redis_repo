@@ -1,13 +1,14 @@
+from config import settings
 import redis
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from config import settings
 r = redis.StrictRedis(
     host=settings.redis_info.host,
     port=settings.redis_info.port,
     password=settings.redis_info.password,
+    charset="utf-8",
     decode_responses=True)
 
-
+r.set('12', '121')

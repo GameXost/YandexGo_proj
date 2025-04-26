@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./psql_db/Auth.sql:/docker-entrypoint-initdb.d/Auth.sql
+      - postgres_data:/var/lib/postgresql/data
     deploy:
       resources:
         limits:
@@ -33,7 +33,7 @@ services:
   redis_db:
     image: awak3r/redis_db:1.0
     environment:
-      - REDIS_PASSWORD=secret
+      REDIS_PASSWORD: secret
     ports:
       - "6379:6379"
     volumes:
