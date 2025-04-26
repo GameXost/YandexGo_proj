@@ -1,8 +1,11 @@
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 from fastapi import FastAPI, HTTPException, Depends, APIRouter, status
-from Auth.models import *
-from YandexGo_proj.Auth.Users_repo import *
-from Auth.utils import *
-from Auth.oauth2 import Token, authenticate_user, create_access_token, get_current_active_user, get_user_by_level, TokenData
+from models import *
+from Users_repo import *
+from utils import *
+from oauth2 import Token, authenticate_user, create_access_token, get_current_active_user, get_user_by_level, TokenData
 from pydantic import BaseModel
 from datetime import timedelta
 from typing import Annotated

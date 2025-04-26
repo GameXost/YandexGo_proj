@@ -1,26 +1,28 @@
-from Auth.models import User, Driver
-from config import settings
-from Auth.utils import repo_utils
-import psycopg2
-import logging
-import os
-import re
-import tempfile
-import time
-from datetime import datetime
-from typing import Optional
-
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
-
-from twocaptcha import TwoCaptcha
 import requests
+from twocaptcha import TwoCaptcha
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium import webdriver
+from typing import Optional
+from datetime import datetime
+import time
+import tempfile
+import re
+import os
+import logging
+import psycopg2
+from utils import repo_utils
+from config import settings
+from models import User, Driver
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 
 # Настройка логирования
 logger = logging.getLogger(__name__)

@@ -34,6 +34,7 @@ services:
     image: awak3r/redis_db:1.0
     environment:
       - REDIS_PASSWORD=secret
+    ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
