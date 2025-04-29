@@ -135,24 +135,7 @@ func main() {
 	}
 	fmt.Println("Successfully connected to database!")
 
-	// первый запросик в БД
-	query := "select first_name, email, phone_number, car_number, car_marks from drivers"
-	rows, err := dbpool.Query(context.Background(), query)
-	if err != nil {
-		log.Fatalf("Unable to execute query: %v\n", err)
-	}
-
-	for rows.Next() {
-		var driver models.Driver
-		err := rows.Scan(&driver.UserName, &driver.Email, &driver.Phone, &driver.Car_number, &driver.Car)
-		if err != nil {
-			log.Fatalf("Unable to scan row: %v\n", err)
-		}
-		fmt.Println("driver %v\n: ", driver)
-	}
-	if err := rows.Err(); err != nil {
-		log.Fatalf("Iteration error: %v", err)
-	}
+	date := pb.DriverIdRequest{}
 
 	router := sw.NewRouter()
 	log.Fatal(http.ListenAndServe(":8080", router))
