@@ -28,7 +28,7 @@ generate_client_server:
 	-g go \
 	-o /local/go-client
 	--ignore-file-override /local/API/generated/drivers/.openapi-generator-ignore \
-	--additional-properties=packageName=drivers_client \
+	--additional-properties=packageName=go_client \
 	--git-user-id GameXost \
 	--git-repo-id YandexGo_proj
 

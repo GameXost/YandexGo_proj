@@ -1,4 +1,4 @@
-module github.com/GameXost/YandexGo_proj/DRIVERS/go-client
+module github.com/GIT_USER_ID/GIT_REPO_ID
 
 go 1.18
 
