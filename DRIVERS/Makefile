@@ -26,7 +26,7 @@ generate_client_server:
 	openapitools/openapi-generator-cli generate \
 	-i /local/API/generated/drivers/drivers.swagger.json \
 	-g go \
-	-o /local/go-client
+	-o /local/go-client \
 	--ignore-file-override /local/API/generated/drivers/.openapi-generator-ignore \
 	--additional-properties=packageName=go_client \
 	--git-user-id GameXost \

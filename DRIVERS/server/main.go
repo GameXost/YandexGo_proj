@@ -11,18 +11,121 @@
 package main
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/models"
+	"github.com/gin-gonic/gin"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
+	"github.com/segmentio/kafka-go"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
+	"net"
+
 	"log"
+	"net/http"
 
 	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/server"
 	sw "github.com/GameXost/YandexGo_proj/DRIVERS/server/go"
 )
 
+type UnimplementedDriversServer struct{}
+
+type DriverServer struct {
+	pb.UnimplementedDriversServer
+	db    *pgxpool.Pool
+	redis *redis.Client
+	kafka *kafka.Writer
+}
+
 func main() {
-	routes := sw.ApiHandleFunctions{}
+	ctx := context.Background()
 
-	log.Printf("Server started")
-	log.Printf("Shit happens")
-	router := sw.NewRouter(routes)
+	// DB connection
+	connStr := "postgres://admin:secret@95.163.222.30:5432/Auth?sslmode=disable"
+	dbpool, err := pgxpool.New(ctx, connStr)
+	if err != nil {
+		log.Fatalf("Unable to create pool: %v", err)
+	}
+	defer dbpool.Close()
+	log.Println("PGX working")
 
-	log.Fatal(router.Run(":8080"))
+	// REDIS connection
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+	if err := redisClient.Ping(ctx).Err(); err != nil {
+		log.Fatalf("Unable to connect to redis: %v", err)
+	}
+	log.Println("REDIS working")
+
+	// Kafka connection
+	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
+		Brokers: []string{"localhost:9092"},
+		Topic:   "rides",
+	})
+	defer kafkaWriter.Close()
+	log.Println("Kafka working")
+
+	// server up
+	sv := &DriverServer{
+		db:    dbpool,
+		redis: redisClient,
+		kafka: kafkaWriter,
+	}
+
+	// gRPC server up
+	grpcServer := grpc.NewServer()
+	pb.RegisterDriversServer(grpcServer, sv)
+	grpcListener, err := net.Listen("tcp", ":9092")
+	if err != nil {
+		log.Fatalf("Unable to listen on 9092: %v", err)
+	}
+	go func() {
+		log.Println("GRPC server listening on :9092")
+		if err := grpcServer.Serve(grpcListener); err != nil {
+			log.Fatalf("Unable to start grpc server: %v", err)
+		}
+	}()
+
+	//gRPC gateway up
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	err = pb.RegisterDriversHandlerFromEndpoint(ctx, mux, connStr, opts)
+	if err != nil {
+		log.Fatalf("Unable to register handler: %v", err)
+	}
+	log.Println("Listening on localhost:9092")
+	if err := http.ListenAndServe(":9092", mux); err != nil {
+		log.Fatalf("Unable to listen on 9092: %v", err)
+	}
+
+	conn, err := grpc.DialContext(ctx, "localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Unable to connect to grpc server: %v", err)
+	}
+	grpcClient := pb.NewDriversClient(conn)
+
+	driverHandler := sw.NewDriverCustomHandler(grpcClient)
+	locationHandler := sw.NewLocationCustomHandler(grpcClient)
+	passangersHandler := sw.NewPassangersCustomHandler(grpcClient)
+	ridesHandler := sw.NewRidesCustomHandler(grpcClient)
+	handlers := sw.ApiHandleFunctions{}
+	router := sw.NewRouter(handlers)
+
+	router.Any("/any", gin.WrapH(mux))
+	if err := router.Run("9092"); err != nil {
+		log.Fatalf("Unable to listen on 9092: %v", err)
+	}
+
+	log.Fatal(http.ListenAndServe(":8080", router))
+
 }
