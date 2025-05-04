@@ -29,10 +29,8 @@
          [Backend Services: Go, Python]
                |               |
              [gRPC]        [Redis, Kafka]
-```plaintext
-[Mobile App (Kotlin)] <--> [API Gateway] <--> [Backend Services: Go, Python]
-                                      |          |
-                                  [gRPC]      [Redis, Kafka]
+
+
 ````
 
 ## 📄 Документация
