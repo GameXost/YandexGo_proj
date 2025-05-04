@@ -44,7 +44,7 @@ build_proto: proto-google proto-openapiv2 generate_server generate_client_server
 docker_build:
 	docker build \
 		-t yandexgo_proj \
-		-f server/Dockerfile \
+		-f Dockerfile \
 		server
 
 docker_run:
