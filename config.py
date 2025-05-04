@@ -22,7 +22,8 @@ class db_config(BaseModel):
 class redis_config(BaseModel):
     password: str = "secret"
     host: str = "95.163.222.30"
-    port: str = "6379"
+    port: int = 6379
+    ttl_length: int = 300
 
 
 class Settings(BaseSettings):
@@ -30,4 +31,5 @@ class Settings(BaseSettings):
     db_info: db_config = db_config()
     redis_info: redis_config = redis_config()
 
-settings=Settings()
+
+settings = Settings()

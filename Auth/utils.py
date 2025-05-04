@@ -5,7 +5,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from config import settings
 
-
 class JWT_utils():
     def encode_jwt(
         payload: dict,
@@ -48,7 +47,7 @@ class repo_utils():
             "password": password,
             "level_access": level_access
         }
-
+    
     def jsonify_driver(id: str, first_name: str, last_name: str, email: str, phone_number: str, password: str | bytes, driver_license: str, driver_license_date: str, car_model: str, car_marks: str, car_number: str, car_color: str, level_access: int):
         return {
             "id": id,

@@ -1,14 +1,12 @@
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
+import json
 from fastapi import FastAPI, HTTPException, Depends, APIRouter, status
 from models import *
 from Users_repo import *
 from utils import *
-from oauth2 import Token, authenticate_user, create_access_token, get_current_active_user, get_user_by_level, TokenData
-from pydantic import BaseModel
-from datetime import timedelta
-from typing import Annotated
+
 
 Auth_router = APIRouter(prefix='/auth', tags=['Auth'])
 
@@ -22,8 +20,14 @@ def get_drivers_repo():
 
 
 @Auth_router.post("/users/add", summary='Добавить пользователя в базу')
-def add_user(user: User, repository: UsersRepository = Depends(get_users_repo)):
+def add_user(user_safe: User_safe, repository: UsersRepository = Depends(get_users_repo)):
     try:
+        user = User(
+            first_name=user_safe.first_name,
+            last_name=user_safe.last_name,
+            email=user_safe.email,
+            phone_number=user_safe.phone_number,
+            password=user_safe.password)
         validations.check_user_uniqueness(user)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -33,23 +37,32 @@ def add_user(user: User, repository: UsersRepository = Depends(get_users_repo)):
 
 
 @Auth_router.delete("/users/delete", summary='Удалить пользователя из базы')
-def delete_user(user: User, repository: UsersRepository = Depends(get_users_repo)):
+def delete_user(id: str, repository: UsersRepository = Depends(get_users_repo)):
     try:
-        hashed_password = repository.get_user_hash(user.email)
-        if not JWT_utils.validate_password(user.password, hashed_password):
-            raise ValueError("Неверный пароль")
-        repository.delete_user(user)
+        repository.delete_user(id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     return {"message": "Пользователь успешно удален"}
 
 
 @Auth_router.post("/drivers/add", summary='Добавить водителя в базу')
-def add_driver(dr: Driver, repository: DriversRepository = Depends(get_drivers_repo)):
+def add_driver(dr_safe: Driver_safe, repository: DriversRepository = Depends(get_drivers_repo)):
+
     try:
+        dr = Driver(
+            first_name=dr_safe.first_name,
+            last_name=dr_safe.last_name,
+            email=dr_safe.email,
+            phone_number=dr_safe.phone_number,
+            password=dr_safe.password,
+            driver_license=dr_safe.driver_license,
+            driver_license_date=dr_safe.driver_license_date,
+            car_number=dr_safe.car_number,
+            car_model=dr_safe.car_model,
+            car_marks=dr_safe.car_marks,
+            car_color=dr_safe.car_color)
         validations.check_driver_uniqueness(dr)
         validations.validate_car_model(dr.car_model, dr.car_marks)
-        validations.validate_driver_licence(dr.driver_license, dr.driver_license_date)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     dr.password = JWT_utils.hash_password(dr.password).decode('utf-8')
@@ -58,17 +71,9 @@ def add_driver(dr: Driver, repository: DriversRepository = Depends(get_drivers_r
 
 
 @Auth_router.delete("/drivers/delete", summary='Удалить водителя из базы')
-def delete_driver(dr: Driver, repository: DriversRepository = Depends(get_drivers_repo)):
+def delete_driver(id: str, repository: DriversRepository = Depends(get_drivers_repo)):
     try:
-        hashed_password = repository.get_driver_hash(dr.email)
-        if not JWT_utils.validate_password(dr.password, hashed_password):
-            raise ValueError("Неверный пароль")
-        repository.delete_driver(dr)
+        repository.delete_driver(id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     return {"message": "Водитель успешно удален"}
-
-
-
-
-

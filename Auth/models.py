@@ -10,8 +10,8 @@ class User(BaseModel):
     last_name: str
     email: str
     phone_number: str
-    level_access: int = 1
     password: str
+    level_access: int = Field(default=1)
 
     @field_validator('first_name', 'last_name', mode='before')
     @classmethod
@@ -44,6 +44,13 @@ class User(BaseModel):
         return v
 
 
+class User_safe(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    phone_number: str
+    password: str
+
 class Driver(User):
     driver_license: str
     driver_license_date: str
@@ -51,7 +58,7 @@ class Driver(User):
     car_model: str
     car_marks: str
     car_color: str
-    level_access: int = 2
+    level_access: int = Field(default=2)
 
     @field_validator('driver_license', mode='after')
     @classmethod
@@ -80,3 +87,17 @@ class Driver(User):
         if value not in allowed_colors:
             raise ValueError("Неверный формат цвета машины")
         return value
+
+
+class Driver_safe(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    phone_number: str
+    password: str
+    driver_license: str
+    driver_license_date: str
+    car_number: str
+    car_model: str
+    car_marks: str
+    car_color: str
