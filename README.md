@@ -14,7 +14,7 @@
 * **Frontend:** Kotlin
 * **Backend:** Python, Go
 * **Инфраструктура и обмен сообщениями:** Redis, Kafka
-* **Контейнеризация и оркестрация:** Docker, Docker Compose
+* **Контейнеры и управление ими:** Docker, Docker Compose
 * **Взаимодействие между сервисами:** gRPC, API Gateway, restAPI
 * **Документация API:** OpenAPI (Swagger)
 
