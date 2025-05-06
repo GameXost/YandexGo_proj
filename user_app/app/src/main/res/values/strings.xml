@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Caren (user)</string>
+    <string name="initial_address_input">Откуда?</string>
+    <string name="destination_address_input">Куда?</string>
+    <string name="favorites_icon">Избранные адреса</string>
+    <string name="avatar_icon">Профиль</string>
+    <string name="logo">Логотип</string>
+</resources>
