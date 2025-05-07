@@ -13,6 +13,7 @@ docs/DriverServiceDriver.md
 docs/DriverServiceLocation.md
 docs/DriverServiceLocationUpdateRequest.md
 docs/DriverServiceRide.md
+docs/DriverServiceRideHistoryResponse.md
 docs/DriverServiceRideRequest.md
 docs/DriverServiceRideRequestsResponse.md
 docs/DriverServiceStatusResponse.md
@@ -30,6 +31,7 @@ model_driver_service_driver.go
 model_driver_service_location.go
 model_driver_service_location_update_request.go
 model_driver_service_ride.go
+model_driver_service_ride_history_response.go
 model_driver_service_ride_request.go
 model_driver_service_ride_requests_response.go
 model_driver_service_status_response.go

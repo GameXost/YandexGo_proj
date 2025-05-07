@@ -39,8 +39,8 @@ build_proto: proto-google proto-openapiv2 generate_server generate_client_server
 		--go-grpc_out=API/generated/drivers --go-grpc_opt=paths=source_relative \
 		--grpc-gateway_out=API/generated/drivers --grpc-gateway_opt=paths=source_relative \
 		--openapiv2_out=logtostderr=true:API/generated/drivers \
-		--additional-properties=validateSpec=false \
 		API/protos/drivers.proto
+
 
 
 docker_build:

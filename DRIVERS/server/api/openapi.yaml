@@ -12,6 +12,8 @@ info:
   version: "2.0"
 servers:
 - url: /
+security:
+- OAuth2: []
 tags:
 - name: Drivers
 paths:
@@ -38,6 +40,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
+      security:
+      - OAuth2: []
       summary: Get current ride information
       tags:
       - rides
@@ -64,6 +68,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
+      security:
+      - OAuth2: []
       summary: Update driver location (streaming)
       tags:
       - location
@@ -97,6 +103,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
+      security:
+      - OAuth2: []
       summary: Get nearby ride requests
       tags:
       - location
@@ -108,6 +116,7 @@ paths:
         in: query
         name: token
         schema:
+          pattern: "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
           type: string
       responses:
         "200":
@@ -122,6 +131,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
+      security:
+      - OAuth2: []
       summary: Get driver profile
       tags:
       - driver
@@ -146,10 +157,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
+      security:
+      - OAuth2: []
       summary: Update driver profile
       tags:
       - driver
       x-codegen-request-body-name: body
+  /driver/{id}/rides:
+    get:
+      operationId: getRideHistory
+      parameters:
+      - description: driver's id
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceRideHistoryResponse'
+          description: Successfully retrieved ride history
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Get driver's ride history
+      tags:
+      - rides
   /ride/{id}/accept:
     post:
       operationId: acceptRide
@@ -173,6 +214,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
+      security:
+      - OAuth2: []
       summary: Accept a ride
       tags:
       - rides
@@ -199,6 +242,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
+      security:
+      - OAuth2: []
       summary: Cancel a ride
       tags:
       - rides
@@ -225,6 +270,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
+      security:
+      - OAuth2: []
       summary: Complete a ride
       tags:
       - rides
@@ -251,6 +298,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
+      security:
+      - OAuth2: []
       summary: Get passenger information
       tags:
       - passengers
@@ -358,19 +407,51 @@ components:
           format: int64
           type: string
       type: object
+    driver_serviceRideHistoryResponse:
+      example:
+        rides:
+        - driverId: driverId
+          startLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          id: id
+          userId: userId
+          endLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          status: pending
+          timestamp: timestamp
+        - driverId: driverId
+          startLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          id: id
+          userId: userId
+          endLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          status: pending
+          timestamp: timestamp
+      properties:
+        rides:
+          description: previous rides
+          items:
+            $ref: '#/components/schemas/driver_serviceRide'
+          type: array
+      type: object
     driver_serviceRideRequest:
       example:
         startLocation:
           latitude: 55.755825
           longitude: 37.617298
-        userId: user_456
+        userId: 123e4567-e89b-12d3-a456-426614174000
         endLocation:
           latitude: 55.755825
           longitude: 37.617298
       properties:
         userId:
           description: User ID
-          example: user_456
+          example: 123e4567-e89b-12d3-a456-426614174000
           type: string
         startLocation:
           $ref: '#/components/schemas/driver_serviceLocation'
@@ -383,14 +464,14 @@ components:
         - startLocation:
             latitude: 55.755825
             longitude: 37.617298
-          userId: user_456
+          userId: 123e4567-e89b-12d3-a456-426614174000
           endLocation:
             latitude: 55.755825
             longitude: 37.617298
         - startLocation:
             latitude: 55.755825
             longitude: 37.617298
-          userId: user_456
+          userId: 123e4567-e89b-12d3-a456-426614174000
           endLocation:
             latitude: 55.755825
             longitude: 37.617298
@@ -464,4 +545,12 @@ components:
             $ref: '#/components/schemas/protobufAny'
           type: array
       type: object
+  securitySchemes:
+    OAuth2:
+      flows:
+        clientCredentials:
+          scopes:
+            drive-api: access to driver services
+          tokenUrl: JWT/token
+      type: oauth2
 x-original-swagger-version: "2.0"

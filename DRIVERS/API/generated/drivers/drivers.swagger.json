@@ -61,7 +61,7 @@
         ],
         "security": [
           {
-            "BearerAuth": []
+            "OAuth2": []
           }
         ]
       }
@@ -100,7 +100,7 @@
         ],
         "security": [
           {
-            "BearerAuth": []
+            "OAuth2": []
           }
         ]
       }
@@ -146,7 +146,7 @@
         ],
         "security": [
           {
-            "BearerAuth": []
+            "OAuth2": []
           }
         ]
       }
@@ -176,7 +176,7 @@
             "in": "query",
             "required": false,
             "type": "string",
-            "pattern": "^Bearer [A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
+            "pattern": "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
           }
         ],
         "tags": [
@@ -184,7 +184,7 @@
         ],
         "security": [
           {
-            "BearerAuth": []
+            "OAuth2": []
           }
         ]
       },
@@ -220,7 +220,7 @@
         ],
         "security": [
           {
-            "BearerAuth": []
+            "OAuth2": []
           }
         ]
       }
@@ -254,6 +254,11 @@
         ],
         "tags": [
           "rides"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
         ]
       }
     },
@@ -289,7 +294,7 @@
         ],
         "security": [
           {
-            "BearerAuth": []
+            "OAuth2": []
           }
         ]
       }
@@ -326,7 +331,7 @@
         ],
         "security": [
           {
-            "BearerAuth": []
+            "OAuth2": []
           }
         ]
       }
@@ -363,7 +368,7 @@
         ],
         "security": [
           {
-            "BearerAuth": []
+            "OAuth2": []
           }
         ]
       }
@@ -400,7 +405,7 @@
         ],
         "security": [
           {
-            "BearerAuth": []
+            "OAuth2": []
           }
         ]
       }
@@ -633,16 +638,18 @@
     }
   },
   "securityDefinitions": {
-    "BearerAuth": {
-      "type": "",
-      "description": "JWT token, format : Baerer {token}",
-      "name": "Authorization",
-      "in": "header"
+    "OAuth2": {
+      "type": "oauth2",
+      "flow": "application",
+      "tokenUrl": "JWT/token",
+      "scopes": {
+        "drive-api": "access to driver services"
+      }
     }
   },
   "security": [
     {
-      "BearerAuth": []
+      "OAuth2": []
     }
   ]
 }

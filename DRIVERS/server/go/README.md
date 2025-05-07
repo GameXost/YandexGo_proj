@@ -13,8 +13,8 @@ To see how to make this your own, look here:
 [README](https://openapi-generator.tech)
 
 - API version: 2.0
-- Build date: 2025-05-06T18:19:10.394273643Z[Etc/UTC]
-- Generator version: 7.13.0-SNAPSHOT
+- Build date: 2025-05-07T13:05:51.156196128Z[Etc/UTC]
+- Generator version: 7.14.0-SNAPSHOT
 For more information, please visit [https://github.com/GameXost/YandexGo_proj](https://github.com/GameXost/YandexGo_proj)
 
 ### Running the server

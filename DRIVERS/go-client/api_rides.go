@@ -20,14 +20,13 @@ import (
 	"strings"
 )
 
-
 // RidesAPIService RidesAPI service
 type RidesAPIService service
 
 type ApiAcceptRideRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *RidesAPIService
-	id string
+	id         string
 }
 
 func (r ApiAcceptRideRequest) Execute() (*DriverServiceStatusResponse, *http.Response, error) {
@@ -37,26 +36,27 @@ func (r ApiAcceptRideRequest) Execute() (*DriverServiceStatusResponse, *http.Res
 /*
 AcceptRide Accept a ride
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Ride ID
- @return ApiAcceptRideRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Ride ID
+	@return ApiAcceptRideRequest
 */
 func (a *RidesAPIService) AcceptRide(ctx context.Context, id string) ApiAcceptRideRequest {
 	return ApiAcceptRideRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return DriverServiceStatusResponse
+//
+//	@return DriverServiceStatusResponse
 func (a *RidesAPIService) AcceptRideExecute(r ApiAcceptRideRequest) (*DriverServiceStatusResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DriverServiceStatusResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DriverServiceStatusResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RidesAPIService.AcceptRide")
@@ -110,14 +110,14 @@ func (a *RidesAPIService) AcceptRideExecute(r ApiAcceptRideRequest) (*DriverServ
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v RpcStatus
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+		var v RpcStatus
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -134,9 +134,9 @@ func (a *RidesAPIService) AcceptRideExecute(r ApiAcceptRideRequest) (*DriverServ
 }
 
 type ApiCancelRideRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *RidesAPIService
-	id string
+	id         string
 }
 
 func (r ApiCancelRideRequest) Execute() (*DriverServiceStatusResponse, *http.Response, error) {
@@ -146,26 +146,27 @@ func (r ApiCancelRideRequest) Execute() (*DriverServiceStatusResponse, *http.Res
 /*
 CancelRide Cancel a ride
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Ride ID
- @return ApiCancelRideRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Ride ID
+	@return ApiCancelRideRequest
 */
 func (a *RidesAPIService) CancelRide(ctx context.Context, id string) ApiCancelRideRequest {
 	return ApiCancelRideRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return DriverServiceStatusResponse
+//
+//	@return DriverServiceStatusResponse
 func (a *RidesAPIService) CancelRideExecute(r ApiCancelRideRequest) (*DriverServiceStatusResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DriverServiceStatusResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DriverServiceStatusResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RidesAPIService.CancelRide")
@@ -219,14 +220,14 @@ func (a *RidesAPIService) CancelRideExecute(r ApiCancelRideRequest) (*DriverServ
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v RpcStatus
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+		var v RpcStatus
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -243,9 +244,9 @@ func (a *RidesAPIService) CancelRideExecute(r ApiCancelRideRequest) (*DriverServ
 }
 
 type ApiCompleteRideRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *RidesAPIService
-	id string
+	id         string
 }
 
 func (r ApiCompleteRideRequest) Execute() (*DriverServiceStatusResponse, *http.Response, error) {
@@ -255,26 +256,27 @@ func (r ApiCompleteRideRequest) Execute() (*DriverServiceStatusResponse, *http.R
 /*
 CompleteRide Complete a ride
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Ride ID
- @return ApiCompleteRideRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Ride ID
+	@return ApiCompleteRideRequest
 */
 func (a *RidesAPIService) CompleteRide(ctx context.Context, id string) ApiCompleteRideRequest {
 	return ApiCompleteRideRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return DriverServiceStatusResponse
+//
+//	@return DriverServiceStatusResponse
 func (a *RidesAPIService) CompleteRideExecute(r ApiCompleteRideRequest) (*DriverServiceStatusResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DriverServiceStatusResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DriverServiceStatusResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RidesAPIService.CompleteRide")
@@ -328,14 +330,14 @@ func (a *RidesAPIService) CompleteRideExecute(r ApiCompleteRideRequest) (*Driver
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v RpcStatus
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+		var v RpcStatus
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -352,9 +354,9 @@ func (a *RidesAPIService) CompleteRideExecute(r ApiCompleteRideRequest) (*Driver
 }
 
 type ApiGetCurrentRideRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *RidesAPIService
-	id string
+	id         string
 }
 
 func (r ApiGetCurrentRideRequest) Execute() (*DriverServiceRide, *http.Response, error) {
@@ -364,26 +366,27 @@ func (r ApiGetCurrentRideRequest) Execute() (*DriverServiceRide, *http.Response,
 /*
 GetCurrentRide Get current ride information
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id driver's id
- @return ApiGetCurrentRideRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id driver's id
+	@return ApiGetCurrentRideRequest
 */
 func (a *RidesAPIService) GetCurrentRide(ctx context.Context, id string) ApiGetCurrentRideRequest {
 	return ApiGetCurrentRideRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return DriverServiceRide
+//
+//	@return DriverServiceRide
 func (a *RidesAPIService) GetCurrentRideExecute(r ApiGetCurrentRideRequest) (*DriverServiceRide, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DriverServiceRide
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DriverServiceRide
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RidesAPIService.GetCurrentRide")
@@ -437,14 +440,124 @@ func (a *RidesAPIService) GetCurrentRideExecute(r ApiGetCurrentRideRequest) (*Dr
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v RpcStatus
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+		var v RpcStatus
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+		newErr.model = v
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiGetRideHistoryRequest struct {
+	ctx        context.Context
+	ApiService *RidesAPIService
+	id         string
+}
+
+func (r ApiGetRideHistoryRequest) Execute() (*DriverServiceRideHistoryResponse, *http.Response, error) {
+	return r.ApiService.GetRideHistoryExecute(r)
+}
+
+/*
+GetRideHistory Get driver's ride history
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id driver's id
+	@return ApiGetRideHistoryRequest
+*/
+func (a *RidesAPIService) GetRideHistory(ctx context.Context, id string) ApiGetRideHistoryRequest {
+	return ApiGetRideHistoryRequest{
+		ApiService: a,
+		ctx:        ctx,
+		id:         id,
+	}
+}
+
+// Execute executes the request
+//
+//	@return DriverServiceRideHistoryResponse
+func (a *RidesAPIService) GetRideHistoryExecute(r ApiGetRideHistoryRequest) (*DriverServiceRideHistoryResponse, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DriverServiceRideHistoryResponse
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RidesAPIService.GetRideHistory")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/driver/{id}/rides"
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		var v RpcStatus
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 

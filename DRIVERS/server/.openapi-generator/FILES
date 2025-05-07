@@ -8,6 +8,7 @@ go/model_driver_service_driver.go
 go/model_driver_service_location.go
 go/model_driver_service_location_update_request.go
 go/model_driver_service_ride.go
+go/model_driver_service_ride_history_response.go
 go/model_driver_service_ride_request.go
 go/model_driver_service_ride_requests_response.go
 go/model_driver_service_status_response.go

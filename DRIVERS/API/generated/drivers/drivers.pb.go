@@ -837,9 +837,9 @@ const file_drivers_proto_rawDesc = "" +
 	"\fend_location\x18\x05 \x01(\v2\x18.driver_service.LocationB\x0f\x92A\f2\n" +
 	"end coordsR\vendLocation\x12b\n" +
 	"\x06status\x18\x06 \x01(\tBJ\x92AG2\vride status\xf2\x02\apending\xf2\x02\baccepted\xf2\x02\vin_progress\xf2\x02\tcompleted\xf2\x02\bcanceledR\x06status\x12<\n" +
-	"\ttimestamp\x18\a \x01(\x03B\x1e\x92A\x1b2\x19time mark for start pointR\ttimestamp\"\xcd\x01\n" +
-	"\tAuthToken\x12\x9b\x01\n" +
-	"\x05token\x18\x01 \x01(\tB\x84\x01\x92A\x80\x012\x0eJWT auth tokenJ.Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\x8a\x01=^Bearer [A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$R\x05token:\"\x92A\x1f\n" +
+	"\ttimestamp\x18\a \x01(\x03B\x1e\x92A\x1b2\x19time mark for start pointR\ttimestamp\"\xbd\x01\n" +
+	"\tAuthToken\x12\x8b\x01\n" +
+	"\x05token\x18\x01 \x01(\tBu\x92Ar2\x0eJWT auth tokenJ'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\x8a\x016^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$R\x05token:\"\x92A\x1f\n" +
 	"\x1d*\n" +
 	"Auth Token2\x0fJWT auth tokern\"\x84\x01\n" +
 	"\x1aUpdateDriverProfileRequest\x12\x1e\n" +
@@ -865,91 +865,95 @@ const file_drivers_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tB4\x92A12\aUser IDJ&\"123e4567-e89b-12d3-a456-426614174000\"R\x06userId\x12R\n" +
 	"\x0estart_location\x18\x02 \x01(\v2\x18.driver_service.LocationB\x11\x92A\x0e2\fstart coordsR\rstartLocation\x12L\n" +
 	"\fend_location\x18\x03 \x01(\v2\x18.driver_service.LocationB\x0f\x92A\f2\n" +
-	"end coordsR\vendLocation2\xb0\x11\n" +
-	"\aDrivers\x12\xd2\x01\n" +
-	"\x10GetDriverProfile\x12\x19.driver_service.AuthToken\x1a\x16.driver_service.Driver\"\x8a\x01\x92Ap\n" +
+	"end coordsR\vendLocation2\x9a\x11\n" +
+	"\aDrivers\x12\xce\x01\n" +
+	"\x10GetDriverProfile\x12\x19.driver_service.AuthToken\x1a\x16.driver_service.Driver\"\x86\x01\x92Al\n" +
 	"\x06driver\x12\x12Get driver profile*\x10getDriverProfileJ.\n" +
 	"\x03200\x12'\n" +
-	"%Successfully retrieved driver profileb\x10\n" +
-	"\x0e\n" +
+	"%Successfully retrieved driver profileb\f\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x11\x12\x0f/driver/profile\x12\xed\x01\n" +
-	"\x13UpdateDriverProfile\x12*.driver_service.UpdateDriverProfileRequest\x1a\x16.driver_service.Driver\"\x91\x01\x92At\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x11\x12\x0f/driver/profile\x12\xe9\x01\n" +
+	"\x13UpdateDriverProfile\x12*.driver_service.UpdateDriverProfileRequest\x1a\x16.driver_service.Driver\"\x8d\x01\x92Ap\n" +
 	"\x06driver\x12\x15Update driver profile*\x13updateDriverProfileJ,\n" +
 	"\x03200\x12%\n" +
-	"#Successfully updated driver profileb\x10\n" +
-	"\x0e\n" +
+	"#Successfully updated driver profileb\f\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14:\x01*\x1a\x0f/driver/profile\x12\xc2\x01\n" +
 	"\n" +
-	"AcceptRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"u\x92AY\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x14:\x01*\x1a\x0f/driver/profile\x12\xbe\x01\n" +
+	"\n" +
+	"AcceptRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"q\x92AU\n" +
 	"\x05rides\x12\rAccept a ride*\n" +
 	"acceptRideJ#\n" +
 	"\x03200\x12\x1c\n" +
-	"\x1aRide accepted successfullyb\x10\n" +
-	"\x0e\n" +
+	"\x1aRide accepted successfullyb\f\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/accept\x12\xcb\x01\n" +
-	"\fCompleteRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"|\x92A^\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/accept\x12\xc7\x01\n" +
+	"\fCompleteRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"x\x92AZ\n" +
 	"\x05rides\x12\x0fComplete a ride*\fcompleteRideJ$\n" +
 	"\x03200\x12\x1d\n" +
-	"\x1bRide completed successfullyb\x10\n" +
-	"\x0e\n" +
+	"\x1bRide completed successfullyb\f\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x15\"\x13/ride/{id}/complete\x12\xc2\x01\n" +
 	"\n" +
-	"CancelRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"u\x92AY\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x15\"\x13/ride/{id}/complete\x12\xbe\x01\n" +
+	"\n" +
+	"CancelRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"q\x92AU\n" +
 	"\x05rides\x12\rCancel a ride*\n" +
 	"cancelRideJ#\n" +
 	"\x03200\x12\x1c\n" +
-	"\x1aRide canceled successfullyb\x10\n" +
-	"\x0e\n" +
+	"\x1aRide canceled successfullyb\f\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12\xe3\x01\n" +
-	"\x0eGetCurrentRide\x12\x1f.driver_service.DriverIdRequest\x1a\x14.driver_service.Ride\"\x99\x01\x92Au\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12\xdf\x01\n" +
+	"\x0eGetCurrentRide\x12\x1f.driver_service.DriverIdRequest\x1a\x14.driver_service.Ride\"\x95\x01\x92Aq\n" +
 	"\x05rides\x12\x1cGet current ride information*\x0egetCurrentRideJ,\n" +
 	"\x03200\x12%\n" +
-	"#Successfully retrieved current rideb\x10\n" +
-	"\x0e\n" +
+	"#Successfully retrieved current rideb\f\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x1b\x12\x19/driver/current_ride/{id}\x12\xfc\x01\n" +
-	"\x0eUpdateLocation\x12%.driver_service.LocationUpdateRequest\x1a\x1e.driver_service.StatusResponse\"\xa0\x01\x92A\x81\x01\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x1b\x12\x19/driver/current_ride/{id}\x12\xf7\x01\n" +
+	"\x0eUpdateLocation\x12%.driver_service.LocationUpdateRequest\x1a\x1e.driver_service.StatusResponse\"\x9b\x01\x92A}\n" +
 	"\blocation\x12\"Update driver location (streaming)*\x0eupdateLocationJ/\n" +
 	"\x03200\x12(\n" +
-	"&Location updates received successfullyb\x10\n" +
-	"\x0e\n" +
+	"&Location updates received successfullyb\f\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/driver/location(\x01\x12\xed\x01\n" +
-	"\x11GetNearbyRequests\x12\x18.driver_service.Location\x1a$.driver_service.RideRequestsResponse\"\x97\x01\x92Az\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/driver/location(\x01\x12\xe9\x01\n" +
+	"\x11GetNearbyRequests\x12\x18.driver_service.Location\x1a$.driver_service.RideRequestsResponse\"\x93\x01\x92Av\n" +
 	"\blocation\x12\x18Get nearby ride requests*\x11getNearbyRequestsJ/\n" +
 	"\x03200\x12(\n" +
-	"&Successfully retrieved nearby requestsb\x10\n" +
-	"\x0e\n" +
+	"&Successfully retrieved nearby requestsb\f\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/nearby_req\x12\xda\x01\n" +
-	"\x10GetPassengerInfo\x12\x1d.driver_service.UserIdRequest\x1a\x14.driver_service.User\"\x90\x01\x92A{\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/nearby_req\x12\xd6\x01\n" +
+	"\x10GetPassengerInfo\x12\x1d.driver_service.UserIdRequest\x1a\x14.driver_service.User\"\x8c\x01\x92Aw\n" +
 	"\n" +
 	"passengers\x12\x19Get passenger information*\x10getPassengerInfoJ.\n" +
 	"\x03200\x12'\n" +
-	"%Successfully retrieved passenger infob\x10\n" +
-	"\x0e\n" +
+	"%Successfully retrieved passenger infob\f\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\f\x12\n" +
-	"/user/{id}\x12\xd5\x01\n" +
-	"\x0eGetRideHistory\x12\x1f.driver_service.DriverIdRequest\x1a#.driver_service.RideHistoryResponse\"}\x92A`\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\f\x12\n" +
+	"/user/{id}\x12\xe4\x01\n" +
+	"\x0eGetRideHistory\x12\x1f.driver_service.DriverIdRequest\x1a#.driver_service.RideHistoryResponse\"\x8b\x01\x92An\n" +
 	"\x05rides\x12\x19Get driver's ride history*\x0egetRideHistoryJ,\n" +
 	"\x03200\x12%\n" +
-	"#Successfully retrieved ride history\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/{id}/ridesB\xab\x03\x92A\xe8\x02\x12\xe5\x01\n" +
+	"#Successfully retrieved ride historyb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/{id}/ridesB\xa7\x03\x92A\xe4\x02\x12\xe5\x01\n" +
 	"\x12Driver Service API\x12,API for managing drivers and ride operations\"\\\n" +
 	"\x15YandexGo Project Team\x12)https://github.com/GameXost/YandexGo_proj\x1a\x18sergejs.dyldin@yandex.ru*>\n" +
 	"\n" +
 	"Apache 2.0\x120https://www.apache.org/licenses/LICENSE-2.0.html2\x032.0*\x01\x022\x10application/json:\x10application/jsonZE\n" +
 	"C\n" +
+	"\x06OAuth2\x129\b\x03(\x03:\tJWT/tokenB(\n" +
+	"&\n" +
+	"\tdrive-api\x12\x19access to driver servicesb\f\n" +
 	"\n" +
-	"BearerAuth\x125\x12\"JWT token, format : Baerer {token}\x1a\rAuthorization \x02b\x10\n" +
-	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00Z=github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protosb\x06proto3"
+	"\x06OAuth2\x12\x00Z=github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protosb\x06proto3"
 
 var (
 	file_drivers_proto_rawDescOnce sync.Once
