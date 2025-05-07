@@ -26,6 +26,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
         security: {
             key: "BearerAuth";
             value:{
+                type: TYPE_API_KEY;
                 in: IN_HEADER;
                 name: "Authorization";
                 description: "JWT token, format : Baerer {token}"
