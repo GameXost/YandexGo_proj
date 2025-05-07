@@ -58,6 +58,11 @@
         ],
         "tags": [
           "rides"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -92,6 +97,11 @@
         ],
         "tags": [
           "location"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -133,6 +143,11 @@
         ],
         "tags": [
           "location"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -160,11 +175,17 @@
             "description": "JWT auth token",
             "in": "query",
             "required": false,
-            "type": "string"
+            "type": "string",
+            "pattern": "^Bearer [A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
           }
         ],
         "tags": [
           "driver"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       },
       "put": {
@@ -196,6 +217,43 @@
         ],
         "tags": [
           "driver"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/driver/{id}/rides": {
+      "get": {
+        "summary": "Get driver's ride history",
+        "operationId": "getRideHistory",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved ride history",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceRideHistoryResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "driver's id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "rides"
         ]
       }
     },
@@ -228,6 +286,11 @@
         ],
         "tags": [
           "rides"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -260,6 +323,11 @@
         ],
         "tags": [
           "rides"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -292,6 +360,11 @@
         ],
         "tags": [
           "rides"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -324,6 +397,11 @@
         ],
         "tags": [
           "passengers"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     }
@@ -372,13 +450,13 @@
         "latitude": {
           "type": "number",
           "format": "double",
-          "example": "55.755825",
+          "example": 55.755825,
           "description": "Latitude"
         },
         "longitude": {
           "type": "number",
           "format": "double",
-          "example": "37.617298",
+          "example": 37.617298,
           "description": "Longitude"
         }
       }
@@ -438,12 +516,25 @@
         }
       }
     },
+    "driver_serviceRideHistoryResponse": {
+      "type": "object",
+      "properties": {
+        "rides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/driver_serviceRide"
+          },
+          "description": "previous rides"
+        }
+      }
+    },
     "driver_serviceRideRequest": {
       "type": "object",
       "properties": {
         "userId": {
           "type": "string",
-          "example": "user_456",
+          "example": "123e4567-e89b-12d3-a456-426614174000",
           "description": "User ID"
         },
         "startLocation": {
@@ -540,5 +631,18 @@
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "",
+      "description": "JWT token, format : Baerer {token}",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
 }

@@ -22,6 +22,22 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
             url: "https://www.apache.org/licenses/LICENSE-2.0.html";
         };
     };
+    security_definitions:{
+        security: {
+            key: "BearerAuth";
+            value:{
+                in: IN_HEADER;
+                name: "Authorization";
+                description: "JWT token, format : Baerer {token}"
+            }
+        }
+    };
+    security: {
+        security_requirement:{
+            key: "BearerAuth";
+            value: {};
+        }
+    };
     schemes: HTTPS;
     consumes: "application/json";
     produces: "application/json";
@@ -34,6 +50,12 @@ service Drivers {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             summary: "Get driver profile";
+            security: {
+                security_requirement:{
+                    key: "BearerAuth";
+                    value: {};
+                }
+            };
             operation_id: "getDriverProfile";
             tags: "driver";
             responses: {
@@ -51,6 +73,9 @@ service Drivers {
             body: "*"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: { key: "BearerAuth"; value: {} }
+            }
             summary: "Update driver profile";
             operation_id: "updateDriverProfile";
             tags: "driver";
@@ -68,6 +93,9 @@ service Drivers {
             post: "/ride/{id}/accept"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: { key: "BearerAuth"; value: {} }
+            }
             summary: "Accept a ride";
             operation_id: "acceptRide";
             tags: "rides";
@@ -85,6 +113,9 @@ service Drivers {
             post: "/ride/{id}/complete"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: { key: "BearerAuth"; value: {} }
+            }
             summary: "Complete a ride";
             operation_id: "completeRide";
             tags: "rides";
@@ -102,6 +133,9 @@ service Drivers {
             post: "/ride/{id}/cancel"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: { key: "BearerAuth"; value: {} }
+            }
             summary: "Cancel a ride";
             operation_id: "cancelRide";
             tags: "rides";
@@ -119,6 +153,9 @@ service Drivers {
             get: "/driver/current_ride/{id}"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: { key: "BearerAuth"; value: {} }
+            }
             summary: "Get current ride information";
             operation_id: "getCurrentRide";
             tags: "rides";
@@ -137,6 +174,9 @@ service Drivers {
             body: "*"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: { key: "BearerAuth"; value: {} }
+            }
             summary: "Update driver location (streaming)";
             operation_id: "updateLocation";
             tags: "location";
@@ -154,6 +194,9 @@ service Drivers {
             get: "/driver/nearby_req"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: { key: "BearerAuth"; value: {} }
+            }
             summary: "Get nearby ride requests";
             operation_id: "getNearbyRequests";
             tags: "location";
@@ -171,6 +214,9 @@ service Drivers {
             get: "/user/{id}"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: { key: "BearerAuth"; value: {} }
+            }
             summary: "Get passenger information";
             operation_id: "getPassengerInfo";
             tags: "passengers";
@@ -179,6 +225,20 @@ service Drivers {
                 value: {
                     description: "Successfully retrieved passenger info";
                 }
+            }
+        };
+    }
+    rpc GetRideHistory(DriverIdRequest) returns (RideHistoryResponse) {
+        option (google.api.http) = {
+            get: "/driver/{id}/rides"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Get driver's ride history";
+            operation_id: "getRideHistory";
+            tags: "rides";
+            responses: {
+                key: "200"
+                value: { description: "Successfully retrieved ride history" }
             }
         };
     }
@@ -202,8 +262,8 @@ message User {
 }
 
 message Location {
-    double latitude = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Latitude", example: "\"55.755825\"" }];
-    double longitude = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Longitude", example: "\"37.617298\"" }];
+    double latitude = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Latitude", example: "55.755825" }];
+    double longitude = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Longitude", example: "37.617298" }];
 }
 
 message Ride {
@@ -220,10 +280,18 @@ message Ride {
 }
 
 message AuthToken {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+        json_schema: {
+            title: "Auth Token"
+            description: "JWT auth tokern"
+        }
+    };
     string token = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
         description: "JWT auth token",
-        example: "\"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\""
-    }];
+        example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        pattern: "^Bearer [A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
+    }
+    ];
 }
 
 message UpdateDriverProfileRequest {
@@ -241,7 +309,7 @@ message RideIdRequest {
 message DriverIdRequest {
     string id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
         description: "driver's id",
-        example: "\"driver_67890\""
+        example: "\"123e4567-e89b-12d3-a456-426614174000\""
     }];
 }
 
@@ -276,7 +344,7 @@ message RideRequestsResponse {
 message RideRequest {
     string user_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
         description: "User ID",
-        example: "\"user_456\""
+        example: "\"123e4567-e89b-12d3-a456-426614174000\""
     }];
     Location start_location = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "start coords" }];
     Location end_location = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "end coords" }];

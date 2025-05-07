@@ -28,6 +28,7 @@ const (
 	Drivers_UpdateLocation_FullMethodName      = "/driver_service.Drivers/UpdateLocation"
 	Drivers_GetNearbyRequests_FullMethodName   = "/driver_service.Drivers/GetNearbyRequests"
 	Drivers_GetPassengerInfo_FullMethodName    = "/driver_service.Drivers/GetPassengerInfo"
+	Drivers_GetRideHistory_FullMethodName      = "/driver_service.Drivers/GetRideHistory"
 )
 
 // DriversClient is the client API for Drivers service.
@@ -43,6 +44,7 @@ type DriversClient interface {
 	UpdateLocation(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[LocationUpdateRequest, StatusResponse], error)
 	GetNearbyRequests(ctx context.Context, in *Location, opts ...grpc.CallOption) (*RideRequestsResponse, error)
 	GetPassengerInfo(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*User, error)
+	GetRideHistory(ctx context.Context, in *DriverIdRequest, opts ...grpc.CallOption) (*RideHistoryResponse, error)
 }
 
 type driversClient struct {
@@ -146,6 +148,16 @@ func (c *driversClient) GetPassengerInfo(ctx context.Context, in *UserIdRequest,
 	return out, nil
 }
 
+func (c *driversClient) GetRideHistory(ctx context.Context, in *DriverIdRequest, opts ...grpc.CallOption) (*RideHistoryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RideHistoryResponse)
+	err := c.cc.Invoke(ctx, Drivers_GetRideHistory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DriversServer is the server API for Drivers service.
 // All implementations must embed UnimplementedDriversServer
 // for forward compatibility.
@@ -159,6 +171,7 @@ type DriversServer interface {
 	UpdateLocation(grpc.ClientStreamingServer[LocationUpdateRequest, StatusResponse]) error
 	GetNearbyRequests(context.Context, *Location) (*RideRequestsResponse, error)
 	GetPassengerInfo(context.Context, *UserIdRequest) (*User, error)
+	GetRideHistory(context.Context, *DriverIdRequest) (*RideHistoryResponse, error)
 	mustEmbedUnimplementedDriversServer()
 }
 
@@ -195,6 +208,9 @@ func (UnimplementedDriversServer) GetNearbyRequests(context.Context, *Location) 
 }
 func (UnimplementedDriversServer) GetPassengerInfo(context.Context, *UserIdRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPassengerInfo not implemented")
+}
+func (UnimplementedDriversServer) GetRideHistory(context.Context, *DriverIdRequest) (*RideHistoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRideHistory not implemented")
 }
 func (UnimplementedDriversServer) mustEmbedUnimplementedDriversServer() {}
 func (UnimplementedDriversServer) testEmbeddedByValue()                 {}
@@ -368,6 +384,24 @@ func _Drivers_GetPassengerInfo_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Drivers_GetRideHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DriverIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DriversServer).GetRideHistory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Drivers_GetRideHistory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DriversServer).GetRideHistory(ctx, req.(*DriverIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Drivers_ServiceDesc is the grpc.ServiceDesc for Drivers service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -406,6 +440,10 @@ var Drivers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPassengerInfo",
 			Handler:    _Drivers_GetPassengerInfo_Handler,
+		},
+		{
+			MethodName: "GetRideHistory",
+			Handler:    _Drivers_GetRideHistory_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

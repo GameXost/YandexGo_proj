@@ -45,13 +45,12 @@ docker_build:
 	docker build \
 		-t yandexgo_proj \
 		-f Dockerfile \
-		server
+		.
 
 docker_run:
-	docker run --rm -d \
+	docker run --rm -it \
 		-p 8080:8080 \
 		--name yandexgo_server \
-		-v ${CURDIR}/server:/local \
 		yandexgo_proj
 
 docker_stop:
