@@ -298,8 +298,8 @@ message AuthToken {
     };
     string token = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
         description: "JWT auth token",
-        example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        pattern: "^Bearer [A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
+        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        pattern: "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
     }
     ];
 }

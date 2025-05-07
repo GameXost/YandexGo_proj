@@ -33,11 +33,13 @@ generate_client_server:
 	--git-repo-id YandexGo_proj
 
 build_proto: proto-google proto-openapiv2 generate_server generate_client_server
+
 	protoc -I API/protos -I API/ -I API/protoc-gen-openapiv2/options \
 		--go_out=API/generated/drivers --go_opt=paths=source_relative \
 		--go-grpc_out=API/generated/drivers --go-grpc_opt=paths=source_relative \
 		--grpc-gateway_out=API/generated/drivers --grpc-gateway_opt=paths=source_relative \
 		--openapiv2_out=logtostderr=true:API/generated/drivers \
+		--additional-properties=validateSpec=false \
 		API/protos/drivers.proto
 
 
