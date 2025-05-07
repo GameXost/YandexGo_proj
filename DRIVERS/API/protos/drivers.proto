@@ -22,20 +22,25 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
             url: "https://www.apache.org/licenses/LICENSE-2.0.html";
         };
     };
-    security_definitions:{
+    security_definitions: {
         security: {
-            key: "BearerAuth";
-            value:{
-                type: TYPE_API_KEY;
-                in: IN_HEADER;
-                name: "Authorization";
-                description: "JWT token, format : Baerer {token}"
+            key: "OAuth2";
+            value: {
+                type: TYPE_OAUTH2;
+                flow: FLOW_APPLICATION;
+                token_url: "JWT/token";
+                scopes: {
+                    scope: {
+                        key: "drive-api";
+                        value: "access to driver services";
+                    }
+                }
             }
         }
     };
     security: {
-        security_requirement:{
-            key: "BearerAuth";
+        security_requirement: {
+            key: "OAuth2";
             value: {};
         }
     };
@@ -53,7 +58,7 @@ service Drivers {
             summary: "Get driver profile";
             security: {
                 security_requirement:{
-                    key: "BearerAuth";
+                    key: "OAuth2";
                     value: {};
                 }
             };
@@ -75,7 +80,7 @@ service Drivers {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: { key: "BearerAuth"; value: {} }
+                security_requirement: { key: "OAuth2"; value: {} }
             }
             summary: "Update driver profile";
             operation_id: "updateDriverProfile";
@@ -95,7 +100,7 @@ service Drivers {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: { key: "BearerAuth"; value: {} }
+                security_requirement: { key: "OAuth2"; value: {} }
             }
             summary: "Accept a ride";
             operation_id: "acceptRide";
@@ -115,7 +120,7 @@ service Drivers {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: { key: "BearerAuth"; value: {} }
+                security_requirement: { key: "OAuth2"; value: {} }
             }
             summary: "Complete a ride";
             operation_id: "completeRide";
@@ -135,7 +140,7 @@ service Drivers {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: { key: "BearerAuth"; value: {} }
+                security_requirement: { key: "OAuth2"; value: {} }
             }
             summary: "Cancel a ride";
             operation_id: "cancelRide";
@@ -155,7 +160,7 @@ service Drivers {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: { key: "BearerAuth"; value: {} }
+                security_requirement: { key: "OAuth2"; value: {} }
             }
             summary: "Get current ride information";
             operation_id: "getCurrentRide";
@@ -176,7 +181,7 @@ service Drivers {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: { key: "BearerAuth"; value: {} }
+                security_requirement: { key: "OAuth2"; value: {} }
             }
             summary: "Update driver location (streaming)";
             operation_id: "updateLocation";
@@ -196,7 +201,7 @@ service Drivers {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: { key: "BearerAuth"; value: {} }
+                security_requirement: { key: "OAuth2"; value: {} }
             }
             summary: "Get nearby ride requests";
             operation_id: "getNearbyRequests";
@@ -216,7 +221,7 @@ service Drivers {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: { key: "BearerAuth"; value: {} }
+                security_requirement: { key: "OAuth2"; value: {} }
             }
             summary: "Get passenger information";
             operation_id: "getPassengerInfo";
@@ -234,9 +239,13 @@ service Drivers {
             get: "/driver/{id}/rides"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+
             summary: "Get driver's ride history";
             operation_id: "getRideHistory";
             tags: "rides";
+            security: {
+                security_requirement: {key: "OAuth2"; value: {}}
+            };
             responses: {
                 key: "200"
                 value: { description: "Successfully retrieved ride history" }
