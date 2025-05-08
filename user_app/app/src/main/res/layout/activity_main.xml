@@ -73,6 +73,7 @@
 
     <SearchView
         android:id="@+id/initialAddressInput"
+        android:clickable="true"
         android:layout_width="270dp"
         android:layout_height="47dp"
         android:layout_marginTop="5dp"
@@ -85,6 +86,7 @@
 
     <SearchView
         android:id="@+id/destinationAddressInput"
+        android:clickable="true"
         android:layout_width="270dp"
         android:layout_height="47dp"
         android:layout_marginTop="5dp"
@@ -95,6 +97,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/initialAddressInput"
         app:layout_constraintVertical_bias="0.0" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            app:cardCornerRadius="180dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+
+
+            <Button
+                android:id="@+id/getLocationButton"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_marginStart="-50dp"
+                android:layout_marginEnd="-50dp"
+                android:layout_marginTop="-50dp"
+                android:layout_marginBottom="-50dp" />
+
+        </androidx.cardview.widget.CardView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
