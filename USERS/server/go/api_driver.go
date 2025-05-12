@@ -18,8 +18,9 @@ type DriverAPI struct {
 }
 
 // Get /driver/:id
-// get info about your driver
+// get info about your driver 
 func (api *DriverAPI) GetDriverInfo(c *gin.Context) {
 	// Your handler implementation
 	c.JSON(200, gin.H{"status": "OK"})
 }
+

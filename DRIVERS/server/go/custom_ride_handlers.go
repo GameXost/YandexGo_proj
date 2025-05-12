@@ -11,7 +11,7 @@
 package server
 
 import (
-<<<<<<< HEAD
+
 	"context"
 	"net/http"
 
@@ -29,7 +29,7 @@ func NewRidesCustomHandler(cli pb.RidesClient) *RidesCustomHandler {
 		RidesAPI: &RidesAPI{},
 		Client:   cli,
 	}
-=======
+
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/kafka-go"
@@ -39,12 +39,12 @@ type RidesAPI struct {
 	redisClient *redis.Client
 	kafkaWriter *kafka.Writer
 	jwtSecret   string
->>>>>>> 555ea6aa6e96e61c690234e3c5f1c16a72265729
+
 }
 
 // Post /ride/:id/accept
 // Accept a ride
-<<<<<<< HEAD
+
 func (h *RidesCustomHandler) AcceptRide(c *gin.Context) {
 	rideID := c.Param("id")
 
@@ -67,7 +67,7 @@ func (h *RidesCustomHandler) AcceptRide(c *gin.Context) {
 	}
 
 	c.JSON(httpResp.StatusCode, resp)
-=======
+
 func (api *RidesAPI) AcceptRide(c *gin.Context) {
 	// Your handler implementation
 	c.JSON(200, gin.H{"status": "OK"})

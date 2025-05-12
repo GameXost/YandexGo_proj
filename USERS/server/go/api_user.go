@@ -18,15 +18,16 @@ type UserAPI struct {
 }
 
 // Get /user/profile
-// Get user profile
+// Get user profile 
 func (api *UserAPI) GetUserProfile(c *gin.Context) {
 	// Your handler implementation
 	c.JSON(200, gin.H{"status": "OK"})
 }
 
 // Put /user/profile
-// Update user profile
+// Update user profile 
 func (api *UserAPI) UpdateUserProfile(c *gin.Context) {
 	// Your handler implementation
 	c.JSON(200, gin.H{"status": "OK"})
 }
+

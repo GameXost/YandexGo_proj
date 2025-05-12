@@ -18,8 +18,9 @@ type LocationAPI struct {
 }
 
 // Get /driver/:id/location
-// getting driver location lat, lon
+// getting driver location lat, lon 
 func (api *LocationAPI) GetDriverLocation(c *gin.Context) {
 	// Your handler implementation
 	c.JSON(200, gin.H{"status": "OK"})
 }
+

@@ -18,29 +18,30 @@ type RidesAPI struct {
 }
 
 // Post /ride/:id/cancel
-// Cancel ride
+// Cancel ride 
 func (api *RidesAPI) CancelRide(c *gin.Context) {
 	// Your handler implementation
 	c.JSON(200, gin.H{"status": "OK"})
 }
 
 // Get /ride/:id
-// get ride information
+// get ride information 
 func (api *RidesAPI) GetCurrentRide(c *gin.Context) {
 	// Your handler implementation
 	c.JSON(200, gin.H{"status": "OK"})
 }
 
 // Get /ride/history
-// Get history of last rides
+// Get history of last rides 
 func (api *RidesAPI) GetRidesHistory(c *gin.Context) {
 	// Your handler implementation
 	c.JSON(200, gin.H{"status": "OK"})
 }
 
 // Post /ride/request
-// request a ride
+// request a ride 
 func (api *RidesAPI) RequestRide(c *gin.Context) {
 	// Your handler implementation
 	c.JSON(200, gin.H{"status": "OK"})
 }
+
