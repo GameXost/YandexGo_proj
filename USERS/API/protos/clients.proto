@@ -5,8 +5,51 @@ package client_service;
 
 option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protos";
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "USERS Service API";
+        version: "2.0";
+        description: "API fir managing users and ride operations";
+        contact: {
+            name: "Yandex Go Project Team";
+            url: "https://github.com/GameXost/YandexGo_proj";
+            email: "sergejs.dyldin@yandex.ru";
+        };
+        license: {
+            name: "Apache 2.0";
+            url: "https://www.apache.org/licenses/LICENSE-2.0.html";
+        };
+    };
+    security_definitions: {
+        security: {
+            key: "OAuth2";
+            value: {
+                type: TYPE_OAUTH2;
+                flow: FLOW_APPLICATION;
+                token_url: "JWT/token";
+                scopes: {
+                    scope: {
+                        key: "users-api";
+                        value: "access to driver services";
+                    }
+                }
+            }
+        }
+    };
+    security: {
+        security_requirement: {
+            key: "OAuth2";
+            value: {};
+        }
+    };
+    schemes: HTTPS;
+    consumes: "application/json";
+    produces: "application/json";
+};
 
 service Client {
     // операции с пользовательским профилем
@@ -14,11 +57,43 @@ service Client {
         option (google.api.http) = {
             get: "/user/profile"
           };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Get user profile";
+            security: {
+                security_requirement: {
+                    key: "OAuth2";
+                    value: {};
+                }
+            };
+            operation_id: "getUserProfile";
+            tags: "user";
+            responses:{
+                key: "200"
+                value: {
+                    description: "successfully returned user profile";
+                }
+            }
+        };
     }
+
     rpc UpdateUserProfile(UpdateProfileRequest) returns (User){
         option (google.api.http) = {
             put: "/user/profile"
             body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: {key: "OAuth2"; value: {} }
+            }
+            summary: "Update user profile";
+            operation_id: "updateUserProfile";
+            tags: "user";
+            responses: {
+                key: "200"
+                value: {
+                    description: "Successfully updated user profile";
+                }
+            }
         };
     }
 
@@ -28,20 +103,77 @@ service Client {
             post: "/ride/request"
             body: "*"
         };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: {key: "OAuth2"; value:{}}
+            }
+            summary: "request a ride";
+            operation_id: "requestRide";
+            tags: "rides";
+            responses: {
+                key: "200"
+                value: {
+                    description: "Ride request made properly"
+                }
+            }
+        };
     }
+
     rpc CancelRide(RideIdRequest) returns (StatusResponse){
         option (google.api.http) ={
             post: "/ride/{id}/cancel"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: {key: "OAuth2"; value:{}}
+            }
+            summary: "Cancel ride";
+            operation_id: "cancelRide";
+            tags: "rides";
+            responses: {
+                key: "200"
+                value: {
+                    description: "Ride canceled successfully";
+                }
+            }
         };
     }
     rpc GetRideStatus(UserIdRequest) returns (Ride){
         option (google.api.http) = {
             get: "/ride/{id}"
         };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: {key:"OAuth2"; value:{}}
+            }
+            summary: "get ride information";
+            operation_id: "getCurrentRide";
+            tags: "rides";
+            responses: {
+                key: "200"
+                value: {
+                    description: "Successfully received ride status";
+                }
+            }
+        };
     }
     rpc GetRideHistory(UserIdRequest) returns (RideHistoryResponse){
         option (google.api.http) = {
             get: "/ride/history"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: {key:"OAuth2"; value:{}}
+            }
+            summary: "Get history of last rides";
+            operation_id: "get rides history";
+            tags: "rides";
+            responses: {
+                key: "200"
+                value: {
+                    description: "rides history received successfully";
+                }
+            }
         };
     }
 
@@ -50,10 +182,38 @@ service Client {
         option (google.api.http) = {
             get: "/driver/{id}/location"
         };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: {key: "OAuth2"; value: {}}
+            }
+            summary: "getting driver location lat, lon";
+            operation_id: "getDriverLocation";
+            tags: "location"
+            responses: {
+                key: "200"
+                value: {
+                    description: "driver location received successfully";
+                }
+            }
+        };
     }
     rpc GetDriverInfo(DriverIdRequest) returns (Driver){
         option (google.api.http) = {
             get: "/driver/{id}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {
+                security_requirement: {key: "OAuth2"; value:{}}
+            }
+            summary: "get info about your driver";
+            operation_id: "getDriverInfo";
+            tags: "driver";
+            responses: {
+                key: "200"
+                value: {
+                    description: "drinver info received successfully";
+                }
+            }
         };
     }
 
@@ -61,80 +221,97 @@ service Client {
 
 // основные структуры
 message User {
-    string id = 1;
-    string username = 2;
-    string email = 3;
-    string phone = 4;
+    string id = 1[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "uniq user identificator"}];
+    string username = 2[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "user's firstname"}];
+    string email = 3[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "user's email"}];
+    string phone = 4[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description:"user's phone number"}];
 }
-
 message Driver{
-    string id = 1;
-    string username = 2;
-    string phone = 3;
-    string car_model = 4;
-    Location location = 5;
+    string id = 1[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "current driver's uniq identificator"}];
+    string username = 2[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "current driver's firstname"}];
+    string phone = 3[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "your driver's phone number"}];
+    string car_model = 4[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) ={description: "driver's car model"}];
+    Location location = 5[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "lat and lon"}];
+    string car_make = 6 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "car make"}];
+    string car_number =7[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "plate number"}];
+    string car_color = 8[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "car color"}];
+
 }
 
 message Location{
-    double latitude = 1;
-    double longitude = 2;
+    double latitude = 1[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "latitude", example: "55.112313"}];
+    double longitude = 2[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "longitude", example: "55.1341"}];
 }
 
 message Ride {
-    string id = 1;
-    string user_id = 2;
-    string driver_id = 3;
-    Location start_location = 4;
-    Location end_location = 5;
-    string status = 6;
-    int64 timestamp = 7;
+    string id = 1[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "uniq id of the ride"}];
+    string user_id = 2[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "user's id"}];
+    string driver_id = 3[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "driver's id"}];
+    Location start_location = 4[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "strart point coodrinates"}];
+    Location end_location = 5[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "end point coodrinates"}];
+    string status = 6[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "ride status",
+        enum: ["pending", "accepted", "in_progress", "completed", "canceled"]
+    }];
+    int64 timestamp = 7[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "starting time point"}];
   }
 
 
 message Payment {
-    string ride_id = 1;
-    string user_id = 2;
-    double amount = 3;
-    string payment_method = 4;
-    string status = 5;
+    string ride_id = 1[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "nu blyatb id of ride xule"}];
+    string user_id = 2[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "ochevidno i zaebalsya"}];
+    double amount = 3[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "nahuya i eto pishy money cash nigga"}];
+    string payment_method = 4[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "visa cripto mastercard or fucking cash????"}];
+    string status = 5[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "status of ebychii oplato we dont have this"}];
 }
 
 
 // основные операции
 message AuthToken {
-    string token = 1;
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+        json_schema: {
+            title: "Auth Token"
+            description: "JWT auth token"
+        }
+    };
+    string token = 1[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "JWT auth token",
+        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        pattern: "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
+    }];
 }
 
 message UpdateProfileRequest {
-    string id = 1;
-    string username = 2;
-    string phone = 3;
-    string email = 4;
+    string id = 1[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "uniq id of user"}];
+    string username = 2[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "user's firstname"}];
+    string phone = 3[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "user's phone number"}];
+    string email = 4[(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "user's email address"}];
 }
 
 message RideRequest {
-    string user_id = 1;
-    Location start_location = 2;
-    Location end_location = 3;
+    string user_id        = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "User's unique identifier" }];
+    Location start_location = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Pickup coordinates" }];
+    Location end_location   = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Drop-off coordinates" }];
 }
 
 message RideIdRequest {
-    string id = 1;
+    string id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Ride unique identifier" }];
 }
 
 message UserIdRequest {
-    string id = 1;
+    string id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "User unique identifier" }];
 }
 
 message DriverIdRequest {
-    string id = 1;
+    string id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Driver unique identifier" }];
 }
 
 message StatusResponse {
-    bool status = 1;
-    string message = 2;
+    bool status  = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Operation success flag" }];
+    string message = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "Additional details or error message" }];
 }
 
 message RideHistoryResponse {
-    repeated Ride rides = 1;
+    repeated Ride rides = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "List of past rides" }];
 }
+

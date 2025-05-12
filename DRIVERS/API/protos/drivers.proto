@@ -168,7 +168,7 @@ service Drivers {
             responses: {
                 key: "200"
                 value: {
-                    description: "Successfully retrieved current ride";
+                    description: "Successfully received current ride";
                 }
             }
         };
@@ -248,7 +248,7 @@ service Drivers {
             };
             responses: {
                 key: "200"
-                value: { description: "Successfully retrieved ride history" }
+                value: { description: "Successfully received ride history" }
             }
         };
     }

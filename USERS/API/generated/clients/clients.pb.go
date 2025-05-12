@@ -7,6 +7,7 @@
 package protos
 
 import (
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -98,6 +99,9 @@ type Driver struct {
 	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`
 	CarModel      string                 `protobuf:"bytes,4,opt,name=car_model,json=carModel,proto3" json:"car_model,omitempty"`
 	Location      *Location              `protobuf:"bytes,5,opt,name=location,proto3" json:"location,omitempty"`
+	CarMake       string                 `protobuf:"bytes,6,opt,name=car_make,json=carMake,proto3" json:"car_make,omitempty"`
+	CarNumber     string                 `protobuf:"bytes,7,opt,name=car_number,json=carNumber,proto3" json:"car_number,omitempty"`
+	CarColor      string                 `protobuf:"bytes,8,opt,name=car_color,json=carColor,proto3" json:"car_color,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -165,6 +169,27 @@ func (x *Driver) GetLocation() *Location {
 		return x.Location
 	}
 	return nil
+}
+
+func (x *Driver) GetCarMake() string {
+	if x != nil {
+		return x.CarMake
+	}
+	return ""
+}
+
+func (x *Driver) GetCarNumber() string {
+	if x != nil {
+		return x.CarNumber
+	}
+	return ""
+}
+
+func (x *Driver) GetCarColor() string {
+	if x != nil {
+		return x.CarColor
+	}
+	return ""
 }
 
 type Location struct {
@@ -792,68 +817,135 @@ var File_clients_proto protoreflect.FileDescriptor
 
 const file_clients_proto_rawDesc = "" +
 	"\n" +
-	"\rclients.proto\x12\x0eclient_service\x1a\x1cgoogle/api/annotations.proto\"^\n" +
-	"\x04User\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\x12\x14\n" +
-	"\x05phone\x18\x04 \x01(\tR\x05phone\"\x9d\x01\n" +
-	"\x06Driver\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05phone\x18\x03 \x01(\tR\x05phone\x12\x1b\n" +
-	"\tcar_model\x18\x04 \x01(\tR\bcarModel\x124\n" +
-	"\blocation\x18\x05 \x01(\v2\x18.client_service.LocationR\blocation\"D\n" +
-	"\bLocation\x12\x1a\n" +
-	"\blatitude\x18\x01 \x01(\x01R\blatitude\x12\x1c\n" +
-	"\tlongitude\x18\x02 \x01(\x01R\tlongitude\"\x80\x02\n" +
-	"\x04Ride\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
-	"\tdriver_id\x18\x03 \x01(\tR\bdriverId\x12?\n" +
-	"\x0estart_location\x18\x04 \x01(\v2\x18.client_service.LocationR\rstartLocation\x12;\n" +
-	"\fend_location\x18\x05 \x01(\v2\x18.client_service.LocationR\vendLocation\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\tR\x06status\x12\x1c\n" +
-	"\ttimestamp\x18\a \x01(\x03R\ttimestamp\"\x92\x01\n" +
-	"\aPayment\x12\x17\n" +
-	"\aride_id\x18\x01 \x01(\tR\x06rideId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x16\n" +
-	"\x06amount\x18\x03 \x01(\x01R\x06amount\x12%\n" +
-	"\x0epayment_method\x18\x04 \x01(\tR\rpaymentMethod\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\tR\x06status\"!\n" +
-	"\tAuthToken\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"n\n" +
-	"\x14UpdateProfileRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05phone\x18\x03 \x01(\tR\x05phone\x12\x14\n" +
-	"\x05email\x18\x04 \x01(\tR\x05email\"\xa4\x01\n" +
-	"\vRideRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12?\n" +
-	"\x0estart_location\x18\x02 \x01(\v2\x18.client_service.LocationR\rstartLocation\x12;\n" +
-	"\fend_location\x18\x03 \x01(\v2\x18.client_service.LocationR\vendLocation\"\x1f\n" +
-	"\rRideIdRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x1f\n" +
-	"\rUserIdRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"!\n" +
-	"\x0fDriverIdRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"B\n" +
-	"\x0eStatusResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\bR\x06status\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"A\n" +
-	"\x13RideHistoryResponse\x12*\n" +
-	"\x05rides\x18\x01 \x03(\v2\x14.client_service.RideR\x05rides2\xa7\x06\n" +
-	"\x06Client\x12X\n" +
-	"\x0eGetUserProfile\x12\x19.client_service.AuthToken\x1a\x14.client_service.User\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/user/profile\x12i\n" +
-	"\x11UpdateUserProfile\x12$.client_service.UpdateProfileRequest\x1a\x14.client_service.User\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\x1a\r/user/profile\x12Z\n" +
-	"\vRequestRide\x12\x1b.client_service.RideRequest\x1a\x14.client_service.Ride\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/ride/request\x12f\n" +
+	"\rclients.proto\x12\x0eclient_service\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xc0\x01\n" +
+	"\x04User\x12,\n" +
+	"\x02id\x18\x01 \x01(\tB\x1c\x92A\x192\x17uniq user identificatorR\x02id\x121\n" +
+	"\busername\x18\x02 \x01(\tB\x15\x92A\x122\x10user's firstnameR\busername\x12'\n" +
+	"\x05email\x18\x03 \x01(\tB\x11\x92A\x0e2\fuser's emailR\x05email\x12.\n" +
+	"\x05phone\x18\x04 \x01(\tB\x18\x92A\x152\x13user's phone numberR\x05phone\"\xbd\x03\n" +
+	"\x06Driver\x128\n" +
+	"\x02id\x18\x01 \x01(\tB(\x92A%2#current driver's uniq identificatorR\x02id\x12;\n" +
+	"\busername\x18\x02 \x01(\tB\x1f\x92A\x1c2\x1acurrent driver's firstnameR\busername\x125\n" +
+	"\x05phone\x18\x03 \x01(\tB\x1f\x92A\x1c2\x1ayour driver's phone numberR\x05phone\x124\n" +
+	"\tcar_model\x18\x04 \x01(\tB\x17\x92A\x142\x12driver's car modelR\bcarModel\x12F\n" +
+	"\blocation\x18\x05 \x01(\v2\x18.client_service.LocationB\x10\x92A\r2\vlat and lonR\blocation\x12(\n" +
+	"\bcar_make\x18\x06 \x01(\tB\r\x92A\n" +
+	"2\bcar makeR\acarMake\x120\n" +
 	"\n" +
-	"CancelRide\x12\x1d.client_service.RideIdRequest\x1a\x1e.client_service.StatusResponse\"\x19\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12X\n" +
-	"\rGetRideStatus\x12\x1d.client_service.UserIdRequest\x1a\x14.client_service.Ride\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
-	"/ride/{id}\x12k\n" +
-	"\x0eGetRideHistory\x12\x1d.client_service.UserIdRequest\x1a#.client_service.RideHistoryResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/ride/history\x12m\n" +
-	"\x11GetDriverLocation\x12\x1f.client_service.DriverIdRequest\x1a\x18.client_service.Location\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/driver/{id}/location\x12^\n" +
-	"\rGetDriverInfo\x12\x1f.client_service.DriverIdRequest\x1a\x16.client_service.Driver\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/driver/{id}B?Z=github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protosb\x06proto3"
+	"car_number\x18\a \x01(\tB\x11\x92A\x0e2\fplate numberR\tcarNumber\x12+\n" +
+	"\tcar_color\x18\b \x01(\tB\x0e\x92A\v2\tcar colorR\bcarColor\"w\n" +
+	"\bLocation\x124\n" +
+	"\blatitude\x18\x01 \x01(\x01B\x18\x92A\x152\blatitudeJ\t55.112313R\blatitude\x125\n" +
+	"\tlongitude\x18\x02 \x01(\x01B\x17\x92A\x142\tlongitudeJ\a55.1341R\tlongitude\"\xdd\x03\n" +
+	"\x04Ride\x12(\n" +
+	"\x02id\x18\x01 \x01(\tB\x18\x92A\x152\x13uniq id of the rideR\x02id\x12'\n" +
+	"\auser_id\x18\x02 \x01(\tB\x0e\x92A\v2\tuser's idR\x06userId\x12-\n" +
+	"\tdriver_id\x18\x03 \x01(\tB\x10\x92A\r2\vdriver's idR\bdriverId\x12^\n" +
+	"\x0estart_location\x18\x04 \x01(\v2\x18.client_service.LocationB\x1d\x92A\x1a2\x18strart point coodrinatesR\rstartLocation\x12W\n" +
+	"\fend_location\x18\x05 \x01(\v2\x18.client_service.LocationB\x1a\x92A\x172\x15end point coodrinatesR\vendLocation\x12b\n" +
+	"\x06status\x18\x06 \x01(\tBJ\x92AG2\vride status\xf2\x02\apending\xf2\x02\baccepted\xf2\x02\vin_progress\xf2\x02\tcompleted\xf2\x02\bcanceledR\x06status\x126\n" +
+	"\ttimestamp\x18\a \x01(\x03B\x18\x92A\x152\x13starting time pointR\ttimestamp\"\xda\x02\n" +
+	"\aPayment\x127\n" +
+	"\aride_id\x18\x01 \x01(\tB\x1e\x92A\x1b2\x19nu blyatb id of ride xuleR\x06rideId\x123\n" +
+	"\auser_id\x18\x02 \x01(\tB\x1a\x92A\x172\x15ochevidno i zaebalsyaR\x06userId\x12@\n" +
+	"\x06amount\x18\x03 \x01(\x01B(\x92A%2#nahuya i eto pishy money cash niggaR\x06amount\x12V\n" +
+	"\x0epayment_method\x18\x04 \x01(\tB/\x92A,2*visa cripto mastercard or fucking cash????R\rpaymentMethod\x12G\n" +
+	"\x06status\x18\x05 \x01(\tB/\x92A,2*status of ebychii oplato we dont have thisR\x06status\"\xbc\x01\n" +
+	"\tAuthToken\x12\x8b\x01\n" +
+	"\x05token\x18\x01 \x01(\tBu\x92Ar2\x0eJWT auth tokenJ'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\x8a\x016^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$R\x05token:!\x92A\x1e\n" +
+	"\x1c*\n" +
+	"Auth Token2\x0eJWT auth token\"\xd0\x01\n" +
+	"\x14UpdateProfileRequest\x12$\n" +
+	"\x02id\x18\x01 \x01(\tB\x14\x92A\x112\x0funiq id of userR\x02id\x121\n" +
+	"\busername\x18\x02 \x01(\tB\x15\x92A\x122\x10user's firstnameR\busername\x12.\n" +
+	"\x05phone\x18\x03 \x01(\tB\x18\x92A\x152\x13user's phone numberR\x05phone\x12/\n" +
+	"\x05email\x18\x04 \x01(\tB\x19\x92A\x162\x14user's email addressR\x05email\"\xf7\x01\n" +
+	"\vRideRequest\x126\n" +
+	"\auser_id\x18\x01 \x01(\tB\x1d\x92A\x1a2\x18User's unique identifierR\x06userId\x12X\n" +
+	"\x0estart_location\x18\x02 \x01(\v2\x18.client_service.LocationB\x17\x92A\x142\x12Pickup coordinatesR\rstartLocation\x12V\n" +
+	"\fend_location\x18\x03 \x01(\v2\x18.client_service.LocationB\x19\x92A\x162\x14Drop-off coordinatesR\vendLocation\"<\n" +
+	"\rRideIdRequest\x12+\n" +
+	"\x02id\x18\x01 \x01(\tB\x1b\x92A\x182\x16Ride unique identifierR\x02id\"<\n" +
+	"\rUserIdRequest\x12+\n" +
+	"\x02id\x18\x01 \x01(\tB\x1b\x92A\x182\x16User unique identifierR\x02id\"@\n" +
+	"\x0fDriverIdRequest\x12-\n" +
+	"\x02id\x18\x01 \x01(\tB\x1d\x92A\x1a2\x18Driver unique identifierR\x02id\"\x89\x01\n" +
+	"\x0eStatusResponse\x123\n" +
+	"\x06status\x18\x01 \x01(\bB\x1b\x92A\x182\x16Operation success flagR\x06status\x12B\n" +
+	"\amessage\x18\x02 \x01(\tB(\x92A%2#Additional details or error messageR\amessage\"Z\n" +
+	"\x13RideHistoryResponse\x12C\n" +
+	"\x05rides\x18\x01 \x03(\v2\x14.client_service.RideB\x17\x92A\x142\x12List of past ridesR\x05rides2\x83\r\n" +
+	"\x06Client\x12\xbe\x01\n" +
+	"\x0eGetUserProfile\x12\x19.client_service.AuthToken\x1a\x14.client_service.User\"{\x92Ac\n" +
+	"\x04user\x12\x10Get user profile*\x0egetUserProfileJ+\n" +
+	"\x03200\x12$\n" +
+	"\"successfully returned user profileb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x0f\x12\r/user/profile\x12\xd5\x01\n" +
+	"\x11UpdateUserProfile\x12$.client_service.UpdateProfileRequest\x1a\x14.client_service.User\"\x83\x01\x92Ah\n" +
+	"\x04user\x12\x13Update user profile*\x11updateUserProfileJ*\n" +
+	"\x03200\x12#\n" +
+	"!Successfully updated user profileb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x12:\x01*\x1a\r/user/profile\x12\xb4\x01\n" +
+	"\vRequestRide\x12\x1b.client_service.RideRequest\x1a\x14.client_service.Ride\"r\x92AW\n" +
+	"\x05rides\x12\x0erequest a ride*\vrequestRideJ#\n" +
+	"\x03200\x12\x1c\n" +
+	"\x1aRide request made properlyb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/ride/request\x12\xbc\x01\n" +
+	"\n" +
+	"CancelRide\x12\x1d.client_service.RideIdRequest\x1a\x1e.client_service.StatusResponse\"o\x92AS\n" +
+	"\x05rides\x12\vCancel ride*\n" +
+	"cancelRideJ#\n" +
+	"\x03200\x12\x1c\n" +
+	"\x1aRide canceled successfullyb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12\xc2\x01\n" +
+	"\rGetRideStatus\x12\x1d.client_service.UserIdRequest\x1a\x14.client_service.Ride\"|\x92Ag\n" +
+	"\x05rides\x12\x14get ride information*\x0egetCurrentRideJ*\n" +
+	"\x03200\x12#\n" +
+	"!Successfully received ride statusb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\f\x12\n" +
+	"/ride/{id}\x12\xe0\x01\n" +
+	"\x0eGetRideHistory\x12\x1d.client_service.UserIdRequest\x1a#.client_service.RideHistoryResponse\"\x89\x01\x92Aq\n" +
+	"\x05rides\x12\x19Get history of last rides*\x11get rides historyJ,\n" +
+	"\x03200\x12%\n" +
+	"#rides history received successfullyb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x0f\x12\r/ride/history\x12\xee\x01\n" +
+	"\x11GetDriverLocation\x12\x1f.client_service.DriverIdRequest\x1a\x18.client_service.Location\"\x9d\x01\x92A}\n" +
+	"\blocation\x12 getting driver location lat, lon*\x11getDriverLocationJ.\n" +
+	"\x03200\x12'\n" +
+	"%driver location received successfullyb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x17\x12\x15/driver/{id}/location\x12\xd0\x01\n" +
+	"\rGetDriverInfo\x12\x1f.client_service.DriverIdRequest\x1a\x16.client_service.Driver\"\x85\x01\x92An\n" +
+	"\x06driver\x12\x1aget info about your driver*\rgetDriverInfoJ+\n" +
+	"\x03200\x12$\n" +
+	"\"drinver info received successfullyb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x0e\x12\f/driver/{id}B\xa5\x03\x92A\xe2\x02\x12\xe3\x01\n" +
+	"\x11USERS Service API\x12*API fir managing users and ride operations\"]\n" +
+	"\x16Yandex Go Project Team\x12)https://github.com/GameXost/YandexGo_proj\x1a\x18sergejs.dyldin@yandex.ru*>\n" +
+	"\n" +
+	"Apache 2.0\x120https://www.apache.org/licenses/LICENSE-2.0.html2\x032.0*\x01\x022\x10application/json:\x10application/jsonZE\n" +
+	"C\n" +
+	"\x06OAuth2\x129\b\x03(\x03:\tJWT/tokenB(\n" +
+	"&\n" +
+	"\tusers-api\x12\x19access to driver servicesb\f\n" +
+	"\n" +
+	"\n" +
+	"\x06OAuth2\x12\x00Z=github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protosb\x06proto3"
 
 var (
 	file_clients_proto_rawDescOnce sync.Once
