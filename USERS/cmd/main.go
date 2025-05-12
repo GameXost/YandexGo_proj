@@ -15,7 +15,7 @@ import (
 	// WARNING!
 	// Pass --git-repo-id and --git-user-id properties when generating the code
 	//
-	sw "github.com/GameXost/YandexGo_proj/go"
+	sw "github.com/GameXost/YandexGo_proj/USERS/server/go"
 )
 
 func main() {
