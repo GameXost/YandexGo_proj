@@ -14,7 +14,7 @@ import (
 )
 
 type DriverService struct {
-	Repo  *repository.DriverRepository
+	Repo  repository.DriverRepositoryInterface
 	Redis *redis.Client
 	Kafka *kafka.Writer
 }
@@ -30,13 +30,16 @@ func NewDriverService(repo *repository.DriverRepository, redis *redis.Client, ka
 // GetDriverProfile возвращает профиль водителя по driverID с кешированием в Redis и логированием в Kafka
 func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (*pb.Driver, error) {
 	cacheKey := "driver_profile:" + driverID
-	cached, err := s.Redis.Get(ctx, cacheKey).Result()
-	if err == nil && cached != "" {
-		var driver pb.Driver
-		if err := json.Unmarshal([]byte(cached), &driver); err == nil {
-			return &driver, nil
+
+	if s.Redis != nil {
+		cached, err := s.Redis.Get(ctx, cacheKey).Result()
+		if err == nil && cached != "" {
+			var driver pb.Driver
+			if err := json.Unmarshal([]byte(cached), &driver); err == nil {
+				return &driver, nil
+			}
+			// Если не удалось распарсить — логируем, но идём дальше
 		}
-		// Если не удалось распарсить — логируем, но идём дальше
 	}
 
 	// Получаем из БД
@@ -46,11 +49,14 @@ func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (
 	}
 
 	// Кладём в кеш
-	if data, err := json.Marshal(driver); err == nil {
-		_ = s.Redis.Set(ctx, cacheKey, data, time.Hour).Err()
+	if s.Redis != nil {
+		if data, err := json.Marshal(driver); err == nil {
+			_ = s.Redis.Set(ctx, cacheKey, data, time.Hour).Err()
+		}
 	}
 
 	// (Опционально) Логируем в Kafka
+
 	if s.Kafka != nil {
 		msg := kafka.Message{
 			Key:   []byte(driverID),

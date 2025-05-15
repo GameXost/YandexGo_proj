@@ -8,6 +8,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+type DriverRepositoryInterface interface {
+	GetDriverByID(ctx context.Context, driverID string) (*models.Driver, error)
+	UpdateDriverProfile(ctx context.Context, driver *models.Driver) error
+}
 type DriverRepository struct {
 	DB *pgxpool.Pool
 }
@@ -19,16 +23,14 @@ func NewDriverRepository(db *pgxpool.Pool) *DriverRepository {
 }
 
 func (r *DriverRepository) GetDriverByID(ctx context.Context, driverID string) (*models.Driver, error) {
-	row := r.DB.QueryRow(ctx, `
-		SELECT id, username, email, phone, car, car_number, car_model, car_marks, car_color,
-		FROM drivers WHERE id=$1
-	`, driverID)
+	query := `SELECT id, first_name, email, phone_number,car_number, car_model, car_marks, car_color FROM drivers WHERE id = $1`
+	row := r.DB.QueryRow(ctx, query, driverID)
 
 	var driver models.Driver
 	err := row.Scan(
-		&driver.ID, &driver.UserName, &driver.Email, &driver.Phone,
-		&driver.Car, &driver.Car_number, &driver.Car_model, &driver.Car_marks,
-		&driver.Car_color,
+		&driver.ID, &driver.UserName, &driver.Email,
+		&driver.Phone,
+		&driver.Car_number, &driver.Car_model, &driver.Car_marks, &driver.Car_color,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("driver not found: %w", err)

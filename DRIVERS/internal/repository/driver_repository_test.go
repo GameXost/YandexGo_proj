@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	// Импортируй pgx и свою тестовую БД
@@ -14,7 +13,7 @@ import (
 // Перед запуском укажите существующий ID водителя в переменной realDriverID.
 
 func setupTestDB(t *testing.T) *pgxpool.Pool {
-	dbURL := os.Getenv("TEST_DB_URL") // например, "postgres://user:pass@host:port/dbname?sslmode=disable"
+	dbURL := "postgres://gamexost:gopython@localhost:5432/postgres?sslmode=disable"
 	pool, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {
 		t.Fatalf("failed to connect to db: %v", err)
@@ -27,7 +26,7 @@ func TestGetDriverByID_RealDB(t *testing.T) {
 	repo := NewDriverRepository(db)
 
 	// Укажи здесь реально существующий ID водителя из своей БД
-	realDriverID := "PUT_REAL_DRIVER_ID_HERE"
+	realDriverID := "1"
 
 	driver, err := repo.GetDriverByID(context.Background(), realDriverID)
 	if err != nil {
