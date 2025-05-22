@@ -35,7 +35,7 @@
         "operationId": "getCurrentRide",
         "responses": {
           "200": {
-            "description": "Successfully retrieved current ride",
+            "description": "Successfully received current ride",
             "schema": {
               "$ref": "#/definitions/driver_serviceRide"
             }
@@ -231,7 +231,7 @@
         "operationId": "getRideHistory",
         "responses": {
           "200": {
-            "description": "Successfully retrieved ride history",
+            "description": "Successfully received ride history",
             "schema": {
               "$ref": "#/definitions/driver_serviceRideHistoryResponse"
             }

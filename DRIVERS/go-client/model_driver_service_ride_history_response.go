@@ -74,7 +74,7 @@ func (o *DriverServiceRideHistoryResponse) SetRides(v []DriverServiceRide) {
 }
 
 func (o DriverServiceRideHistoryResponse) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
+	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -124,3 +124,5 @@ func (v *NullableDriverServiceRideHistoryResponse) UnmarshalJSON(src []byte) err
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
+
+

@@ -2,10 +2,14 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
+	"time"
 
+	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/models"
+	"github.com/redis/go-redis/v9"
 )
 
 // Мок-репозиторий
@@ -20,6 +24,23 @@ func (m *mockRepo) GetDriverByID(ctx context.Context, id string) (*models.Driver
 
 func (m *mockRepo) UpdateDriverProfile(ctx context.Context, driver *models.Driver) error {
 	return m.UpdateDriverProfileFunc(ctx, driver)
+}
+
+// Мок-структура для Redis
+type mockRedisClient struct {
+	GetFunc func(ctx context.Context, key string) *redis.StringCmd
+	SetFunc func(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
+	DelFunc func(ctx context.Context, keys ...string) *redis.IntCmd
+}
+
+func (m *mockRedisClient) Get(ctx context.Context, key string) *redis.StringCmd {
+	return m.GetFunc(ctx, key)
+}
+func (m *mockRedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd {
+	return m.SetFunc(ctx, key, value, expiration)
+}
+func (m *mockRedisClient) Del(ctx context.Context, keys ...string) *redis.IntCmd {
+	return m.DelFunc(ctx, keys...)
 }
 
 func TestGetDriverProfile_Success(t *testing.T) {
@@ -57,5 +78,97 @@ func TestGetDriverProfile_NotFound(t *testing.T) {
 	_, err := service.GetDriverProfile(context.Background(), "2")
 	if err == nil {
 		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestUpdateDriverProfile_Success(t *testing.T) {
+	mockRepo := &mockRepo{
+		UpdateDriverProfileFunc: func(ctx context.Context, driver *models.Driver) error {
+			return nil
+		},
+	}
+	service := &DriverService{
+		Repo:  mockRepo,
+		Redis: nil,
+		Kafka: nil,
+	}
+	req := &pb.Driver{
+		Id:        "1",
+		Username:  "Ivan",
+		Email:     "ivan@example.com",
+		Phone:     "1234567890",
+		CarNumber: "A123BC",
+		CarModel:  "Toyota",
+		CarMark:   "Corolla",
+		CarColor:  "White",
+	}
+	updated, err := service.UpdateDriverProfile(context.Background(), req)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if updated.Username != "Ivan" {
+		t.Errorf("unexpected updated driver: %+v", updated)
+	}
+}
+
+func TestAcceptRide_Success(t *testing.T) {
+	ride := pb.Ride{
+		Id:     "ride123",
+		Status: "pending",
+	}
+	rideData, _ := json.Marshal(ride)
+
+	mockRedis := &mockRedisClient{
+		GetFunc: func(ctx context.Context, key string) *redis.StringCmd {
+			return redis.NewStringResult(string(rideData), nil)
+		},
+		SetFunc: func(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd {
+			return redis.NewStatusResult("OK", nil)
+		},
+	}
+
+	service := &DriverService{
+		Repo:  nil,
+		Redis: mockRedis,
+		Kafka: nil,
+	}
+
+	resp, err := service.AcceptRide(context.Background(), "ride123", "driver1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !resp.Status {
+		t.Errorf("expected status true, got false")
+	}
+	if resp.Message != "Ride accepted successfully" {
+		t.Errorf("unexpected message: %s", resp.Message)
+	}
+}
+
+func TestAcceptRide_RideNotFound(t *testing.T) {
+	mockRedis := &mockRedisClient{
+		GetFunc: func(ctx context.Context, key string) *redis.StringCmd {
+			return redis.NewStringResult("", redis.Nil)
+		},
+		SetFunc: func(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd {
+			return redis.NewStatusResult("OK", nil)
+		},
+	}
+
+	service := &DriverService{
+		Repo:  nil,
+		Redis: mockRedis,
+		Kafka: nil,
+	}
+
+	resp, err := service.AcceptRide(context.Background(), "ride404", "driver1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Status {
+		t.Errorf("expected status false, got true")
+	}
+	if resp.Message != "Ride not found" {
+		t.Errorf("unexpected message: %s", resp.Message)
 	}
 }

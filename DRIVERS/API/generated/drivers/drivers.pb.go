@@ -865,7 +865,7 @@ const file_drivers_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tB4\x92A12\aUser IDJ&\"123e4567-e89b-12d3-a456-426614174000\"R\x06userId\x12R\n" +
 	"\x0estart_location\x18\x02 \x01(\v2\x18.driver_service.LocationB\x11\x92A\x0e2\fstart coordsR\rstartLocation\x12L\n" +
 	"\fend_location\x18\x03 \x01(\v2\x18.driver_service.LocationB\x0f\x92A\f2\n" +
-	"end coordsR\vendLocation2\x9a\x11\n" +
+	"end coordsR\vendLocation2\x98\x11\n" +
 	"\aDrivers\x12\xce\x01\n" +
 	"\x10GetDriverProfile\x12\x19.driver_service.AuthToken\x1a\x16.driver_service.Driver\"\x86\x01\x92Al\n" +
 	"\x06driver\x12\x12Get driver profile*\x10getDriverProfileJ.\n" +
@@ -905,11 +905,11 @@ const file_drivers_proto_rawDesc = "" +
 	"\x1aRide canceled successfullyb\f\n" +
 	"\n" +
 	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12\xdf\x01\n" +
-	"\x0eGetCurrentRide\x12\x1f.driver_service.DriverIdRequest\x1a\x14.driver_service.Ride\"\x95\x01\x92Aq\n" +
-	"\x05rides\x12\x1cGet current ride information*\x0egetCurrentRideJ,\n" +
-	"\x03200\x12%\n" +
-	"#Successfully retrieved current rideb\f\n" +
+	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12\xde\x01\n" +
+	"\x0eGetCurrentRide\x12\x1f.driver_service.DriverIdRequest\x1a\x14.driver_service.Ride\"\x94\x01\x92Ap\n" +
+	"\x05rides\x12\x1cGet current ride information*\x0egetCurrentRideJ+\n" +
+	"\x03200\x12$\n" +
+	"\"Successfully received current rideb\f\n" +
 	"\n" +
 	"\n" +
 	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x1b\x12\x19/driver/current_ride/{id}\x12\xf7\x01\n" +
@@ -935,11 +935,11 @@ const file_drivers_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
 	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\f\x12\n" +
-	"/user/{id}\x12\xe4\x01\n" +
-	"\x0eGetRideHistory\x12\x1f.driver_service.DriverIdRequest\x1a#.driver_service.RideHistoryResponse\"\x8b\x01\x92An\n" +
-	"\x05rides\x12\x19Get driver's ride history*\x0egetRideHistoryJ,\n" +
-	"\x03200\x12%\n" +
-	"#Successfully retrieved ride historyb\f\n" +
+	"/user/{id}\x12\xe3\x01\n" +
+	"\x0eGetRideHistory\x12\x1f.driver_service.DriverIdRequest\x1a#.driver_service.RideHistoryResponse\"\x8a\x01\x92Am\n" +
+	"\x05rides\x12\x19Get driver's ride history*\x0egetRideHistoryJ+\n" +
+	"\x03200\x12$\n" +
+	"\"Successfully received ride historyb\f\n" +
 	"\n" +
 	"\n" +
 	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/{id}/ridesB\xa7\x03\x92A\xe4\x02\x12\xe5\x01\n" +

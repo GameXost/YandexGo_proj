@@ -12,8 +12,7 @@ package main
 
 import (
 	"context"
-	"time"
-
+	"crypto/rsa"
 	//"errors"
 	//"fmt"
 	//"github.com/GameXost/YandexGo_proj/DRIVERS/internal/models"
@@ -24,6 +23,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/grpc"
+
 	//"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	//"google.golang.org/grpc/status"
@@ -33,18 +33,14 @@ import (
 	"net/http"
 
 	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/repository"
+	server "github.com/GameXost/YandexGo_proj/DRIVERS/internal/server"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/services"
 	//"github.com/GameXost/YandexGo_proj/DRIVERS/server/go"
 	//sw "github.com/GameXost/YandexGo_proj/DRIVERS/server/go"
 )
 
-type UnimplementedDriversServer struct{}
-
-type DriverServer struct {
-	pb.UnimplementedDriversServer
-	db    *pgxpool.Pool
-	redis *redis.Client
-	kafka *kafka.Writer
-}
+var publicKey *rsa.PublicKey // заебать мишу, ключики ыадаыива
 
 func main() {
 	ctx := context.Background()
@@ -65,18 +61,18 @@ func main() {
 		DB:       0,
 	})
 
-	redisCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	if err := redisClient.Ping(redisCtx).Err(); err != nil {
-		log.Fatalf("Unable to connect to redis: %v", err)
-	}
+	//redisCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	//defer cancel()
+	//if err := redisClient.Ping(redisCtx).Err(); err != nil {
+	//	log.Fatalf("Unable to connect to redis: %v", err)
+	//}
 
-	testCtx, testCancel := context.WithTimeout(ctx, 3*time.Second)
-	defer testCancel()
-	if _, err := redisClient.Set(testCtx, "healthcheck", "ok", 300*time.Second).Result(); err != nil {
-		log.Fatalf("Redis test operation failed: %v", err)
-	}
-	log.Println("REDIS working")
+	//testCtx, testCancel := context.WithTimeout(ctx, 3*time.Second)
+	//defer testCancel()
+	//if _, err := redisClient.Set(testCtx, "healthcheck", "ok", 300*time.Second).Result(); err != nil {
+	//	log.Fatalf("Redis test operation failed: %v", err)
+	//}
+	//log.Println("REDIS working")
 
 	// Kafka connection
 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
@@ -86,15 +82,18 @@ func main() {
 	defer kafkaWriter.Close()
 	log.Println("Kafka working")
 
+	repo := repository.NewDriverRepository(dbpool)
+	driverService := services.NewDriverService(repo, redisClient, kafkaWriter)
+
 	// server up
-	sv := &DriverServer{
-		db:    dbpool,
-		redis: redisClient,
-		kafka: kafkaWriter,
+	sv := &server.DriverServer{
+		Service: driverService,
 	}
 
 	// gRPC server up
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(server.AuthInterceptor(publicKey)),
+	)
 	pb.RegisterDriversServer(grpcServer, sv)
 	grpcListener, err := net.Listen("tcp", ":9093")
 	if err != nil {
