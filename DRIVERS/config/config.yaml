@@ -1,29 +1,31 @@
 server:
-  port: ":50051"
+  port: ":9093"
 
 database:
-  host: "localhost"
+  host: "95.163.222.30"
   port: 5432
-  user: "postgres"
-  password: "securepassword"
-  name: "taxi_db"
+  user: "admin"
+  password: "secret"
+  name: "Auth"
   sslmode: "disable"
 
 redis:
-  host: "localhost"
+  host: "95.163.222.30"
   port: 6379
-  password: ""
+  password: "secret"
   db: 0
 
 kafka:
   brokers:
     - "localhost:9092"
   topics:
-    ride_updates: "ride_updates"
+    ride_updates: "rides"
     user_notifications: "user_notifications"
 
 jwt:
   secret_key: "supersecretkey"
+  public_key_path: "DRIVERS/config/jwt_public.pem"
+  private_key_path: "DRIVERS/config/jwt_private.pem"
 
 logging:
   level: "info"

@@ -11,7 +11,9 @@ import (
 type DriverRepositoryInterface interface {
 	GetDriverByID(ctx context.Context, driverID string) (*models.Driver, error)
 	UpdateDriverProfile(ctx context.Context, driver *models.Driver) error
+	GetUserByID(ctx context.Context, userID string) (*models.User, error)
 }
+
 type DriverRepository struct {
 	DB *pgxpool.Pool
 }
@@ -54,4 +56,16 @@ func (r *DriverRepository) UpdateDriverProfile(ctx context.Context, driver *mode
 		return fmt.Errorf("failed to update driver profile: %w", err)
 	}
 	return nil
+}
+
+func (r *DriverRepository) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
+	query := `SELECT id, username, phone FROM users WHERE id = $1`
+	row := r.DB.QueryRow(ctx, query, userID)
+
+	var user models.User
+	err := row.Scan(&user.ID, &user.Username, &user.Phone)
+	if err != nil {
+		return nil, fmt.Errorf("user not found: %w", err)
+	}
+	return &user, nil
 }

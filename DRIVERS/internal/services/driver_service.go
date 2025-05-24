@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"time"
 
 	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
@@ -21,24 +22,26 @@ type RedisClient interface {
 }
 
 type DriverService struct {
-	Repo  repository.DriverRepositoryInterface
-	Redis RedisClient
-	Kafka *kafka.Writer
+	Repo         repository.DriverRepositoryInterface
+	RedisDrivers RedisClient // For online drivers
+	RedisRides   RedisClient // For rides
+	Kafka        *kafka.Writer
 }
 
-func NewDriverService(repo *repository.DriverRepository, redis *redis.Client, kafka *kafka.Writer) *DriverService {
+func NewDriverService(repo *repository.DriverRepository, redisDrivers *redis.Client, redisRides *redis.Client, kafka *kafka.Writer) *DriverService {
 	return &DriverService{
-		Repo:  repo,
-		Redis: redis,
-		Kafka: kafka,
+		Repo:         repo,
+		RedisDrivers: redisDrivers,
+		RedisRides:   redisRides,
+		Kafka:        kafka,
 	}
 }
 
 func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (*pb.Driver, error) {
 	cacheKey := "driver_profile:" + driverID
 
-	if s.Redis != nil {
-		cached, err := s.Redis.Get(ctx, cacheKey).Result()
+	if s.RedisRides != nil {
+		cached, err := s.RedisRides.Get(ctx, cacheKey).Result()
 		if err == nil && cached != "" {
 			var driver pb.Driver
 			if err := json.Unmarshal([]byte(cached), &driver); err == nil {
@@ -52,9 +55,9 @@ func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (
 		return nil, fmt.Errorf("driver not found: %w", err)
 	}
 
-	if s.Redis != nil {
+	if s.RedisRides != nil {
 		if data, err := json.Marshal(driver); err == nil {
-			_ = s.Redis.Set(ctx, cacheKey, data, time.Hour).Err()
+			_ = s.RedisRides.Set(ctx, cacheKey, data, time.Hour).Err()
 		}
 	}
 
@@ -85,8 +88,8 @@ func (s *DriverService) UpdateDriverProfile(ctx context.Context, req *pb.Driver)
 		return nil, err
 	}
 	cacheKey := "driver_profile:" + req.Id
-	if s.Redis != nil {
-		_ = s.Redis.Del(ctx, cacheKey).Err()
+	if s.RedisRides != nil {
+		_ = s.RedisRides.Del(ctx, cacheKey).Err()
 	}
 	if s.Kafka != nil {
 		msg := kafka.Message{
@@ -108,13 +111,13 @@ func (s *DriverService) UpdateDriverProfile(ctx context.Context, req *pb.Driver)
 }
 
 func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID string) (*pb.StatusResponse, error) {
-	if s.Redis == nil {
+	if s.RedisRides == nil {
 		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
 	}
 
 	// 1. Получить ride из Redis
 	rideKey := "ride:" + rideID
-	rideData, err := s.Redis.Get(ctx, rideKey).Result()
+	rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
 	if err == redis.Nil {
 		return &pb.StatusResponse{Status: false, Message: "Ride not found"}, nil
 	} else if err != nil {
@@ -137,13 +140,13 @@ func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID 
 	if err != nil {
 		return &pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
 	}
-	if err := s.Redis.Set(ctx, rideKey, updatedData, time.Hour).Err(); err != nil {
+	if err := s.RedisRides.Set(ctx, rideKey, updatedData, time.Hour).Err(); err != nil {
 		return &pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
 	}
 
 	// 6. Сохранить rideID как текущий для водителя
 	driverKey := "driver:" + driverID + ":current_ride"
-	if err := s.Redis.Set(ctx, driverKey, rideID, time.Hour).Err(); err != nil {
+	if err := s.RedisRides.Set(ctx, driverKey, rideID, time.Hour).Err(); err != nil {
 		return &pb.StatusResponse{Status: false, Message: "Failed to set current ride for driver"}, nil
 	}
 
@@ -174,4 +177,260 @@ func modelToProtoDriver(m *models.Driver) *pb.Driver {
 		CarMark:   m.Car_marks,
 		CarColor:  m.Car_color,
 	}
+}
+
+func (s *DriverService) GetCurrentRide(ctx context.Context, driverID string) (*pb.Ride, error) {
+	if s.RedisRides == nil {
+		return nil, fmt.Errorf("Redis unavailable")
+	}
+	driverKey := "driver:" + driverID + ":current_ride"
+	rideID, err := s.RedisRides.Get(ctx, driverKey).Result()
+	if err == redis.Nil {
+		return nil, fmt.Errorf("current ride not found for driver")
+	} else if err != nil {
+		return nil, fmt.Errorf("Redis error: %w", err)
+	}
+	rideKey := "ride:" + rideID
+	rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
+	if err == redis.Nil {
+		return nil, fmt.Errorf("ride not found in Redis")
+	} else if err != nil {
+		return nil, fmt.Errorf("Redis error: %w", err)
+	}
+	var ride pb.Ride
+	if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
+		return nil, fmt.Errorf("invalid ride data: %w", err)
+	}
+	return &ride, nil
+}
+
+func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*pb.User, error) {
+	if s.Repo == nil {
+		return nil, fmt.Errorf("repository unavailable")
+	}
+	user, err := s.Repo.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.User{
+		Id:       user.ID,
+		Username: user.Username,
+		Phone:    user.Phone,
+	}, nil
+}
+
+func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverID string) (*pb.StatusResponse, error) {
+	if s.RedisRides == nil {
+		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
+	}
+
+	// 1. Get ride from Redis
+	rideKey := "ride:" + rideID
+	rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
+	if err == redis.Nil {
+		return &pb.StatusResponse{Status: false, Message: "Ride not found"}, nil
+	} else if err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Redis error"}, nil
+	}
+
+	var ride pb.Ride
+	if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Invalid ride data"}, nil
+	}
+
+	// 2. Check if the ride is assigned to this driver and is in progress/accepted
+	if ride.DriverId != driverID {
+		return &pb.StatusResponse{Status: false, Message: "Ride not assigned to this driver"}, nil
+	}
+	if ride.Status != "accepted" && ride.Status != "in_progress" {
+		return &pb.StatusResponse{Status: false, Message: "Ride not in progress"}, nil
+	}
+
+	// 3. Update status to completed
+	ride.Status = "completed"
+	updatedData, err := json.Marshal(ride)
+	if err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
+	}
+	if err := s.RedisRides.Set(ctx, rideKey, updatedData, time.Hour).Err(); err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
+	}
+
+	// 4. Remove current ride from driver
+	driverKey := "driver:" + driverID + ":current_ride"
+	_ = s.RedisRides.Del(ctx, driverKey).Err()
+
+	// 5. Notify via Kafka
+	if s.Kafka != nil {
+		msg := kafka.Message{
+			Key:   []byte(driverID),
+			Value: []byte(fmt.Sprintf("completed ride: %s", rideID)),
+		}
+		_ = s.Kafka.WriteMessages(ctx, msg)
+	}
+
+	return &pb.StatusResponse{
+		Status:  true,
+		Message: "Ride completed successfully",
+	}, nil
+}
+
+func (s *DriverService) CancelRide(ctx context.Context, rideID string, driverID string) (*pb.StatusResponse, error) {
+	if s.RedisRides == nil {
+		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
+	}
+
+	// 1. Get ride from Redis
+	rideKey := "ride:" + rideID
+	rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
+	if err == redis.Nil {
+		return &pb.StatusResponse{Status: false, Message: "Ride not found"}, nil
+	} else if err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Redis error"}, nil
+	}
+
+	var ride pb.Ride
+	if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Invalid ride data"}, nil
+	}
+
+	// 2. Check if the ride is assigned to this driver and is in progress/accepted
+	if ride.DriverId != driverID {
+		return &pb.StatusResponse{Status: false, Message: "Ride not assigned to this driver"}, nil
+	}
+	if ride.Status != "accepted" && ride.Status != "in_progress" {
+		return &pb.StatusResponse{Status: false, Message: "Ride not in progress"}, nil
+	}
+
+	// 3. Update status to canceled
+	ride.Status = "canceled"
+	updatedData, err := json.Marshal(ride)
+	if err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
+	}
+	if err := s.RedisRides.Set(ctx, rideKey, updatedData, time.Hour).Err(); err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
+	}
+
+	// 4. Remove current ride from driver
+	driverKey := "driver:" + driverID + ":current_ride"
+	_ = s.RedisRides.Del(ctx, driverKey).Err()
+
+	// 5. Notify via Kafka
+	if s.Kafka != nil {
+		msg := kafka.Message{
+			Key:   []byte(driverID),
+			Value: []byte(fmt.Sprintf("canceled ride: %s", rideID)),
+		}
+		_ = s.Kafka.WriteMessages(ctx, msg)
+	}
+
+	return &pb.StatusResponse{
+		Status:  true,
+		Message: "Ride canceled successfully",
+	}, nil
+}
+
+func (s *DriverService) GetRideHistory(ctx context.Context, driverID string) (*pb.RideHistoryResponse, error) {
+	if s.RedisRides == nil {
+		return nil, fmt.Errorf("Redis unavailable")
+	}
+
+	var rides []*pb.Ride
+
+	// Scan all rides in RedisRides
+	iter := s.RedisRides.(*redis.Client).Scan(ctx, 0, "ride:*", 0).Iterator()
+	for iter.Next(ctx) {
+		rideKey := iter.Val()
+		rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
+		if err != nil {
+			continue // skip if not found or error
+		}
+		var ride pb.Ride
+		if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
+			continue
+		}
+		if ride.DriverId == driverID {
+			rides = append(rides, &ride)
+		}
+	}
+	if err := iter.Err(); err != nil {
+		return nil, fmt.Errorf("error scanning rides: %w", err)
+	}
+
+	return &pb.RideHistoryResponse{Rides: rides}, nil
+}
+
+// Helper function to calculate distance between two coordinates (Haversine formula)
+func haversine(lat1, lon1, lat2, lon2 float64) float64 {
+	const R = 6371 // Earth radius in km
+	dLat := (lat2 - lat1) * math.Pi / 180.0
+	dLon := (lon2 - lon1) * math.Pi / 180.0
+	lat1 = lat1 * math.Pi / 180.0
+	lat2 = lat2 * math.Pi / 180.0
+
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Sin(dLon/2)*math.Sin(dLon/2)*math.Cos(lat1)*math.Cos(lat2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	return R * c
+}
+
+func (s *DriverService) GetNearbyRequests(ctx context.Context, loc *pb.Location) (*pb.RideRequestsResponse, error) {
+	if s.RedisRides == nil {
+		return nil, fmt.Errorf("Redis unavailable")
+	}
+
+	const radiusKm = 3.0 // You can adjust this value
+
+	var requests []*pb.RideRequest
+
+	iter := s.RedisRides.(*redis.Client).Scan(ctx, 0, "ride:*", 0).Iterator()
+	for iter.Next(ctx) {
+		rideKey := iter.Val()
+		rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
+		if err != nil {
+			continue
+		}
+		var ride pb.Ride
+		if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
+			continue
+		}
+		if ride.Status != "pending" {
+			continue
+		}
+		dist := haversine(loc.Latitude, loc.Longitude, ride.StartLocation.Latitude, ride.StartLocation.Longitude)
+		if dist <= radiusKm {
+			requests = append(requests, &pb.RideRequest{
+				UserId:        ride.UserId,
+				StartLocation: ride.StartLocation,
+				EndLocation:   ride.EndLocation,
+			})
+		}
+	}
+	if err := iter.Err(); err != nil {
+		return nil, fmt.Errorf("error scanning rides: %w", err)
+	}
+
+	return &pb.RideRequestsResponse{RideRequests: requests}, nil
+}
+
+func (s *DriverService) UpdateLocation(ctx context.Context, updates <-chan *pb.LocationUpdateRequest) (*pb.StatusResponse, error) {
+	if s.RedisDrivers == nil {
+		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
+	}
+	for update := range updates {
+		if update == nil {
+			continue
+		}
+		key := "driver_location:" + update.DriverId
+		locData, err := json.Marshal(update.Location)
+		if err != nil {
+			continue // skip invalid location
+		}
+		_ = s.RedisDrivers.Set(ctx, key, locData, time.Hour).Err()
+	}
+	return &pb.StatusResponse{
+		Status:  true,
+		Message: "Location updates received successfully",
+	}, nil
 }

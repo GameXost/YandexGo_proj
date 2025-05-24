@@ -13,40 +13,52 @@ package main
 import (
 	"context"
 	"crypto/rsa"
-	//"errors"
-	//"fmt"
-	//"github.com/GameXost/YandexGo_proj/DRIVERS/internal/models"
-	//"github.com/gin-gonic/gin"
+	"fmt"
+	"log"
+	"net"
+	"net/http"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	//"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/grpc"
-
-	//"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	//"google.golang.org/grpc/status"
-	"net"
-
-	"log"
-	"net/http"
 
 	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/config"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/repository"
 	server "github.com/GameXost/YandexGo_proj/DRIVERS/internal/server"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/services"
-	//"github.com/GameXost/YandexGo_proj/DRIVERS/server/go"
-	//sw "github.com/GameXost/YandexGo_proj/DRIVERS/server/go"
 )
 
-var publicKey *rsa.PublicKey // заебать мишу, ключики ыадаыива
+var publicKey *rsa.PublicKey
 
 func main() {
 	ctx := context.Background()
 
-	// DB connection
-	connStr := "postgres://admin:secret@95.163.222.30:5432/Auth?sslmode=disable"
+	// 1. Load config
+	cfg, err := config.LoadConfig("DRIVERS/config/config.yaml")
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	// 2. Load keys
+	publicKey, err := server.LoadPublicKey(cfg.JWT.PublicKeyPath)
+	if err != nil {
+		log.Fatalf("failed to load public key: %v", err)
+	}
+	privateKey, err := server.LoadPrivateKey(cfg.JWT.PrivateKeyPath)
+	if err != nil {
+		log.Fatalf("failed to load private key: %v", err)
+	}
+	_ = privateKey // если не используется, чтобы не было ошибки компиляции
+
+	// 3. DB connection
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name, cfg.Database.SSLMode,
+	)
 	dbpool, err := pgxpool.New(ctx, connStr)
 	if err != nil {
 		log.Fatalf("Unable to create pool: %v", err)
@@ -54,30 +66,19 @@ func main() {
 	defer dbpool.Close()
 	log.Println("PGX working")
 
-	// REDIS connection
+	// 4. REDIS connection
+	redisAddr := fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port)
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "95.163.222.30:6379",
-		Password: "secret",
-		DB:       0,
+		Addr:     redisAddr,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
 	})
+	// Можно добавить ping/healthcheck при необходимости
 
-	//redisCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	//defer cancel()
-	//if err := redisClient.Ping(redisCtx).Err(); err != nil {
-	//	log.Fatalf("Unable to connect to redis: %v", err)
-	//}
-
-	//testCtx, testCancel := context.WithTimeout(ctx, 3*time.Second)
-	//defer testCancel()
-	//if _, err := redisClient.Set(testCtx, "healthcheck", "ok", 300*time.Second).Result(); err != nil {
-	//	log.Fatalf("Redis test operation failed: %v", err)
-	//}
-	//log.Println("REDIS working")
-
-	// Kafka connection
+	// 5. Kafka connection
 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: []string{"localhost:9092"},
-		Topic:   "rides",
+		Brokers: cfg.Kafka.Brokers,
+		Topic:   cfg.Kafka.Topics.RideUpdates,
 	})
 	defer kafkaWriter.Close()
 	log.Println("Kafka working")
@@ -95,49 +96,29 @@ func main() {
 		grpc.UnaryInterceptor(server.AuthInterceptor(publicKey)),
 	)
 	pb.RegisterDriversServer(grpcServer, sv)
-	grpcListener, err := net.Listen("tcp", ":9093")
+	grpcListener, err := net.Listen("tcp", cfg.Server.Port)
 	if err != nil {
-		log.Fatalf("Unable to listen on 9093: %v", err)
+		log.Fatalf("Unable to listen on %s: %v", cfg.Server.Port, err)
 	}
 	go func() {
-		log.Println("GRPC server listening on :9093")
+		log.Printf("GRPC server listening on %s", cfg.Server.Port)
 		if err := grpcServer.Serve(grpcListener); err != nil {
 			log.Fatalf("Unable to start grpc server: %v", err)
 		}
 	}()
 
-	//gRPC gateway up
+	// gRPC gateway up
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err = pb.RegisterDriversHandlerFromEndpoint(ctx, mux, "localhost:9093", opts)
+	err = pb.RegisterDriversHandlerFromEndpoint(ctx, mux, "localhost"+cfg.Server.Port, opts)
 	if err != nil {
 		log.Fatalf("Unable to register handler: %v", err)
 	}
-	log.Println("Mux gateway Listening on localhost:9092")
+	// HTTP порт можно вынести в отдельный параметр, пока оставим :9092
+	log.Println("Mux gateway Listening on :9092")
 	if err := http.ListenAndServe(":9092", mux); err != nil {
 		log.Fatalf("Unable to listen on 9092: %v", err)
 	}
-
-	//conn, err := grpc.DialContext(ctx, "localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	//if err != nil {
-	//	log.Fatalf("Unable to connect to grpc server: %v", err)
-	//}
-	//grpcClient := pb.NewDriversClient(conn)
-
-	//driverHandler := sw.NewDriverCustomHandler(grpcClient)
-	//locationHandler := sw.NewLocationCustomHandler(grpcClient)
-	//passangersHandler := sw.NewPassangerCustomHandler(grpcClient)
-	//ridesHandler := sw.NewRidesCustomHandler(grpcClient)
-	//handlers := sw.ApiHandleFunctions{}
-	//router := sw.NewRouter(handlers)
-
-	//router.Any("/any", gin.WrapH(mux))
-	//if err := router.Run("9092"); err != nil {
-	//	log.Fatalf("Unable to listen on 9092: %v", err)
-	//}
-
-	//log.Fatal(http.ListenAndServe(":8080", router))
-
 }
 
 func initKafkaProducer() *kafka.Writer {

@@ -39,7 +39,7 @@ func (s *DriverServer) CancelRide(ctx context.Context, req *pb.RideIdRequest) (*
 }
 
 func (s *DriverServer) GetCurrentRide(ctx context.Context, req *pb.DriverIdRequest) (*pb.Ride, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentRide not implemented")
+	return s.Service.GetCurrentRide(ctx, req.Id)
 }
 
 func (s *DriverServer) UpdateLocation(stream pb.Drivers_UpdateLocationServer) error {
@@ -51,7 +51,7 @@ func (s *DriverServer) GetNearbyRequests(ctx context.Context, req *pb.Location) 
 }
 
 func (s *DriverServer) GetPassengerInfo(ctx context.Context, req *pb.UserIdRequest) (*pb.User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPassengerInfo not implemented")
+	return s.Service.GetPassengerInfo(ctx, req.Id)
 }
 
 func (s *DriverServer) GetRideHistory(ctx context.Context, req *pb.DriverIdRequest) (*pb.RideHistoryResponse, error) {
