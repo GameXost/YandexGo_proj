@@ -15,10 +15,21 @@ type DriverServer struct {
 }
 
 func (s *DriverServer) GetDriverProfile(ctx context.Context, req *pb.AuthToken) (*pb.Driver, error) {
-	return s.Service.GetDriverProfile(ctx, req.Token)
+	driverID, ok := ctx.Value(DriverIDKey).(string)
+	if !ok || driverID == "" {
+		return nil, status.Error(codes.Unauthenticated, "driverID not found in context")
+	}
+	return s.Service.GetDriverProfile(ctx, driverID)
 }
 
 func (s *DriverServer) UpdateDriverProfile(ctx context.Context, req *pb.UpdateDriverProfileRequest) (*pb.Driver, error) {
+	driverID, ok := ctx.Value(DriverIDKey).(string)
+	if !ok || driverID == "" {
+		return nil, status.Error(codes.Unauthenticated, "driverID not found in context")
+	}
+	if req.Driver == nil || req.Driver.Id != driverID {
+		return nil, status.Error(codes.PermissionDenied, "cannot update another driver's profile")
+	}
 	return s.Service.UpdateDriverProfile(ctx, req.Driver)
 }
 
@@ -31,23 +42,66 @@ func (s *DriverServer) AcceptRide(ctx context.Context, req *pb.RideIdRequest) (*
 }
 
 func (s *DriverServer) CompleteRide(ctx context.Context, req *pb.RideIdRequest) (*pb.StatusResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CompleteRide not implemented")
+	driverID, ok := ctx.Value(DriverIDKey).(string)
+	if !ok || driverID == "" {
+		return nil, status.Error(codes.Unauthenticated, "driverID not found in context")
+	}
+	return s.Service.CompleteRide(ctx, req.Id, driverID)
 }
 
 func (s *DriverServer) CancelRide(ctx context.Context, req *pb.RideIdRequest) (*pb.StatusResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CancelRide not implemented")
+	driverID, ok := ctx.Value(DriverIDKey).(string)
+	if !ok || driverID == "" {
+		return nil, status.Error(codes.Unauthenticated, "driverID not found in context")
+	}
+	return s.Service.CancelRide(ctx, req.Id, driverID)
 }
 
 func (s *DriverServer) GetCurrentRide(ctx context.Context, req *pb.DriverIdRequest) (*pb.Ride, error) {
-	return s.Service.GetCurrentRide(ctx, req.Id)
+	driverID, ok := ctx.Value(DriverIDKey).(string)
+	if !ok || driverID == "" {
+		return nil, status.Error(codes.Unauthenticated, "driverID not found in context")
+	}
+	if req.Id != driverID {
+		return nil, status.Error(codes.PermissionDenied, "cannot get another driver's current ride")
+	}
+	return s.Service.GetCurrentRide(ctx, driverID)
 }
 
 func (s *DriverServer) UpdateLocation(stream pb.Drivers_UpdateLocationServer) error {
-	return status.Errorf(codes.Unimplemented, "method UpdateLocation not implemented")
+	ctx := stream.Context()
+	driverID, ok := ctx.Value(DriverIDKey).(string)
+	if !ok || driverID == "" {
+		return status.Error(codes.Unauthenticated, "driverID not found in context")
+	}
+	updates := make(chan *pb.LocationUpdateRequest)
+	go func() {
+		defer close(updates)
+		for {
+			req, err := stream.Recv()
+			if err != nil {
+				break
+			}
+			// Ensure only the authenticated driver can update their own location
+			if req.DriverId == driverID {
+				updates <- req
+			}
+		}
+	}()
+	resp, err := s.Service.UpdateLocation(ctx, updates)
+	if err != nil {
+		return err
+	}
+	return stream.SendAndClose(resp)
 }
 
 func (s *DriverServer) GetNearbyRequests(ctx context.Context, req *pb.Location) (*pb.RideRequestsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetNearbyRequests not implemented")
+	driverID, ok := ctx.Value(DriverIDKey).(string)
+	if !ok || driverID == "" {
+		return nil, status.Error(codes.Unauthenticated, "driverID not found in context")
+	}
+	// Optionally, you could log or use driverID for auditing
+	return s.Service.GetNearbyRequests(ctx, req)
 }
 
 func (s *DriverServer) GetPassengerInfo(ctx context.Context, req *pb.UserIdRequest) (*pb.User, error) {
@@ -55,5 +109,12 @@ func (s *DriverServer) GetPassengerInfo(ctx context.Context, req *pb.UserIdReque
 }
 
 func (s *DriverServer) GetRideHistory(ctx context.Context, req *pb.DriverIdRequest) (*pb.RideHistoryResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetRideHistory not implemented")
+	driverID, ok := ctx.Value(DriverIDKey).(string)
+	if !ok || driverID == "" {
+		return nil, status.Error(codes.Unauthenticated, "driverID not found in context")
+	}
+	if req.Id != driverID {
+		return nil, status.Error(codes.PermissionDenied, "cannot get another driver's ride history")
+	}
+	return s.Service.GetRideHistory(ctx, driverID)
 }
