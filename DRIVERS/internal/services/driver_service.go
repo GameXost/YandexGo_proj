@@ -331,6 +331,7 @@ func (s *DriverService) CancelRide(ctx context.Context, rideID string, driverID 
 	}, nil
 }
 
+// мб это у водятела вообще не нужно, надо фиксить мбмб
 func (s *DriverService) GetRideHistory(ctx context.Context, driverID string) (*pb.RideHistoryResponse, error) {
 	if s.RedisRides == nil {
 		return nil, fmt.Errorf("Redis unavailable")
@@ -363,7 +364,7 @@ func (s *DriverService) GetRideHistory(ctx context.Context, driverID string) (*p
 
 // Helper function to calculate distance between two coordinates (Haversine formula)
 func haversine(lat1, lon1, lat2, lon2 float64) float64 {
-	const R = 6371 // Earth radius in km
+	const R = 6371 // Earth radius in km LOL
 	dLat := (lat2 - lat1) * math.Pi / 180.0
 	dLon := (lon2 - lon1) * math.Pi / 180.0
 	lat1 = lat1 * math.Pi / 180.0
@@ -379,8 +380,8 @@ func (s *DriverService) GetNearbyRequests(ctx context.Context, loc *pb.Location)
 	if s.RedisRides == nil {
 		return nil, fmt.Errorf("Redis unavailable")
 	}
-
-	const radiusKm = 3.0 // You can adjust this value
+	// const variable for pending requests, maximum availability in radius km
+	const radiusKm = 3.0
 
 	var requests []*pb.RideRequest
 
