@@ -84,7 +84,17 @@ func main() {
 	log.Println("Kafka working")
 
 	repo := repository.NewDriverRepository(dbpool)
-	driverService := services.NewDriverService(repo, redisClient, kafkaWriter)
+	driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter)
+
+	// --- Kafka consumer ---
+	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:  cfg.Kafka.Brokers,
+		Topic:    cfg.Kafka.Topics.RideUpdates,
+		GroupID:  "driver-service",
+		MinBytes: 10e3,
+		MaxBytes: 10e6,
+	})
+	go driverService.StartKafkaConsumer(ctx, kafkaReader)
 
 	// server up
 	sv := &server.DriverServer{
@@ -118,31 +128,5 @@ func main() {
 	log.Println("Mux gateway Listening on :9092")
 	if err := http.ListenAndServe(":9092", mux); err != nil {
 		log.Fatalf("Unable to listen on 9092: %v", err)
-	}
-}
-
-func initKafkaProducer() *kafka.Writer {
-	return &kafka.Writer{
-		Addr:     kafka.TCP("localhost:9092"),
-		Topic:    "rides",
-		Balancer: &kafka.LeastBytes{},
-	}
-}
-
-func initKafkaConsumer() {
-	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  []string{"localhost:9092"},
-		Topic:    "rides",
-		GroupID:  "taxi_app_group",
-		MinBytes: 10e3,
-		MaxBytes: 10e6,
-	})
-	for {
-		msg, err := r.ReadMessage(context.Background())
-		if err != nil {
-			log.Printf("Error reading message: %v", err)
-			continue
-		}
-		log.Printf("Message on %s: %s = %s\n", msg.Topic, msg.Key, msg.Value)
 	}
 }
