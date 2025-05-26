@@ -3,7 +3,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Annotated
-from oauth2 import get_user_by_level, TokenData
+from Auth.oauth2 import get_user_by_level, TokenData
 Admin_router = APIRouter(
     prefix="/admin",
     tags=["admin"]

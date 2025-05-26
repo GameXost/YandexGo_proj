@@ -3,9 +3,9 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 import json
 from fastapi import FastAPI, HTTPException, Depends, APIRouter, status
-from models import *
-from Users_repo import *
-from utils import *
+from Auth.models import *
+from Auth.Users_repo import *
+from Auth.utils import *
 
 
 Auth_router = APIRouter(prefix='/auth', tags=['Auth'])

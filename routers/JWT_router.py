@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
-from oauth2 import Token, authenticate_user, create_access_token, get_current_active_user, get_user_by_level, TokenData
+from Auth.oauth2 import Token, authenticate_user, create_access_token, get_current_active_user, get_user_by_level, TokenData
 JWT_router = APIRouter(
     prefix="/JWT",
     tags=["JWT"]

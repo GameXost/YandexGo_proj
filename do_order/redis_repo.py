@@ -1,5 +1,5 @@
-from config import settings
 import redis
+from config import settings
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -37,15 +37,25 @@ class Redis_repository:
             'orders',
             (longitude, latitude, user_id))
 
-    def find_nearest_driver(self, latitude: str, longitude: str, radius_to_find: str):
-        result = self.active_drivers.georadius(
-            name="drivers",
-            longitude=longitude,
-            latitude=latitude,
-            radius=radius_to_find,
-            unit="km",
-            withdist=True,
-            sort="ASC",
-            count=1
-        )
-        return result
+    def find_nearest_drivers(self, latitude: str, longitude: str):
+        radius_to_find = 1
+        while (True):
+            result = self.active_drivers.georadius(
+                name="drivers",
+                longitude=longitude,
+                latitude=latitude,
+                radius=radius_to_find,
+                unit="km",
+                withdist=True,
+                withcoord=True,
+                sort="ASC",
+                count=5
+            )
+            if result != []:
+                return result
+            radius_to_find += 5
+
+
+m = Redis_repository()
+
+print(m.find_nearest_driver(55.751244, 37.618423))

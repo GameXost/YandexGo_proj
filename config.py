@@ -15,13 +15,13 @@ class db_config(BaseModel):
     dbname: str = "Auth"
     user: str = "admin"
     password: str = "secret"
-    host: str = "95.163.222.30"
+    host: str = "79.174.85.58"
     port: str = "5432"
 
 
 class redis_config(BaseModel):
     password: str = "secret"
-    host: str = "95.163.222.30"
+    host: str = "79.174.85.58"
     port: int = 6379
     ttl_length: int = 300
 
