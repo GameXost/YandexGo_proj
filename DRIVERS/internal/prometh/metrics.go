@@ -1,8 +1,9 @@
-package metrics
+package prometh
 
 import (
     "github.com/prometheus/client_golang/prometheus"
     "github.com/prometheus/client_golang/prometheus/promauto"
+    "github.com/prometheus/client_golang/prometheus/promhttp"
     "net/http"
 )
 
@@ -23,7 +24,7 @@ var (
     })
 )
 
-// InitPrometheus запускает endpoint /metrics
+// InitPrometheus запускает endpoint /prometh
 func InitPrometheus(addr string) {
     go func() {
         http.Handle("/metrics", promhttp.Handler())
