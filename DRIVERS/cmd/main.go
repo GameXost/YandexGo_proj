@@ -45,7 +45,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
-
 	// 2. Load keys
 	publicKey, err := server.LoadPublicKey(cfg.JWT.PublicKeyPath)
 	if err != nil {
