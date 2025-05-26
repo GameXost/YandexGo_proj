@@ -38,7 +38,7 @@ var publicKey *rsa.PublicKey
 
 func main() {
 	ctx := context.Background()
-	prometh.InitPrometheus(":2112") // порт, на котором будет /prometh
+	prometh.InitPrometheus(":9090") // порт, на котором будет /prometh
 
 	// 1. Load config
 	cfg, err := config.LoadConfig("config/config.yaml")
@@ -76,6 +76,10 @@ func main() {
 		DB:       cfg.Redis.DB,
 	})
 	// Можно добавить ping/healthcheck при необходимости
+	if err := redisClient.Ping(ctx).Err(); err != nil {
+		log.Fatalf("failed to connect to Redis: %v", err)
+	}
+	log.Println("Redis working")
 
 	// 5. Kafka connection
 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{

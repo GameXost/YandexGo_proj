@@ -11,6 +11,6 @@ RUN go build -o /app/bin/server ./cmd/main.go
 FROM gcr.io/distroless/static-debian12
 ENV GIN_MODE=release
 COPY --from=build /app/bin/server /server
-COPY --from=build /app/config /DRIVERS/config
+COPY --from=build /app/config /config
 EXPOSE 8080
 ENTRYPOINT ["/server"]

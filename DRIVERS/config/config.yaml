@@ -2,7 +2,7 @@ server:
   port: ":9093"
 
 database:
-  host: "95.163.222.30"
+  host: "79.174.85.58"
   port: 5432
   user: "admin"
   password: "secret"
@@ -10,7 +10,7 @@ database:
   sslmode: "disable"
 
 redis:
-  host: "95.163.222.30"
+  host: "79.174.85.58"
   port: 6379
   password: "secret"
   db: 0
@@ -24,8 +24,8 @@ kafka:
 
 jwt:
   secret_key: "supersecretkey"
-  public_key_path: "internal/config/public_key.pem"
-  private_key_path: "internal/config/private_key.pem"
+  public_key_path: "config/public_key.pem"
+  private_key_path: "config/private_key.pem"
 
 logging:
   level: "info"
