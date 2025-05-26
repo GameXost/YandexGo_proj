@@ -13,7 +13,7 @@
         android:theme="@style/Theme.Taxi"
         tools:targetApi="31">
         <activity
-            android:name=".Signin"
+            android:name=".Activity_choose"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,13 +22,30 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Signup"
+            android:name=".Client.Main_client"
             android:exported="true">
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".Client.Signin_client"
             android:exported="true">
         </activity>
+        <activity
+            android:name=".Client.Signup_client"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".Driver.Main_driver"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".Driver.Signin_driver"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".Driver.Signup_driver"
+            android:exported="true">
+        </activity>
+
     </application>
 
 </manifest>

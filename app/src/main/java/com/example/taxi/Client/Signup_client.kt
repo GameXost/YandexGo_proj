@@ -1,4 +1,4 @@
-package com.example.taxi
+package com.example.taxi.Client
 
 import android.content.Context
 import android.content.Intent
@@ -8,12 +8,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.example.taxi.R
 
-class Signup : AppCompatActivity() {
+class Signup_client : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_signup)
+        setContentView(R.layout.activity_signup_client)
 
         var memory = getSharedPreferences("Login", Context.MODE_PRIVATE).edit()
         val name: TextView = findViewById(R.id.Sign_up_firstname)
@@ -25,7 +26,7 @@ class Signup : AppCompatActivity() {
         var signinText: TextView = findViewById(R.id.Sign_up_to_sign_in)
 
         signinText.setOnClickListener {
-            startActivity(Intent(this, Signin::class.java))
+            startActivity(Intent(this, Signin_client::class.java))
         }
 
             button.setOnClickListener {
@@ -49,7 +50,7 @@ class Signup : AppCompatActivity() {
                     ).show()
                 } else {
                     memory.putString("Email", email.text.toString()).apply()
-                    startActivity(Intent(this, MainActivity::class.java))
+                    startActivity(Intent(this, Main_client::class.java))
                 }
             }
 

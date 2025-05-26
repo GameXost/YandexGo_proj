@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ECF9F3"
+    tools:context=".Client.Main_client">
+
+    <TextView
+        android:id="@+id/check"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="200dp"
+        android:textSize="13pt"
+        android:gravity="center"/>
+
+
+    <ImageButton
+        android:id="@+id/Avatar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_avatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.002"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/Favorites"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="55dp"
+        android:layout_marginStart="4dp"
+        app:layout_anchor="@id/Avatar"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_favourites" />
+
+    <ImageView
+        android:id="@+id/Letter_T"
+        android:layout_width="27dp"
+        android:layout_height="40dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        app:srcCompat="@drawable/ic_logo_1" />
+
+    <ImageView
+        android:id="@+id/Letter_MAI"
+        android:layout_width="40dp"
+        android:layout_height="19dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="5dp"
+        app:srcCompat="@drawable/ic_logo_2" />
+
+    <SearchView
+        android:id="@+id/Search_Start"
+        android:layout_width="300dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/boarder_1"/>
+
+    <SearchView
+        android:id="@+id/Search_Finish"
+        android:layout_width="300dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="55dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/boarder_1"/>
+
+    <LinearLayout
+        android:id="@+id/sheet"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:background="@drawable/boarder_1"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <ImageView
+            android:id="@+id/btn_open_to_close"
+            android:layout_width="125dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="130dp"
+            android:background="@drawable/boarder_2"/>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

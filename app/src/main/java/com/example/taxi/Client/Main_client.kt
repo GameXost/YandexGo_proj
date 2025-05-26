@@ -1,20 +1,20 @@
-package com.example.taxi
+package com.example.taxi.Client
 
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.example.taxi.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
-class MainActivity : AppCompatActivity()
+class Main_client : AppCompatActivity()
 {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main_client)
 
         var memory = getSharedPreferences("Login", Context.MODE_PRIVATE)
         memory.edit().putString("LO", "1").apply()
