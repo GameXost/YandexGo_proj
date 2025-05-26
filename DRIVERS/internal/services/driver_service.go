@@ -115,7 +115,6 @@ func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID 
 		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
 	}
 
-	// 1. Получить ride из Redis
 	rideKey := "ride:" + rideID
 	rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
 	if err == redis.Nil {
@@ -128,14 +127,12 @@ func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID 
 	if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
 		return &pb.StatusResponse{Status: false, Message: "Invalid ride data"}, nil
 	}
-	//если хуйня в обработке то игнорим
 	if ride.Status != "pending" {
 		return &pb.StatusResponse{Status: false, Message: "Ride already accepted or completed"}, nil
 	}
 	ride.Status = "accepted"
 	ride.DriverId = driverID
 
-	// сохраняем в редиску ебучую
 	updatedData, err := json.Marshal(ride)
 	if err != nil {
 		return &pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
@@ -144,19 +141,24 @@ func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID 
 		return &pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
 	}
 
-	// 6. Сохранить rideID как текущий для водителя
 	driverKey := "driver:" + driverID + ":current_ride"
 	if err := s.RedisRides.Set(ctx, driverKey, rideID, time.Hour).Err(); err != nil {
 		return &pb.StatusResponse{Status: false, Message: "Failed to set current ride for driver"}, nil
 	}
 
-	// пиздует в кафку
+	// Публикация события в Kafka
 	if s.Kafka != nil {
-		msg := kafka.Message{
-			Key:   []byte(driverID),
-			Value: []byte(fmt.Sprintf("accepted ride: %s", rideID)),
+		event := RideAcceptedEvent{
+			Event:         "ride_accepted",
+			RideID:        rideID,
+			PassengerID:   ride.UserId,
+			DriverID:      driverID,
+			StartLocation: fmt.Sprintf("%f,%f", ride.StartLocation.Latitude, ride.StartLocation.Longitude),
+			EndLocation:   fmt.Sprintf("%f,%f", ride.EndLocation.Latitude, ride.EndLocation.Longitude),
+			Timestamp:     time.Now().Unix(),
+			Status:        "accepted",
 		}
-		_ = s.Kafka.WriteMessages(ctx, msg)
+		_ = PublishRideAccepted(ctx, s.Kafka, event)
 	}
 
 	return &pb.StatusResponse{
@@ -260,13 +262,16 @@ func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverI
 	driverKey := "driver:" + driverID + ":current_ride"
 	_ = s.RedisRides.Del(ctx, driverKey).Err()
 
-	// 5. Notify via Kafka
+	// 5. Notify via Kafka (структурированное событие)
 	if s.Kafka != nil {
-		msg := kafka.Message{
-			Key:   []byte(driverID),
-			Value: []byte(fmt.Sprintf("completed ride: %s", rideID)),
+		event := RideCompletedEvent{
+			Event:     "ride_completed",
+			RideID:    rideID,
+			DriverID:  driverID,
+			Timestamp: time.Now().Unix(),
+			// Можно добавить duration, стоимость, координаты завершения и т.д.
 		}
-		_ = s.Kafka.WriteMessages(ctx, msg)
+		_ = PublishRideCompleted(ctx, s.Kafka, event)
 	}
 
 	return &pb.StatusResponse{
@@ -316,13 +321,16 @@ func (s *DriverService) CancelRide(ctx context.Context, rideID string, driverID 
 	driverKey := "driver:" + driverID + ":current_ride"
 	_ = s.RedisRides.Del(ctx, driverKey).Err()
 
-	// 5. Notify via Kafka
+	// 5. Notify via Kafka (структурированное событие)
 	if s.Kafka != nil {
-		msg := kafka.Message{
-			Key:   []byte(driverID),
-			Value: []byte(fmt.Sprintf("canceled ride: %s", rideID)),
+		event := RideCanceledEvent{
+			Event:     "ride_canceled",
+			RideID:    rideID,
+			DriverID:  driverID,
+			Reason:    "driver_cancelled",
+			Timestamp: time.Now().Unix(),
 		}
-		_ = s.Kafka.WriteMessages(ctx, msg)
+		_ = PublishRideCanceled(ctx, s.Kafka, event)
 	}
 
 	return &pb.StatusResponse{
