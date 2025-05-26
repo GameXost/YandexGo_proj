@@ -14,6 +14,7 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/metrics"
 	"log"
 	"net"
 	"net/http"
@@ -36,6 +37,7 @@ var publicKey *rsa.PublicKey
 
 func main() {
 	ctx := context.Background()
+	metrics.InitPrometheus(":2112") // порт, на котором будет /metrics
 
 	// 1. Load config
 	cfg, err := config.LoadConfig("DRIVERS/config/config.yaml")

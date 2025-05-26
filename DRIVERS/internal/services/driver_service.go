@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/metrics"
 	"math"
 	"time"
 
@@ -160,7 +161,7 @@ func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID 
 		}
 		_ = PublishRideAccepted(ctx, s.Kafka, event)
 	}
-
+	metrics.RideAcceptedCounter.Inc()
 	return &pb.StatusResponse{
 		Status:  true,
 		Message: "Ride accepted successfully",
@@ -273,6 +274,7 @@ func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverI
 		}
 		_ = PublishRideCompleted(ctx, s.Kafka, event)
 	}
+	metrics.RideCompletedCounter.Inc()
 
 	return &pb.StatusResponse{
 		Status:  true,
@@ -332,7 +334,7 @@ func (s *DriverService) CancelRide(ctx context.Context, rideID string, driverID 
 		}
 		_ = PublishRideCanceled(ctx, s.Kafka, event)
 	}
-
+	metrics.RideCanceledCounter.Inc()
 	return &pb.StatusResponse{
 		Status:  true,
 		Message: "Ride canceled successfully",
