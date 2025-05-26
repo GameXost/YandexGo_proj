@@ -41,7 +41,7 @@ func main() {
 	prometh.InitPrometheus(":2112") // порт, на котором будет /prometh
 
 	// 1. Load config
-	cfg, err := config.LoadConfig("DRIVERS/config/config.yaml")
+	cfg, err := config.LoadConfig("config/config.yaml")
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}

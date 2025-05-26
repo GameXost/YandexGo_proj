@@ -24,8 +24,8 @@ kafka:
 
 jwt:
   secret_key: "supersecretkey"
-  public_key_path: "DRIVERS/internal/config/public_key.pem"
-  private_key_path: "DRIVERS/internal/config/private_key.pem"
+  public_key_path: "internal/config/public_key.pem"
+  private_key_path: "internal/config/private_key.pem"
 
 logging:
   level: "info"
