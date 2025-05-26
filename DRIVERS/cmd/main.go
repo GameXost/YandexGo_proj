@@ -14,10 +14,11 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
-	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
 	"log"
 	"net"
 	"net/http"
+
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jackc/pgx/v5/pgxpool"
