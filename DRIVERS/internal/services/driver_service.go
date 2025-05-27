@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
 	"math"
 	"time"
+
+
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
 
 	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/models"
@@ -39,42 +41,14 @@ func NewDriverService(repo *repository.DriverRepository, redisDrivers *redis.Cli
 }
 
 func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (*pb.Driver, error) {
-	cacheKey := "driver_profile:" + driverID
-
-	if s.RedisRides != nil {
-		cached, err := s.RedisRides.Get(ctx, cacheKey).Result()
-		if err == nil && cached != "" {
-			var driver pb.Driver
-			if err := json.Unmarshal([]byte(cached), &driver); err == nil {
-				return &driver, nil
-			}
-		}
-	}
-
 	driver, err := s.Repo.GetDriverByID(ctx, driverID)
 	if err != nil {
 		return nil, fmt.Errorf("driver not found: %w", err)
 	}
-
-	if s.RedisRides != nil {
-		if data, err := json.Marshal(driver); err == nil {
-			_ = s.RedisRides.Set(ctx, cacheKey, data, time.Hour).Err()
-		}
-	}
-
-	if s.Kafka != nil {
-		msg := kafka.Message{
-			Key:   []byte(driverID),
-			Value: []byte(fmt.Sprintf("profile viewed: %s", driverID)),
-		}
-		_ = s.Kafka.WriteMessages(ctx, msg)
-	}
-
 	return modelToProtoDriver(driver), nil
 }
 
 func (s *DriverService) UpdateDriverProfile(ctx context.Context, req *pb.Driver) (*pb.Driver, error) {
-	// req.Id уже гарантированно driverID
 	err := s.Repo.UpdateDriverProfile(ctx, &models.Driver{
 		ID:         req.Id,
 		UserName:   req.Username,
@@ -87,17 +61,6 @@ func (s *DriverService) UpdateDriverProfile(ctx context.Context, req *pb.Driver)
 	})
 	if err != nil {
 		return nil, err
-	}
-	cacheKey := "driver_profile:" + req.Id
-	if s.RedisRides != nil {
-		_ = s.RedisRides.Del(ctx, cacheKey).Err()
-	}
-	if s.Kafka != nil {
-		msg := kafka.Message{
-			Key:   []byte(req.Id),
-			Value: []byte("profile updated: " + req.Id),
-		}
-		_ = s.Kafka.WriteMessages(ctx, msg)
 	}
 	return modelToProtoDriver(&models.Driver{
 		ID:         req.Id,
@@ -153,7 +116,7 @@ func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID 
 			Event:         "ride_accepted",
 			RideID:        rideID,
 			PassengerID:   ride.UserId,
-			DriverID:      driverID,
+			DriverID:      driverID,s
 			StartLocation: fmt.Sprintf("%f,%f", ride.StartLocation.Latitude, ride.StartLocation.Longitude),
 			EndLocation:   fmt.Sprintf("%f,%f", ride.EndLocation.Latitude, ride.EndLocation.Longitude),
 			Timestamp:     time.Now().Unix(),

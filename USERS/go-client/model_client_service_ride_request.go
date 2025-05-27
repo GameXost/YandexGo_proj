@@ -21,9 +21,9 @@ var _ MappedNullable = &ClientServiceRideRequest{}
 // ClientServiceRideRequest struct for ClientServiceRideRequest
 type ClientServiceRideRequest struct {
 	// User's unique identifier
-	UserId        *string                `json:"userId,omitempty"`
+	UserId *string `json:"userId,omitempty"`
 	StartLocation *ClientServiceLocation `json:"startLocation,omitempty"`
-	EndLocation   *ClientServiceLocation `json:"endLocation,omitempty"`
+	EndLocation *ClientServiceLocation `json:"endLocation,omitempty"`
 }
 
 // NewClientServiceRideRequest instantiates a new ClientServiceRideRequest object
@@ -140,7 +140,7 @@ func (o *ClientServiceRideRequest) SetEndLocation(v ClientServiceLocation) {
 }
 
 func (o ClientServiceRideRequest) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
+	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -196,3 +196,5 @@ func (v *NullableClientServiceRideRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
+
+

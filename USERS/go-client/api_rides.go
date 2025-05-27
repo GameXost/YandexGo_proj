@@ -20,13 +20,14 @@ import (
 	"strings"
 )
 
+
 // RidesAPIService RidesAPI service
 type RidesAPIService service
 
 type ApiCancelRideRequest struct {
-	ctx        context.Context
+	ctx context.Context
 	ApiService *RidesAPIService
-	id         string
+	id string
 }
 
 func (r ApiCancelRideRequest) Execute() (*ClientServiceStatusResponse, *http.Response, error) {
@@ -36,27 +37,26 @@ func (r ApiCancelRideRequest) Execute() (*ClientServiceStatusResponse, *http.Res
 /*
 CancelRide Cancel ride
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Ride unique identifier
-	@return ApiCancelRideRequest
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param id Ride unique identifier
+ @return ApiCancelRideRequest
 */
 func (a *RidesAPIService) CancelRide(ctx context.Context, id string) ApiCancelRideRequest {
 	return ApiCancelRideRequest{
 		ApiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
 // Execute executes the request
-//
-//	@return ClientServiceStatusResponse
+//  @return ClientServiceStatusResponse
 func (a *RidesAPIService) CancelRideExecute(r ApiCancelRideRequest) (*ClientServiceStatusResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod  = http.MethodPost
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *ClientServiceStatusResponse
+		localVarHTTPMethod   = http.MethodPost
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *ClientServiceStatusResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RidesAPIService.CancelRide")
@@ -110,14 +110,14 @@ func (a *RidesAPIService) CancelRideExecute(r ApiCancelRideRequest) (*ClientServ
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		var v RpcStatus
-		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-		if err != nil {
-			newErr.error = err.Error()
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-		newErr.model = v
+			var v RpcStatus
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -134,9 +134,9 @@ func (a *RidesAPIService) CancelRideExecute(r ApiCancelRideRequest) (*ClientServ
 }
 
 type ApiGetCurrentRideRequest struct {
-	ctx        context.Context
+	ctx context.Context
 	ApiService *RidesAPIService
-	id         string
+	id string
 }
 
 func (r ApiGetCurrentRideRequest) Execute() (*ClientServiceRide, *http.Response, error) {
@@ -146,27 +146,26 @@ func (r ApiGetCurrentRideRequest) Execute() (*ClientServiceRide, *http.Response,
 /*
 GetCurrentRide get ride information
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id User unique identifier
-	@return ApiGetCurrentRideRequest
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param id User unique identifier
+ @return ApiGetCurrentRideRequest
 */
 func (a *RidesAPIService) GetCurrentRide(ctx context.Context, id string) ApiGetCurrentRideRequest {
 	return ApiGetCurrentRideRequest{
 		ApiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
 // Execute executes the request
-//
-//	@return ClientServiceRide
+//  @return ClientServiceRide
 func (a *RidesAPIService) GetCurrentRideExecute(r ApiGetCurrentRideRequest) (*ClientServiceRide, *http.Response, error) {
 	var (
-		localVarHTTPMethod  = http.MethodGet
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *ClientServiceRide
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *ClientServiceRide
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RidesAPIService.GetCurrentRide")
@@ -220,14 +219,14 @@ func (a *RidesAPIService) GetCurrentRideExecute(r ApiGetCurrentRideRequest) (*Cl
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		var v RpcStatus
-		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-		if err != nil {
-			newErr.error = err.Error()
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-		newErr.model = v
+			var v RpcStatus
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -244,9 +243,9 @@ func (a *RidesAPIService) GetCurrentRideExecute(r ApiGetCurrentRideRequest) (*Cl
 }
 
 type ApiGetRidesHistoryRequest struct {
-	ctx        context.Context
+	ctx context.Context
 	ApiService *RidesAPIService
-	id         *string
+	id *string
 }
 
 // User unique identifier
@@ -262,25 +261,24 @@ func (r ApiGetRidesHistoryRequest) Execute() (*ClientServiceRideHistoryResponse,
 /*
 GetRidesHistory Get history of last rides
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ApiGetRidesHistoryRequest
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiGetRidesHistoryRequest
 */
 func (a *RidesAPIService) GetRidesHistory(ctx context.Context) ApiGetRidesHistoryRequest {
 	return ApiGetRidesHistoryRequest{
 		ApiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
 // Execute executes the request
-//
-//	@return ClientServiceRideHistoryResponse
+//  @return ClientServiceRideHistoryResponse
 func (a *RidesAPIService) GetRidesHistoryExecute(r ApiGetRidesHistoryRequest) (*ClientServiceRideHistoryResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod  = http.MethodGet
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *ClientServiceRideHistoryResponse
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *ClientServiceRideHistoryResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RidesAPIService.GetRidesHistory")
@@ -336,14 +334,14 @@ func (a *RidesAPIService) GetRidesHistoryExecute(r ApiGetRidesHistoryRequest) (*
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		var v RpcStatus
-		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-		if err != nil {
-			newErr.error = err.Error()
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-		newErr.model = v
+			var v RpcStatus
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -360,9 +358,9 @@ func (a *RidesAPIService) GetRidesHistoryExecute(r ApiGetRidesHistoryRequest) (*
 }
 
 type ApiRequestRideRequest struct {
-	ctx        context.Context
+	ctx context.Context
 	ApiService *RidesAPIService
-	body       *ClientServiceRideRequest
+	body *ClientServiceRideRequest
 }
 
 func (r ApiRequestRideRequest) Body(body ClientServiceRideRequest) ApiRequestRideRequest {
@@ -377,25 +375,24 @@ func (r ApiRequestRideRequest) Execute() (*ClientServiceRide, *http.Response, er
 /*
 RequestRide request a ride
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ApiRequestRideRequest
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiRequestRideRequest
 */
 func (a *RidesAPIService) RequestRide(ctx context.Context) ApiRequestRideRequest {
 	return ApiRequestRideRequest{
 		ApiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
 // Execute executes the request
-//
-//	@return ClientServiceRide
+//  @return ClientServiceRide
 func (a *RidesAPIService) RequestRideExecute(r ApiRequestRideRequest) (*ClientServiceRide, *http.Response, error) {
 	var (
-		localVarHTTPMethod  = http.MethodPost
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *ClientServiceRide
+		localVarHTTPMethod   = http.MethodPost
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *ClientServiceRide
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RidesAPIService.RequestRide")
@@ -453,14 +450,14 @@ func (a *RidesAPIService) RequestRideExecute(r ApiRequestRideRequest) (*ClientSe
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		var v RpcStatus
-		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-		if err != nil {
-			newErr.error = err.Error()
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-		newErr.model = v
+			var v RpcStatus
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 

@@ -20,13 +20,14 @@ import (
 	"strings"
 )
 
+
 // DriverAPIService DriverAPI service
 type DriverAPIService service
 
 type ApiGetDriverInfoRequest struct {
-	ctx        context.Context
+	ctx context.Context
 	ApiService *DriverAPIService
-	id         string
+	id string
 }
 
 func (r ApiGetDriverInfoRequest) Execute() (*ClientServiceDriver, *http.Response, error) {
@@ -36,27 +37,26 @@ func (r ApiGetDriverInfoRequest) Execute() (*ClientServiceDriver, *http.Response
 /*
 GetDriverInfo get info about your driver
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Driver unique identifier
-	@return ApiGetDriverInfoRequest
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param id Driver unique identifier
+ @return ApiGetDriverInfoRequest
 */
 func (a *DriverAPIService) GetDriverInfo(ctx context.Context, id string) ApiGetDriverInfoRequest {
 	return ApiGetDriverInfoRequest{
 		ApiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
 // Execute executes the request
-//
-//	@return ClientServiceDriver
+//  @return ClientServiceDriver
 func (a *DriverAPIService) GetDriverInfoExecute(r ApiGetDriverInfoRequest) (*ClientServiceDriver, *http.Response, error) {
 	var (
-		localVarHTTPMethod  = http.MethodGet
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *ClientServiceDriver
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *ClientServiceDriver
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DriverAPIService.GetDriverInfo")
@@ -110,14 +110,14 @@ func (a *DriverAPIService) GetDriverInfoExecute(r ApiGetDriverInfoRequest) (*Cli
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		var v RpcStatus
-		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-		if err != nil {
-			newErr.error = err.Error()
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-		newErr.model = v
+			var v RpcStatus
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 

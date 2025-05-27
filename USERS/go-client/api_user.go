@@ -19,13 +19,14 @@ import (
 	"net/url"
 )
 
+
 // UserAPIService UserAPI service
 type UserAPIService service
 
 type ApiGetUserProfileRequest struct {
-	ctx        context.Context
+	ctx context.Context
 	ApiService *UserAPIService
-	token      *string
+	token *string
 }
 
 // JWT auth token
@@ -41,25 +42,24 @@ func (r ApiGetUserProfileRequest) Execute() (*ClientServiceUser, *http.Response,
 /*
 GetUserProfile Get user profile
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ApiGetUserProfileRequest
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiGetUserProfileRequest
 */
 func (a *UserAPIService) GetUserProfile(ctx context.Context) ApiGetUserProfileRequest {
 	return ApiGetUserProfileRequest{
 		ApiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
 // Execute executes the request
-//
-//	@return ClientServiceUser
+//  @return ClientServiceUser
 func (a *UserAPIService) GetUserProfileExecute(r ApiGetUserProfileRequest) (*ClientServiceUser, *http.Response, error) {
 	var (
-		localVarHTTPMethod  = http.MethodGet
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *ClientServiceUser
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *ClientServiceUser
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserAPIService.GetUserProfile")
@@ -115,14 +115,14 @@ func (a *UserAPIService) GetUserProfileExecute(r ApiGetUserProfileRequest) (*Cli
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		var v RpcStatus
-		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-		if err != nil {
-			newErr.error = err.Error()
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-		newErr.model = v
+			var v RpcStatus
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -139,9 +139,9 @@ func (a *UserAPIService) GetUserProfileExecute(r ApiGetUserProfileRequest) (*Cli
 }
 
 type ApiUpdateUserProfileRequest struct {
-	ctx        context.Context
+	ctx context.Context
 	ApiService *UserAPIService
-	body       *ClientServiceUpdateProfileRequest
+	body *ClientServiceUpdateProfileRequest
 }
 
 func (r ApiUpdateUserProfileRequest) Body(body ClientServiceUpdateProfileRequest) ApiUpdateUserProfileRequest {
@@ -156,25 +156,24 @@ func (r ApiUpdateUserProfileRequest) Execute() (*ClientServiceUser, *http.Respon
 /*
 UpdateUserProfile Update user profile
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ApiUpdateUserProfileRequest
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiUpdateUserProfileRequest
 */
 func (a *UserAPIService) UpdateUserProfile(ctx context.Context) ApiUpdateUserProfileRequest {
 	return ApiUpdateUserProfileRequest{
 		ApiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
 // Execute executes the request
-//
-//	@return ClientServiceUser
+//  @return ClientServiceUser
 func (a *UserAPIService) UpdateUserProfileExecute(r ApiUpdateUserProfileRequest) (*ClientServiceUser, *http.Response, error) {
 	var (
-		localVarHTTPMethod  = http.MethodPut
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *ClientServiceUser
+		localVarHTTPMethod   = http.MethodPut
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *ClientServiceUser
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserAPIService.UpdateUserProfile")
@@ -232,14 +231,14 @@ func (a *UserAPIService) UpdateUserProfileExecute(r ApiUpdateUserProfileRequest)
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		var v RpcStatus
-		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-		if err != nil {
-			newErr.error = err.Error()
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-		newErr.model = v
+			var v RpcStatus
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 

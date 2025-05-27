@@ -25,9 +25,9 @@ type ClientServiceRide struct {
 	// user's id
 	UserId *string `json:"userId,omitempty"`
 	// driver's id
-	DriverId      *string                `json:"driverId,omitempty"`
+	DriverId *string `json:"driverId,omitempty"`
 	StartLocation *ClientServiceLocation `json:"startLocation,omitempty"`
-	EndLocation   *ClientServiceLocation `json:"endLocation,omitempty"`
+	EndLocation *ClientServiceLocation `json:"endLocation,omitempty"`
 	// ride status
 	Status *string `json:"status,omitempty"`
 	// starting time point
@@ -276,7 +276,7 @@ func (o *ClientServiceRide) SetTimestamp(v string) {
 }
 
 func (o ClientServiceRide) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
+	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -344,3 +344,5 @@ func (v *NullableClientServiceRide) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
+
+

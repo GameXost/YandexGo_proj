@@ -58,6 +58,7 @@ func (r *DriverRepository) UpdateDriverProfile(ctx context.Context, driver *mode
 	return nil
 }
 
+// под вопросом, т.к кафка это всё передает
 func (r *DriverRepository) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
 	query := `SELECT id, username, phone FROM users WHERE id = $1`
 	row := r.DB.QueryRow(ctx, query, userID)
