@@ -11,127 +11,136 @@
 package main
 
 import (
-    "context"
-    "crypto/rsa"
-    "fmt"
-    "github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
-    "log"
-    "net"
-    "net/http"
+	"context"
+	"crypto/rsa"
+	"fmt"
+	"log"
+	"net"
+	"net/http"
 
-    "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-    "github.com/jackc/pgx/v5/pgxpool"
-    "github.com/redis/go-redis/v9"
-    "github.com/segmentio/kafka-go"
-    "google.golang.org/grpc"
-    "google.golang.org/grpc/credentials/insecure"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
 
-    pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
-    "github.com/GameXost/YandexGo_proj/DRIVERS/internal/config"
-    "github.com/GameXost/YandexGo_proj/DRIVERS/internal/repository"
-    server "github.com/GameXost/YandexGo_proj/DRIVERS/internal/server"
-    "github.com/GameXost/YandexGo_proj/DRIVERS/internal/services"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
+	"github.com/segmentio/kafka-go"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/config"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/repository"
+	server "github.com/GameXost/YandexGo_proj/DRIVERS/internal/server"
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/services"
 )
 
 var publicKey *rsa.PublicKey
 
 func main() {
-    ctx := context.Background()
-    prometh.InitPrometheus(":9091") // порт, на котором будет /prometh
+	ctx := context.Background()
+	prometh.InitPrometheus(":9091") // порт, на котором будет /prometh
 
-    // 1. Load config
-    cfg, err := config.LoadConfig("config/config.yaml")
-    if err != nil {
-        log.Fatalf("failed to load config: %v", err)
-    }
-    // 2. Load keys
-    publicKey, err := server.LoadPublicKey(cfg.JWT.PublicKeyPath)
-    if err != nil {
-        log.Fatalf("failed to load public key: %v", err)
-    }
-    privateKey, err := server.LoadPrivateKey(cfg.JWT.PrivateKeyPath)
-    if err != nil {
-        log.Fatalf("failed to load private key: %v", err)
-    }
-    _ = privateKey // если не используется, чтобы не было ошибки компиляции
+	// 1. Load config
+	cfg, err := config.LoadConfig("config/config.yaml")
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+	// 2. Load keys
+	publicKey, err := server.LoadPublicKey(cfg.JWT.PublicKeyPath)
+	if err != nil {
+		log.Fatalf("failed to load public key: %v", err)
+	}
+	privateKey, err := server.LoadPrivateKey(cfg.JWT.PrivateKeyPath)
+	if err != nil {
+		log.Fatalf("failed to load private key: %v", err)
+	}
+	_ = privateKey // если не используется, чтобы не было ошибки компиляции
 
-    // 3. DB connection
-    connStr := fmt.Sprintf(
-        "postgres://%s:%s@%s:%d/%s?sslmode=%s",
-        cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name, cfg.Database.SSLMode,
-    )
-    dbpool, err := pgxpool.New(ctx, connStr)
-    if err != nil {
-        log.Fatalf("Unable to create pool: %v", err)
-    }
-    defer dbpool.Close()
-    log.Println("PGX working")
+	// 3. DB connection
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name, cfg.Database.SSLMode,
+	)
+	dbpool, err := pgxpool.New(ctx, connStr)
+	if err != nil {
+		log.Fatalf("Unable to create pool: %v", err)
+	}
+	defer dbpool.Close()
+	log.Println("PGX working")
 
-    // 4. REDIS connection
-    redisAddr := fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port)
-    redisClient := redis.NewClient(&redis.Options{
-        Addr:     redisAddr,
-        Password: cfg.Redis.Password,
-        DB:       cfg.Redis.DB,
-    })
-    // Можно добавить ping/healthcheck при необходимости
-    if err := redisClient.Ping(ctx).Err(); err != nil {
-        log.Fatalf("failed to connect to Redis: %v", err)
-    }
-    log.Println("Redis working")
+	// 4. REDIS connection
+	redisAddr := fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port)
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+	})
+	// Можно добавить ping/healthcheck при необходимости
+	if err := redisClient.Ping(ctx).Err(); err != nil {
+		log.Fatalf("failed to connect to Redis: %v", err)
+	}
+	log.Println("Redis working")
 
-    // 5. Kafka connection
-    kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
-        Brokers: cfg.Kafka.Brokers,
-        Topic:   cfg.Kafka.Topics.RideUpdates,
-    })
-    defer kafkaWriter.Close()
-    log.Println("Kafka working")
+	// 5. Kafka connection
+	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
+		Brokers: cfg.Kafka.Brokers,
+		Topic:   cfg.Kafka.Topics.RideUpdates,
+	})
+	defer kafkaWriter.Close()
+	log.Println("Kafka working")
 
-    repo := repository.NewDriverRepository(dbpool)
-    driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter)
+	repo := repository.NewDriverRepository(dbpool)
+	driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter)
 
-    // --- Kafka consumer ---
-    kafkaReader := kafka.NewReader(kafka.ReaderConfig{
-        Brokers:  cfg.Kafka.Brokers,
-        Topic:    cfg.Kafka.Topics.RideUpdates,
-        GroupID:  "driver-service",
-        MinBytes: 10e3,
-        MaxBytes: 10e6,
-    })
-    go driverService.StartKafkaConsumer(ctx, kafkaReader)
+	// --- Kafka consumer ---
+	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:  cfg.Kafka.Brokers,
+		Topic:    cfg.Kafka.Topics.RideUpdates,
+		GroupID:  "driver-service",
+		MinBytes: 10e3,
+		MaxBytes: 10e6,
+	})
+	go driverService.StartKafkaConsumer(ctx, kafkaReader)
 
-    // server up
-    sv := &server.DriverServer{
-        Service: driverService,
-    }
+	driver, err := driverService.GetDriverProfile(ctx, "1")
+	if err != nil {
+		log.Printf("GetDriverProfile error: %v", err)
+	} else {
+		log.Printf("Driver: %+v", driver)
+	}
 
-    // gRPC server up
-    grpcServer := grpc.NewServer(
-        grpc.UnaryInterceptor(server.AuthInterceptor(publicKey)),
-    )
-    pb.RegisterDriversServer(grpcServer, sv)
-    grpcListener, err := net.Listen("tcp", cfg.Server.Port)
-    if err != nil {
-        log.Fatalf("Unable to listen on %s: %v", cfg.Server.Port, err)
-    }
-    go func() {
-        log.Printf("GRPC server listening on %s", cfg.Server.Port)
-        if err := grpcServer.Serve(grpcListener); err != nil {
-            log.Fatalf("Unable to start grpc server: %v", err)
-        }
-    }()
+	// server up
+	sv := &server.DriverServer{
+		Service: driverService,
+	}
 
-    // gRPC gateway up
-    mux := runtime.NewServeMux()
-    opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-    err = pb.RegisterDriversHandlerFromEndpoint(ctx, mux, "localhost"+cfg.Server.Port, opts)
-    if err != nil {
-        log.Fatalf("Unable to register handler: %v", err)
-    }
-    // HTTP порт можно вынести в отдельный параметр, пока оставим :9092
-    log.Println("Mux gateway Listening on :9092")
-    if err := http.ListenAndServe(":9092", mux); err != nil {
-        log.Fatalf("Unable to listen on 9092: %v", err)
-    }
+	// gRPC server up
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(server.AuthInterceptor(publicKey)),
+	)
+	pb.RegisterDriversServer(grpcServer, sv)
+	grpcListener, err := net.Listen("tcp", cfg.Server.Port)
+	if err != nil {
+		log.Fatalf("Unable to listen on %s: %v", cfg.Server.Port, err)
+	}
+	go func() {
+		log.Printf("GRPC server listening on %s", cfg.Server.Port)
+		if err := grpcServer.Serve(grpcListener); err != nil {
+			log.Fatalf("Unable to start grpc server: %v", err)
+		}
+	}()
+
+	// gRPC gateway up
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	err = pb.RegisterDriversHandlerFromEndpoint(ctx, mux, "localhost"+cfg.Server.Port, opts)
+	if err != nil {
+		log.Fatalf("Unable to register handler: %v", err)
+	}
+	// HTTP порт можно вынести в отдельный параметр, пока оставим :9092
+	log.Println("Mux gateway Listening on :9092")
+	if err := http.ListenAndServe(":9092", mux); err != nil {
+		log.Fatalf("Unable to listen on 9092: %v", err)
+	}
+
 }
