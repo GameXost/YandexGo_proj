@@ -33,3 +33,6 @@ logging:
 grpc:
   max_connection_age: "2m"
   keepalive_time: "30s"
+
+auth:
+  disabled: false

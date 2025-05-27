@@ -51,6 +51,10 @@ type GRPCConfig struct {
 	KeepaliveTime    string `yaml:"keepalive_time"`
 }
 
+type AuthConfig struct {
+	Disabled bool `yaml:"disabled"`
+}
+
 type Config struct {
 	Server   ServerConfig   `yaml:"server"`
 	Database DatabaseConfig `yaml:"database"`
@@ -59,6 +63,7 @@ type Config struct {
 	JWT      JWTConfig      `yaml:"jwt"`
 	Logging  LoggingConfig  `yaml:"logging"`
 	GRPC     GRPCConfig     `yaml:"grpc"`
+	Auth     AuthConfig     `yaml:"auth"`
 }
 
 func LoadConfig(path string) (*Config, error) {

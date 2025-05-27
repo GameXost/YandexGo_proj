@@ -19,8 +19,12 @@ type contextKey string
 
 const DriverIDKey contextKey = "driver_id"
 
-func AuthInterceptor(publicKey *rsa.PublicKey) grpc.UnaryServerInterceptor {
+func AuthInterceptor(publicKey *rsa.PublicKey, disableAuth bool) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		if disableAuth {
+			return handler(ctx, req)
+		}
+
 		if isPublicMethod(info.FullMethod) {
 			return handler(ctx, req)
 		}

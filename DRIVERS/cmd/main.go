@@ -18,6 +18,8 @@ import (
 	"net"
 	"net/http"
 
+	// "sync"
+
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -57,10 +59,12 @@ func main() {
 	_ = privateKey // если не используется, чтобы не было ошибки компиляции
 
 	// 3. DB connection
-	connStr := fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
-		cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name, cfg.Database.SSLMode,
-	)
+	// connStr := fmt.Sprintf(
+	// 	"postgres://%s:%s@%s:%d/%s?sslmode=%s",
+
+	// 	cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name, cfg.Database.SSLMode,
+	// )
+	connStr := "postgres://gamexost:gopython@localhost:5432/postgres?sslmode=disable"
 	dbpool, err := pgxpool.New(ctx, connStr)
 	if err != nil {
 		log.Fatalf("Unable to create pool: %v", err)
@@ -92,6 +96,31 @@ func main() {
 	repo := repository.NewDriverRepository(dbpool)
 	driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter)
 
+	// --- НАЧАЛО блока нагрузки ---
+	// var wg sync.WaitGroup
+	// const (
+	// 	numWorkers           = 1000   // Количество параллельных горутин
+	// 	numRequestsPerWorker = 100000 // Сколько запросов делает каждая горутина
+	// )
+	// for w := 0; w < numWorkers; w++ {
+	// 	wg.Add(1)
+	// 	go func(workerID int) {
+	// 		defer wg.Done()
+	// 		for i := 0; i < numRequestsPerWorker; i++ {
+	// 			_, err := driverService.GetDriverProfile(ctx, "1")
+	// 			if err != nil {
+	// 				log.Printf("[worker %d] GetDriverProfile error: %v", workerID, err)
+	// 			}
+	// 			// log.Printf("Driver: %+v, %s, %s, %s, %s", driver, driver.CarColor, driver.CarMark, driver.Email, driver.Phone)
+	// 			// Можно добавить небольшую задержку, если нужно
+	// 			// time.Sleep(1 * time.Millisecond)
+	// 		}
+	// 	}(w)
+	// }
+	// wg.Wait()
+	// log.Println("All requests finished")
+	// --- КОНЕЦ блока нагрузки ---
+
 	// --- Kafka consumer ---
 	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  cfg.Kafka.Brokers,
@@ -102,12 +131,15 @@ func main() {
 	})
 	go driverService.StartKafkaConsumer(ctx, kafkaReader)
 
-	driver, err := driverService.GetDriverProfile(ctx, "1")
-	if err != nil {
-		log.Printf("GetDriverProfile error: %v", err)
-	} else {
-		log.Printf("Driver: %+v", driver)
-	}
+	// for i := 0; i < 1_000; i++ {
+	// 	driver, err := driverService.GetDriverProfile(ctx, "1")
+	// 	if err != nil {
+	// 		log.Printf("GetDriverProfile error: %v", err)
+	// 	} else {
+	// 		log.Printf("Driver: %+v", driver)
+	// 	}
+	// }
+	// log.Printf("Auth disabled: %v", cfg.Auth.Disabled)
 
 	// server up
 	sv := &server.DriverServer{
@@ -116,7 +148,7 @@ func main() {
 
 	// gRPC server up
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(server.AuthInterceptor(publicKey)),
+		grpc.UnaryInterceptor(server.AuthInterceptor(publicKey, cfg.Auth.Disabled)),
 	)
 	pb.RegisterDriversServer(grpcServer, sv)
 	grpcListener, err := net.Listen("tcp", cfg.Server.Port)
