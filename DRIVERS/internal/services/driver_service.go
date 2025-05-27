@@ -7,7 +7,6 @@ import (
 	"math"
 	"time"
 
-
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
 
 	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
@@ -45,6 +44,8 @@ func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (
 	if err != nil {
 		return nil, fmt.Errorf("driver not found: %w", err)
 	}
+	prometh.RideAcceptedCounter.Inc()
+
 	return modelToProtoDriver(driver), nil
 }
 
@@ -116,7 +117,7 @@ func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID 
 			Event:         "ride_accepted",
 			RideID:        rideID,
 			PassengerID:   ride.UserId,
-			DriverID:      driverID,s
+			DriverID:      driverID,
 			StartLocation: fmt.Sprintf("%f,%f", ride.StartLocation.Latitude, ride.StartLocation.Longitude),
 			EndLocation:   fmt.Sprintf("%f,%f", ride.EndLocation.Latitude, ride.EndLocation.Longitude),
 			Timestamp:     time.Now().Unix(),
@@ -183,6 +184,7 @@ func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*p
 		Username: user.Username,
 		Phone:    user.Phone,
 	}, nil
+
 }
 
 func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverID string) (*pb.StatusResponse, error) {
