@@ -11,7 +11,7 @@ import (
 )
 
 type UserService struct {
-	Repo  repository.UserRepository
+	Repo  repository.UserRepositoryInterface
 	Kafka *kafka.Writer
 }
 

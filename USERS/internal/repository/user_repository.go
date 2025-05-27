@@ -9,7 +9,7 @@ import (
 )
 
 type UserRepositoryInterface interface {
-	GetUserByID(ctx context.Context, id int64) (*models.User, error)
+	GetUserByID(ctx context.Context, userID string) (*models.User, error)
 	UpdateUserProfile(ctx context.Context, user *models.User) error
 	GetDriverByID(ctx context.Context, driverID string) (*models.User, error)
 }
@@ -25,14 +25,11 @@ func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 }
 
 func (r *UserRepository) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
-	query := `SELECT id, first_name, email, phone_number FROM users WHERE id = $1`
+	query := `SELECT id, first_name, phone FROM users WHERE id = $1`
 	row := r.DB.QueryRow(ctx, query, userID)
 
 	var user models.User
-	err := row.Scan(
-		&user.ID, &user.UserName,
-		&user.Email, &user.Phone,
-	)
+	err := row.Scan(&user.ID, &user.UserName, &user.Phone)
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
