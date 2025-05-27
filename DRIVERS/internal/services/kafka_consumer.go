@@ -9,8 +9,6 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-//start kafka consumer
-
 func (s *DriverService) StartKafkaConsumer(ctx context.Context, reader *kafka.Reader) {
 	go func() {
 		for {
