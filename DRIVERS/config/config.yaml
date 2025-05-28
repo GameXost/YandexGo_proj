@@ -35,4 +35,4 @@ grpc:
   keepalive_time: "30s"
 
 auth:
-  disabled: false
+  disabled: true
