@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="be3fccf3-4d09-4387-bc46-7d7af7b84c2c" name="Changes" comment="USERS updated" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go Application" />
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$PROJECT_DIR$/../../go" />
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="f168e9c6a5749264b7c77f94382ce4688206c1cf" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
+    {
+      &quot;assignee&quot;: &quot;GameXost&quot;
+    }
+  ],
+  &quot;lastFilter&quot;: {
+    &quot;assignee&quot;: &quot;GameXost&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/GameXost/YandexGo_proj&quot;,
+    &quot;accountId&quot;: &quot;0b1340a2-1ff3-4904-bd33-335b711e6bb2&quot;
+  }
+}</component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="true" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/DRIVERS/cmd/main.go" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2uR94aGIh58KdxWnYSakhfQwxdD" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Docker.DRIVERS.swagger-ui: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.DRIVERS/server/Dockerfile runtime.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.DRIVERS: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/swagger/drivers/go-server-server-generated.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build main.go (1).executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build main.go.executor&quot;: &quot;Run&quot;,
+    &quot;Makefile Target.build_proto.executor&quot;: &quot;Run&quot;,
+    &quot;Makefile Target.curl.executor&quot;: &quot;Run&quot;,
+    &quot;Makefile Target.proto-google.executor&quot;: &quot;Run&quot;,
+    &quot;Makefile Target.proto-openapiv2.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenDatabaseViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;com.codeium.enabled&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Plugins/TabNine-1.226.0.zip&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.editor&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql_aurora&quot;,
+      &quot;postgresql&quot;
+    ],
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;PLAIN_TEXT&quot;
+    ]
+  }
+}</component>
+  <component name="QodanaReportsService">
+    <option name="descriptions">
+      <ReportDescription localRun="true" path="C:\Users\GameXost\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="021cf4ae-a0c8-46bd-92fa-943970f75113" reportId="YandexGo_proj/qodana/2025-05-12" />
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS" />
+      <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\API" />
+      <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\API\google" />
+      <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\API\generated\drivers" />
+      <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\API\protos" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\internal\config" />
+      <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\cmd" />
+      <recent name="D:\apps\go_files\YandexGo_proj\USERS\cmd" />
+      <recent name="D:\apps\go_files\YandexGo_proj\USERS\server" />
+      <recent name="D:\apps\go_files\YandexGo_proj\USERS" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Docker.DRIVERS.swagger-ui: Compose Deployment">
+    <configuration name="build_proto" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
+      <makefile filename="$PROJECT_DIR$/DRIVERS/API/protos/Makefile" target="build_proto" workingDirectory="" arguments="">
+        <envs />
+      </makefile>
+      <method v="2" />
+    </configuration>
+    <configuration name="proto-openapiv2" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
+      <makefile filename="$PROJECT_DIR$/DRIVERS/API/protos/Makefile" target="proto-openapiv2" workingDirectory="" arguments="">
+        <envs />
+      </makefile>
+      <method v="2" />
+    </configuration>
+    <configuration name="DRIVERS: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Drivers">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="DRIVERS/docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="DRIVERS/server/Dockerfile runtime" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Drivers">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="imageTag" value="scratch_runtime" />
+          <option name="buildCliOptions" value="--target runtime" />
+          <option name="buildOnly" value="true" />
+          <option name="sourceFilePath" value="DRIVERS/server/Dockerfile" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="DRIVERS.swagger-ui: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Drivers">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="swagger-ui" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="DRIVERS/docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-d297c17c1fbd-b87a2f8923ed-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-243.21565.208" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-GO-243.21565.208" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TerminalProjectNonSharedOptionsProvider">
+    <option name="startingDirectory" value="C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoExit -Command &quot;Start-Process powershell -Verb RunAs&quot; " />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.py" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="gRPCservice" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="huge update, first funcs in main.go, made yaml files for K8S, updated proto files and generated files." />
+    <MESSAGE value="changed go.mod, main.go, Makefile" />
+    <MESSAGE value="added client_server generator" />
+    <MESSAGE value="debugged Makefile" />
+    <MESSAGE value="added api_handlers" />
+    <MESSAGE value="updated structure" />
+    <MESSAGE value="updated handlers" />
+    <MESSAGE value="updated handlers and proto" />
+    <MESSAGE value="updated aand added handlers" />
+    <MESSAGE value="updated aand added handlers&#10;custom handlers and jwt decoding" />
+    <MESSAGE value="USERS updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="USERS updated" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>false</integration-enabled>
+    <settings-migrated>true</settings-migrated>
+  </component>
+</project>
