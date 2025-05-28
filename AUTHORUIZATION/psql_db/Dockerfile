@@ -5,4 +5,4 @@ ENV POSTGRES_PASSWORD=secret
 ENV POSTGRES_DB=Auth
 
 
-COPY ./Auth.sql /docker-entrypoint-initdb.d/
+COPY Auth.sql /docker-entrypoint-initdb.d/
