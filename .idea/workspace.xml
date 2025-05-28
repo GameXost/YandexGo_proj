@@ -4,7 +4,21 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="be3fccf3-4d09-4387-bc46-7d7af7b84c2c" name="Changes" comment="USERS updated" />
+=======
+    <list default="true" id="be3fccf3-4d09-4387-bc46-7d7af7b84c2c" name="Changes" comment="USERS updated">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/YandexGo_proj.iml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/YandexGo_proj.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/protoeditor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/protoeditor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqlDataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/sqlDataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/sqldialects.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/swagger-settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/swagger-settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/vcs.xml" afterDir="false" />
+    </list>
+>>>>>>> gRPCservice
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -44,9 +58,12 @@
     &quot;accountId&quot;: &quot;0b1340a2-1ff3-4904-bd33-335b711e6bb2&quot;
   }
 }</component>
+<<<<<<< HEAD
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
+=======
+>>>>>>> gRPCservice
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/DRIVERS/cmd/main.go" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -82,7 +99,11 @@
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
     &quot;com.codeium.enabled&quot;: &quot;true&quot;,
+<<<<<<< HEAD
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+=======
+    &quot;git-widget-placeholder&quot;: &quot;gRPCservice&quot;,
+>>>>>>> gRPCservice
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
@@ -116,11 +137,19 @@
       <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\API\protos" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+<<<<<<< HEAD
       <recent name="D:\apps\go_files\YandexGo_proj" />
       <recent name="D:\apps\go_files\YandexGo_proj\AUTHORUIZATION" />
       <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\internal\config" />
       <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\cmd" />
       <recent name="D:\apps\go_files\YandexGo_proj\USERS\cmd" />
+=======
+      <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\internal\config" />
+      <recent name="D:\apps\go_files\YandexGo_proj\DRIVERS\cmd" />
+      <recent name="D:\apps\go_files\YandexGo_proj\USERS\cmd" />
+      <recent name="D:\apps\go_files\YandexGo_proj\USERS\server" />
+      <recent name="D:\apps\go_files\YandexGo_proj\USERS" />
+>>>>>>> gRPCservice
     </key>
   </component>
   <component name="RunManager" selected="Docker.DRIVERS.swagger-ui: Compose Deployment">
@@ -210,7 +239,11 @@
                   <entry key="branch">
                     <value>
                       <list>
+<<<<<<< HEAD
                         <option value="origin/sergio" />
+=======
+                        <option value="gRPCservice" />
+>>>>>>> gRPCservice
                       </list>
                     </value>
                   </entry>
@@ -237,7 +270,10 @@
     <option name="LAST_COMMIT_MESSAGE" value="USERS updated" />
   </component>
   <component name="VgoProject">
+<<<<<<< HEAD
     <integration-enabled>false</integration-enabled>
+=======
+>>>>>>> gRPCservice
     <settings-migrated>true</settings-migrated>
   </component>
 </project>

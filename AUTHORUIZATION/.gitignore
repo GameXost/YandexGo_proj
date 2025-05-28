@@ -1,2 +1,2 @@
-private_key.pem
-public_key.pem
+DRIVERS/config/private.key
+DRIVERS/config/public.key

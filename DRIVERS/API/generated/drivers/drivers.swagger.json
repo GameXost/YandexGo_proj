@@ -1,0 +1,655 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Driver Service API",
+    "description": "API for managing drivers and ride operations",
+    "version": "2.0",
+    "contact": {
+      "name": "YandexGo Project Team",
+      "url": "https://github.com/GameXost/YandexGo_proj",
+      "email": "sergejs.dyldin@yandex.ru"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "tags": [
+    {
+      "name": "Drivers"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/driver/current_ride/{id}": {
+      "get": {
+        "summary": "Get current ride information",
+        "operationId": "getCurrentRide",
+        "responses": {
+          "200": {
+            "description": "Successfully received current ride",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceRide"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "driver's id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "rides"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/driver/location": {
+      "post": {
+        "summary": "Update driver location (streaming)",
+        "operationId": "updateLocation",
+        "responses": {
+          "200": {
+            "description": "Location updates received successfully",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": " (streaming inputs)",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/driver_serviceLocationUpdateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "location"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/driver/nearby_req": {
+      "get": {
+        "summary": "Get nearby ride requests",
+        "operationId": "getNearbyRequests",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved nearby requests",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceRideRequestsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "latitude",
+            "description": "Latitude",
+            "in": "query",
+            "required": false,
+            "type": "number",
+            "format": "double"
+          },
+          {
+            "name": "longitude",
+            "description": "Longitude",
+            "in": "query",
+            "required": false,
+            "type": "number",
+            "format": "double"
+          }
+        ],
+        "tags": [
+          "location"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/driver/profile": {
+      "get": {
+        "summary": "Get driver profile",
+        "operationId": "getDriverProfile",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved driver profile",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceDriver"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "description": "JWT auth token",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "pattern": "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
+          }
+        ],
+        "tags": [
+          "driver"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update driver profile",
+        "operationId": "updateDriverProfile",
+        "responses": {
+          "200": {
+            "description": "Successfully updated driver profile",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceDriver"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/driver_serviceUpdateDriverProfileRequest"
+            }
+          }
+        ],
+        "tags": [
+          "driver"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/driver/{id}/rides": {
+      "get": {
+        "summary": "Get driver's ride history",
+        "operationId": "getRideHistory",
+        "responses": {
+          "200": {
+            "description": "Successfully received ride history",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceRideHistoryResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "driver's id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "rides"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/ride/{id}/accept": {
+      "post": {
+        "summary": "Accept a ride",
+        "operationId": "acceptRide",
+        "responses": {
+          "200": {
+            "description": "Ride accepted successfully",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Ride ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "rides"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/ride/{id}/cancel": {
+      "post": {
+        "summary": "Cancel a ride",
+        "operationId": "cancelRide",
+        "responses": {
+          "200": {
+            "description": "Ride canceled successfully",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Ride ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "rides"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/ride/{id}/complete": {
+      "post": {
+        "summary": "Complete a ride",
+        "operationId": "completeRide",
+        "responses": {
+          "200": {
+            "description": "Ride completed successfully",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Ride ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "rides"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "summary": "Get passenger information",
+        "operationId": "getPassengerInfo",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved passenger info",
+            "schema": {
+              "$ref": "#/definitions/driver_serviceUser"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "user's id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "passengers"
+        ],
+        "security": [
+          {
+            "OAuth2": []
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "driver_serviceDriver": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unic driver identificator"
+        },
+        "username": {
+          "type": "string",
+          "description": "Driver's first_name"
+        },
+        "phone": {
+          "type": "string",
+          "description": "contact number"
+        },
+        "carModel": {
+          "type": "string",
+          "description": "Car model"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address"
+        },
+        "carColor": {
+          "type": "string",
+          "description": "Car color"
+        },
+        "carMark": {
+          "type": "string",
+          "description": "Car manufacturer"
+        },
+        "carNumber": {
+          "type": "string",
+          "description": "License plate number"
+        }
+      }
+    },
+    "driver_serviceLocation": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "format": "double",
+          "example": 55.755825,
+          "description": "Latitude"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "double",
+          "example": 37.617298,
+          "description": "Longitude"
+        }
+      }
+    },
+    "driver_serviceLocationUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "driverId": {
+          "type": "string",
+          "example": "driver_123",
+          "description": "Driver ID"
+        },
+        "location": {
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "updated coords"
+        }
+      }
+    },
+    "driver_serviceRide": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "unic id of ride"
+        },
+        "userId": {
+          "type": "string",
+          "description": "unic user's id"
+        },
+        "driverId": {
+          "type": "string",
+          "description": "unic drivers id"
+        },
+        "startLocation": {
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "start coords"
+        },
+        "endLocation": {
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "end coords"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "in_progress",
+            "completed",
+            "canceled"
+          ],
+          "description": "ride status"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "int64",
+          "description": "time mark for start point"
+        }
+      }
+    },
+    "driver_serviceRideHistoryResponse": {
+      "type": "object",
+      "properties": {
+        "rides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/driver_serviceRide"
+          },
+          "description": "previous rides"
+        }
+      }
+    },
+    "driver_serviceRideRequest": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "example": "123e4567-e89b-12d3-a456-426614174000",
+          "description": "User ID"
+        },
+        "startLocation": {
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "start coords"
+        },
+        "endLocation": {
+          "$ref": "#/definitions/driver_serviceLocation",
+          "description": "end coords"
+        }
+      }
+    },
+    "driver_serviceRideRequestsResponse": {
+      "type": "object",
+      "properties": {
+        "rideRequests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/driver_serviceRideRequest"
+          },
+          "description": "available rides"
+        }
+      }
+    },
+    "driver_serviceStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "boolean",
+          "description": "ride status"
+        },
+        "message": {
+          "type": "string",
+          "description": "details"
+        }
+      }
+    },
+    "driver_serviceUpdateDriverProfileRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Driver ID"
+        },
+        "driver": {
+          "$ref": "#/definitions/driver_serviceDriver",
+          "description": "New driver's data"
+        }
+      }
+    },
+    "driver_serviceUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unic user's identificator"
+        },
+        "username": {
+          "type": "string",
+          "description": "USer's first name"
+        },
+        "phone": {
+          "type": "string",
+          "description": "contact number"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "OAuth2": {
+      "type": "oauth2",
+      "flow": "application",
+      "tokenUrl": "JWT/token",
+      "scopes": {
+        "drive-api": "access to driver services"
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2": []
+    }
+  ]
+}

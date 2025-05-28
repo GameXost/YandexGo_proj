@@ -1,0 +1,556 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: sergejs.dyldin@yandex.ru
+    name: YandexGo Project Team
+    url: https://github.com/GameXost/YandexGo_proj
+  description: API for managing drivers and ride operations
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: Driver Service API
+  version: "2.0"
+servers:
+- url: /
+security:
+- OAuth2: []
+tags:
+- name: Drivers
+paths:
+  /driver/current_ride/{id}:
+    get:
+      operationId: getCurrentRide
+      parameters:
+      - description: driver's id
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceRide'
+          description: Successfully received current ride
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Get current ride information
+      tags:
+      - rides
+  /driver/location:
+    post:
+      operationId: updateLocation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/driver_serviceLocationUpdateRequest'
+        description: ' (streaming inputs)'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceStatusResponse'
+          description: Location updates received successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Update driver location (streaming)
+      tags:
+      - location
+      x-codegen-request-body-name: body
+  /driver/nearby_req:
+    get:
+      operationId: getNearbyRequests
+      parameters:
+      - description: Latitude
+        in: query
+        name: latitude
+        schema:
+          format: double
+          type: number
+      - description: Longitude
+        in: query
+        name: longitude
+        schema:
+          format: double
+          type: number
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceRideRequestsResponse'
+          description: Successfully retrieved nearby requests
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Get nearby ride requests
+      tags:
+      - location
+  /driver/profile:
+    get:
+      operationId: getDriverProfile
+      parameters:
+      - description: JWT auth token
+        in: query
+        name: token
+        schema:
+          pattern: "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceDriver'
+          description: Successfully retrieved driver profile
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Get driver profile
+      tags:
+      - driver
+    put:
+      operationId: updateDriverProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/driver_serviceUpdateDriverProfileRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceDriver'
+          description: Successfully updated driver profile
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Update driver profile
+      tags:
+      - driver
+      x-codegen-request-body-name: body
+  /driver/{id}/rides:
+    get:
+      operationId: getRideHistory
+      parameters:
+      - description: driver's id
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceRideHistoryResponse'
+          description: Successfully received ride history
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Get driver's ride history
+      tags:
+      - rides
+  /ride/{id}/accept:
+    post:
+      operationId: acceptRide
+      parameters:
+      - description: Ride ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceStatusResponse'
+          description: Ride accepted successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Accept a ride
+      tags:
+      - rides
+  /ride/{id}/cancel:
+    post:
+      operationId: cancelRide
+      parameters:
+      - description: Ride ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceStatusResponse'
+          description: Ride canceled successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Cancel a ride
+      tags:
+      - rides
+  /ride/{id}/complete:
+    post:
+      operationId: completeRide
+      parameters:
+      - description: Ride ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceStatusResponse'
+          description: Ride completed successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Complete a ride
+      tags:
+      - rides
+  /user/{id}:
+    get:
+      operationId: getPassengerInfo
+      parameters:
+      - description: user's id
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/driver_serviceUser'
+          description: Successfully retrieved passenger info
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+          description: An unexpected error response.
+      security:
+      - OAuth2: []
+      summary: Get passenger information
+      tags:
+      - passengers
+components:
+  schemas:
+    driver_serviceDriver:
+      example:
+        carNumber: carNumber
+        carColor: carColor
+        phone: phone
+        carMark: carMark
+        id: id
+        email: email
+        username: username
+        carModel: carModel
+      properties:
+        id:
+          description: Unic driver identificator
+          type: string
+        username:
+          description: Driver's first_name
+          type: string
+        phone:
+          description: contact number
+          type: string
+        carModel:
+          description: Car model
+          type: string
+        email:
+          description: Email address
+          type: string
+        carColor:
+          description: Car color
+          type: string
+        carMark:
+          description: Car manufacturer
+          type: string
+        carNumber:
+          description: License plate number
+          type: string
+      type: object
+    driver_serviceLocation:
+      example:
+        latitude: 55.755825
+        longitude: 37.617298
+      properties:
+        latitude:
+          description: Latitude
+          example: 55.755825
+          format: double
+          type: number
+        longitude:
+          description: Longitude
+          example: 37.617298
+          format: double
+          type: number
+      type: object
+    driver_serviceLocationUpdateRequest:
+      properties:
+        driverId:
+          description: Driver ID
+          example: driver_123
+          type: string
+        location:
+          $ref: '#/components/schemas/driver_serviceLocation'
+      type: object
+    driver_serviceRide:
+      example:
+        driverId: driverId
+        startLocation:
+          latitude: 55.755825
+          longitude: 37.617298
+        id: id
+        userId: userId
+        endLocation:
+          latitude: 55.755825
+          longitude: 37.617298
+        status: pending
+        timestamp: timestamp
+      properties:
+        id:
+          description: unic id of ride
+          type: string
+        userId:
+          description: unic user's id
+          type: string
+        driverId:
+          description: unic drivers id
+          type: string
+        startLocation:
+          $ref: '#/components/schemas/driver_serviceLocation'
+        endLocation:
+          $ref: '#/components/schemas/driver_serviceLocation'
+        status:
+          description: ride status
+          enum:
+          - pending
+          - accepted
+          - in_progress
+          - completed
+          - canceled
+          type: string
+        timestamp:
+          description: time mark for start point
+          format: int64
+          type: string
+      type: object
+    driver_serviceRideHistoryResponse:
+      example:
+        rides:
+        - driverId: driverId
+          startLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          id: id
+          userId: userId
+          endLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          status: pending
+          timestamp: timestamp
+        - driverId: driverId
+          startLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          id: id
+          userId: userId
+          endLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          status: pending
+          timestamp: timestamp
+      properties:
+        rides:
+          description: previous rides
+          items:
+            $ref: '#/components/schemas/driver_serviceRide'
+          type: array
+      type: object
+    driver_serviceRideRequest:
+      example:
+        startLocation:
+          latitude: 55.755825
+          longitude: 37.617298
+        userId: 123e4567-e89b-12d3-a456-426614174000
+        endLocation:
+          latitude: 55.755825
+          longitude: 37.617298
+      properties:
+        userId:
+          description: User ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+          type: string
+        startLocation:
+          $ref: '#/components/schemas/driver_serviceLocation'
+        endLocation:
+          $ref: '#/components/schemas/driver_serviceLocation'
+      type: object
+    driver_serviceRideRequestsResponse:
+      example:
+        rideRequests:
+        - startLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          userId: 123e4567-e89b-12d3-a456-426614174000
+          endLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+        - startLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+          userId: 123e4567-e89b-12d3-a456-426614174000
+          endLocation:
+            latitude: 55.755825
+            longitude: 37.617298
+      properties:
+        rideRequests:
+          description: available rides
+          items:
+            $ref: '#/components/schemas/driver_serviceRideRequest'
+          type: array
+      type: object
+    driver_serviceStatusResponse:
+      example:
+        message: message
+        status: true
+      properties:
+        status:
+          description: ride status
+          type: boolean
+        message:
+          description: details
+          type: string
+      type: object
+    driver_serviceUpdateDriverProfileRequest:
+      properties:
+        id:
+          description: Driver ID
+          type: string
+        driver:
+          $ref: '#/components/schemas/driver_serviceDriver'
+      type: object
+    driver_serviceUser:
+      example:
+        phone: phone
+        id: id
+        username: username
+      properties:
+        id:
+          description: Unic user's identificator
+          type: string
+        username:
+          description: USer's first name
+          type: string
+        phone:
+          description: contact number
+          type: string
+      type: object
+    protobufAny:
+      additionalProperties:
+        type: object
+      example:
+        '@type': '@type'
+      properties:
+        '@type':
+          type: string
+      type: object
+    rpcStatus:
+      example:
+        code: 0
+        details:
+        - '@type': '@type'
+        - '@type': '@type'
+        message: message
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+        details:
+          items:
+            $ref: '#/components/schemas/protobufAny'
+          type: array
+      type: object
+  securitySchemes:
+    OAuth2:
+      flows:
+        clientCredentials:
+          scopes:
+            drive-api: access to driver services
+          tokenUrl: JWT/token
+      type: oauth2
+x-original-swagger-version: "2.0"
