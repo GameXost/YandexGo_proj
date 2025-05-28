@@ -44,8 +44,6 @@ func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (
 	if err != nil {
 		return nil, fmt.Errorf("driver not found: %w", err)
 	}
-	prometh.RideAcceptedCounter.Inc()
-
 	return modelToProtoDriver(driver), nil
 }
 
