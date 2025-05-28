@@ -210,7 +210,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="gRPCservice" />
+                        <option value="origin/sergio" />
                       </list>
                     </value>
                   </entry>
