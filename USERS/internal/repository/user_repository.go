@@ -49,3 +49,19 @@ func (r *UserRepository) UpdateUserProfile(ctx context.Context, user *models.Use
 	}
 	return nil
 }
+
+func (r *UserRepository) GetDriverByID(ctx context.Context, driverID string) (*models.Driver, error) {
+	query := `SELECT id, first_name, email, phone_number,car_number, car_model, car_marks, car_color FROM drivers WHERE id = $1`
+	row := r.DB.QueryRow(ctx, query, driverID)
+
+	var driver models.Driver
+	err := row.Scan(
+		&driver.ID, &driver.UserName, &driver.Email,
+		&driver.Phone,
+		&driver.Car_number, &driver.Car_model, &driver.Car_marks, &driver.Car_color,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("driver not found: %w", err)
+	}
+	return &driver, nil
+}
