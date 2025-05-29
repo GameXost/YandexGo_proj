@@ -58,6 +58,3 @@ docker_run:
 docker_stop:
 	docker stop yandexgo_server || true
 
-//поправить
-prometheus_launch:
-	.\prometheus-bin\prometheus.exe --config.file="go_files\YandexGo_proj\DRIVERS\monitoring\prometheus.yml" --web.listen-address=":9090"

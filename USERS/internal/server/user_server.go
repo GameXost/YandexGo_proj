@@ -1,8 +1,9 @@
 package server
 
 import (
-	"USERS/internal/services"
 	"context"
+
+	"github.com/GameXost/YandexGo_proj/USERS/internal/services"
 
 	pb "github.com/GameXost/YandexGo_proj/USERS/API/generated/clients"
 )
@@ -14,7 +15,7 @@ type UserServer struct {
 
 func (s *UserServer) GetUserProfile(ctx context.Context, req *pb.AuthToken) (*pb.User, error) {
 	// req.UserId или req.Token — зависит от структуры AuthToken
-	return s.Service.GetUserProfile(ctx, req)
+	return s.Service.GetUserProfile(ctx, req.Token)
 }
 
 func (s *UserServer) UpdateUserProfile(ctx context.Context, req *pb.UpdateProfileRequest) (*pb.User, error) {

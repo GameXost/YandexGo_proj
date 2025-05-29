@@ -1,19 +1,17 @@
-syntax ="proto3";
+syntax = "proto3";
 
 package client_service;
 
+option go_package = "github.com/GameXost/YandexGo_proj/API/protos";
 
-option go_package = "github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protos";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-
-
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     info: {
         title: "USERS Service API";
         version: "2.0";
-        description: "API fir managing users and ride operations";
+        description: "API for managing users and ride operations";
         contact: {
             name: "Yandex Go Project Team";
             url: "https://github.com/GameXost/YandexGo_proj";
@@ -26,23 +24,18 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     };
     security_definitions: {
         security: {
-            key: "OAuth2";
+            key: "BearerAuth";
             value: {
-                type: TYPE_OAUTH2;
-                flow: FLOW_APPLICATION;
-                token_url: "JWT/token";
-                scopes: {
-                    scope: {
-                        key: "users-api";
-                        value: "access to driver services";
-                    }
-                }
+                type: TYPE_API_KEY;
+                in: IN_HEADER;
+                name: "Authorization";
+                description: "JWT token as: Bearer <token>";
             }
         }
     };
     security: {
         security_requirement: {
-            key: "OAuth2";
+            key: "BearerAuth";
             value: {};
         }
     };
@@ -61,7 +54,7 @@ service Client {
             summary: "Get user profile";
             security: {
                 security_requirement: {
-                    key: "OAuth2";
+                    key: "BearerAuth";
                     value: {};
                 }
             };
@@ -83,7 +76,7 @@ service Client {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: {key: "OAuth2"; value: {} }
+                security_requirement: {key: "BearerAuth"; value: {} }
             }
             summary: "Update user profile";
             operation_id: "updateUserProfile";
@@ -105,7 +98,7 @@ service Client {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: {key: "OAuth2"; value:{}}
+                security_requirement: {key: "BearerAuth"; value:{}}
             }
             summary: "request a ride";
             operation_id: "requestRide";
@@ -125,7 +118,7 @@ service Client {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: {key: "OAuth2"; value:{}}
+                security_requirement: {key: "BearerAuth"; value:{}}
             }
             summary: "Cancel ride";
             operation_id: "cancelRide";
@@ -144,7 +137,7 @@ service Client {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: {key:"OAuth2"; value:{}}
+                security_requirement: {key:"BearerAuth"; value:{}}
             }
             summary: "get ride information";
             operation_id: "getCurrentRide";
@@ -163,7 +156,7 @@ service Client {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: {key:"OAuth2"; value:{}}
+                security_requirement: {key:"BearerAuth"; value:{}}
             }
             summary: "Get history of last rides";
             operation_id: "get rides history";
@@ -184,7 +177,7 @@ service Client {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: {key: "OAuth2"; value: {}}
+                security_requirement: {key: "BearerAuth"; value: {}}
             }
             summary: "getting driver location lat, lon";
             operation_id: "getDriverLocation";
@@ -203,7 +196,7 @@ service Client {
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {
-                security_requirement: {key: "OAuth2"; value:{}}
+                security_requirement: {key: "BearerAuth"; value:{}}
             }
             summary: "get info about your driver";
             operation_id: "getDriverInfo";

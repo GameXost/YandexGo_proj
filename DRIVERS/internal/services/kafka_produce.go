@@ -8,47 +8,36 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-func PublishRideAccepted(ctx context.Context, writer *kafka.Writer, event RideAcceptedEvent) error {
-	event.Event = "ride_accepted"
-	event.Timestamp = time.Now().Unix()
+// Универсальная функция для отправки любого события
+func PublishEvent(ctx context.Context, writer *kafka.Writer, topic string, event interface{}, key string) error {
 	data, err := json.Marshal(event)
 	if err != nil {
 		return err
 	}
 	msg := kafka.Message{
-		Key:   []byte(event.RideID),
+		Key:   []byte(key),
 		Value: data,
-		Topic: "ride-events",
+		Topic: topic,
 	}
 	return writer.WriteMessages(ctx, msg)
+}
+
+func PublishRideAccepted(ctx context.Context, writer *kafka.Writer, event RideAcceptedEvent) error {
+	event.Event = "ride_accepted"
+	event.Timestamp = time.Now().Unix()
+	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
 }
 
 func PublishRideCompleted(ctx context.Context, writer *kafka.Writer, event RideCompletedEvent) error {
 	event.Event = "ride_completed"
 	event.Timestamp = time.Now().Unix()
-	data, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-	msg := kafka.Message{
-		Key:   []byte(event.RideID),
-		Value: data,
-		Topic: "ride-events",
-	}
-	return writer.WriteMessages(ctx, msg)
+	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
 }
 
 func PublishRideCanceled(ctx context.Context, writer *kafka.Writer, event RideCanceledEvent) error {
 	event.Event = "ride_canceled"
 	event.Timestamp = time.Now().Unix()
-	data, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-	msg := kafka.Message{
-		Key:   []byte(event.RideID),
-		Value: data,
-		Topic: "ride-events",
-	}
-	return writer.WriteMessages(ctx, msg)
+	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
 }
+
+// Теперь для новых событий (например, get_driver_location) можно использовать PublishEvent напрямую.

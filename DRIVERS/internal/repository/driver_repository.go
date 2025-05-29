@@ -11,7 +11,6 @@ import (
 type DriverRepositoryInterface interface {
 	GetDriverByID(ctx context.Context, driverID string) (*models.Driver, error)
 	UpdateDriverProfile(ctx context.Context, driver *models.Driver) error
-	GetUserByID(ctx context.Context, userID string) (*models.User, error)
 }
 
 type DriverRepository struct {
@@ -25,7 +24,7 @@ func NewDriverRepository(db *pgxpool.Pool) *DriverRepository {
 }
 
 func (r *DriverRepository) GetDriverByID(ctx context.Context, driverID string) (*models.Driver, error) {
-	query := `SELECT id, first_name, email, phone_number,car_number, car_model, car_marks, car_color FROM drivers WHERE id = $1`
+	query := `SELECT id, first_name, email, phone_number,car_number, car_model, car_marks, car_color FROM registered_drivers WHERE id = $1`
 	row := r.DB.QueryRow(ctx, query, driverID)
 
 	var driver models.Driver
@@ -43,7 +42,7 @@ func (r *DriverRepository) GetDriverByID(ctx context.Context, driverID string) (
 // sqlbuilder
 func (r *DriverRepository) UpdateDriverProfile(ctx context.Context, driver *models.Driver) error {
 	_, err := r.DB.Exec(ctx, `
-	UPDATE drivers
+	UPDATE registered_drivers
 	SET
 	first_name=$1, email=$2, phone_number=$3,
 	car_number=$4, car_model=$5,
@@ -56,17 +55,4 @@ func (r *DriverRepository) UpdateDriverProfile(ctx context.Context, driver *mode
 		return fmt.Errorf("failed to update driver profile: %w", err)
 	}
 	return nil
-}
-
-// под вопросом, т.к кафка это всё передает
-func (r *DriverRepository) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
-	query := `SELECT id, username, phone FROM users WHERE id = $1`
-	row := r.DB.QueryRow(ctx, query, userID)
-
-	var user models.User
-	err := row.Scan(&user.ID, &user.Username, &user.Phone)
-	if err != nil {
-		return nil, fmt.Errorf("user not found: %w", err)
-	}
-	return &user, nil
 }

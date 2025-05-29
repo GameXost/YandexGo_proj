@@ -3,42 +3,41 @@ package services
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 )
 
-type KafkaProducer struct {
-	writer *kafka.Writer
-}
-
-func NewKafkaProducer(brokers []string, topic string) *KafkaProducer {
-	writer := kafka.NewWriter(kafka.WriterConfig{
-		Brokers:  brokers,
-		Topic:    topic,
-		Balancer: &kafka.LeastBytes{},
-	})
-	return &KafkaProducer{writer: writer}
-}
-
-func (p *KafkaProducer) SendEvent(ctx context.Context, event interface{}) error {
+// Универсальная функция для отправки любого события
+func PublishEvent(ctx context.Context, writer *kafka.Writer, topic string, event interface{}, key string) error {
 	data, err := json.Marshal(event)
 	if err != nil {
-		log.Printf("Failed to marshal event: %v", err)
 		return err
 	}
-
 	msg := kafka.Message{
+		Key:   []byte(key),
 		Value: data,
+		Topic: topic,
 	}
-
-	err = p.writer.WriteMessages(ctx, msg)
-	if err != nil {
-		log.Printf("Failed to write message to Kafka: %v", err)
-	}
-	return err
+	return writer.WriteMessages(ctx, msg)
 }
 
-func (p *KafkaProducer) Close() error {
-	return p.writer.Close()
+// Пример thin-обёртки для создания поездки
+func PublishRideCreated(ctx context.Context, writer *kafka.Writer, event RideCreatedEvent) error {
+	event.Event = "ride_created"
+	event.Timestamp = time.Now().Unix()
+	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
+}
+
+// Аналогично для других событий, если потребуется
+func PublishRideAccepted(ctx context.Context, writer *kafka.Writer, event RideAcceptedEvent) error {
+	event.Event = "ride_accepted"
+	event.Timestamp = time.Now().Unix()
+	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
+}
+
+func PublishRideCanceled(ctx context.Context, writer *kafka.Writer, event RideCanceledEvent) error {
+	event.Event = "ride_canceled"
+	event.Timestamp = time.Now().Unix()
+	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
 }

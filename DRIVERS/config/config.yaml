@@ -1,5 +1,6 @@
 server:
   port: ":9093"
+  http_port: ":9092"
 
 database:
   host: "79.174.85.58"
@@ -36,3 +37,9 @@ grpc:
 
 auth:
   disabled: false
+
+prometheus:
+  port: ":9091"
+
+swagger:
+  file: "docs/swagger.json"

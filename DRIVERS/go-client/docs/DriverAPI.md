@@ -11,7 +11,7 @@ Method | HTTP request | Description
 
 ## GetDriverProfile
 
-> DriverServiceDriver GetDriverProfile(ctx).Token(token).Execute()
+> DriverServiceDriver GetDriverProfile(ctx).Execute()
 
 Get driver profile
 
@@ -28,11 +28,10 @@ import (
 )
 
 func main() {
-	token := "token_example" // string | JWT auth token (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
-	resp, r, err := apiClient.DriverAPI.GetDriverProfile(context.Background()).Token(token).Execute()
+	resp, r, err := apiClient.DriverAPI.GetDriverProfile(context.Background()).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `DriverAPI.GetDriverProfile``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -44,16 +43,12 @@ func main() {
 
 ### Path Parameters
 
-
+This endpoint does not need any parameter.
 
 ### Other Parameters
 
 Other parameters are passed through a pointer to a apiGetDriverProfileRequest struct via the builder pattern
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **token** | **string** | JWT auth token | 
 
 ### Return type
 
@@ -61,7 +56,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-[OAuth2](../README.md#OAuth2)
+[BearerAuth](../README.md#BearerAuth)
 
 ### HTTP request headers
 
@@ -125,7 +120,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-[OAuth2](../README.md#OAuth2)
+[BearerAuth](../README.md#BearerAuth)
 
 ### HTTP request headers
 

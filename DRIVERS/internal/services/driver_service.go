@@ -12,6 +12,7 @@ import (
 	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/models"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/repository"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/kafka-go"
 )
@@ -112,13 +113,15 @@ func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID 
 	// Публикация события в Kafka
 	if s.Kafka != nil {
 		event := RideAcceptedEvent{
-			Event:         "ride_accepted",
+			BaseEvent: BaseEvent{
+				Event:     "ride_accepted",
+				Timestamp: time.Now().Unix(),
+			},
 			RideID:        rideID,
 			PassengerID:   ride.UserId,
 			DriverID:      driverID,
 			StartLocation: fmt.Sprintf("%f,%f", ride.StartLocation.Latitude, ride.StartLocation.Longitude),
 			EndLocation:   fmt.Sprintf("%f,%f", ride.EndLocation.Latitude, ride.EndLocation.Longitude),
-			Timestamp:     time.Now().Unix(),
 			Status:        "accepted",
 		}
 		_ = PublishRideAccepted(ctx, s.Kafka, event)
@@ -169,20 +172,58 @@ func (s *DriverService) GetCurrentRide(ctx context.Context, driverID string) (*p
 	return &ride, nil
 }
 
-func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*pb.User, error) {
-	if s.Repo == nil {
-		return nil, fmt.Errorf("repository unavailable")
-	}
-	user, err := s.Repo.GetUserByID(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-	return &pb.User{
-		Id:       user.ID,
-		Username: user.Username,
-		Phone:    user.Phone,
-	}, nil
+// Структура для запроса профиля пользователя через Kafka
+type GetUserProfileEvent struct {
+	BaseEvent
+	UserID string `json:"user_id"`
+}
 
+func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*pb.User, error) {
+	correlationId := uuid.New().String()
+	replyTo := "driver-get-user-" + userID
+
+	event := GetUserProfileEvent{
+		BaseEvent: BaseEvent{
+			Event:         "get_user_profile",
+			CorrelationID: correlationId,
+			ReplyTo:       replyTo,
+			Timestamp:     time.Now().Unix(),
+		},
+		UserID: userID,
+	}
+
+	err := PublishEvent(ctx, s.Kafka, "user-requests", event, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send get_user_profile request: %w", err)
+	}
+
+	brokers := []string{"localhost:9092"}
+	reader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: brokers,
+		Topic:   replyTo,
+		GroupID: "driver-service-" + replyTo,
+	})
+	defer reader.Close()
+
+	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	for {
+		m, err := reader.ReadMessage(timeoutCtx)
+		if err != nil {
+			return nil, err
+		}
+		var resp struct {
+			BaseEvent
+			User pb.User `json:"user"`
+		}
+		if err := json.Unmarshal(m.Value, &resp); err != nil {
+			continue
+		}
+		if resp.CorrelationID == correlationId {
+			return &resp.User, nil
+		}
+	}
 }
 
 func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverID string) (*pb.StatusResponse, error) {
@@ -229,11 +270,12 @@ func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverI
 	// 5. Notify via Kafka (структурированное событие)
 	if s.Kafka != nil {
 		event := RideCompletedEvent{
-			Event:     "ride_completed",
-			RideID:    rideID,
-			DriverID:  driverID,
-			Timestamp: time.Now().Unix(),
-			// Можно добавить duration, стоимость, координаты завершения и т.д.
+			BaseEvent: BaseEvent{
+				Event:     "ride_completed",
+				Timestamp: time.Now().Unix(),
+			},
+			RideID:   rideID,
+			DriverID: driverID,
 		}
 		_ = PublishRideCompleted(ctx, s.Kafka, event)
 	}
@@ -289,11 +331,13 @@ func (s *DriverService) CancelRide(ctx context.Context, rideID string, driverID 
 	// 5. Notify via Kafka (структурированное событие)
 	if s.Kafka != nil {
 		event := RideCanceledEvent{
-			Event:     "ride_canceled",
-			RideID:    rideID,
-			DriverID:  driverID,
-			Reason:    "driver_cancelled",
-			Timestamp: time.Now().Unix(),
+			BaseEvent: BaseEvent{
+				Event:     "ride_canceled",
+				Timestamp: time.Now().Unix(),
+			},
+			RideID:   rideID,
+			DriverID: driverID,
+			Reason:   "driver_cancelled",
 		}
 		_ = PublishRideCanceled(ctx, s.Kafka, event)
 	}
@@ -388,23 +432,37 @@ func (s *DriverService) GetNearbyRequests(ctx context.Context, loc *pb.Location)
 	return &pb.RideRequestsResponse{RideRequests: requests}, nil
 }
 
-func (s *DriverService) UpdateLocation(ctx context.Context, updates <-chan *pb.LocationUpdateRequest) (*pb.StatusResponse, error) {
+func (s *DriverService) UpdateLocation(ctx context.Context, update *pb.LocationUpdateRequest) (*pb.StatusResponse, error) {
 	if s.RedisDrivers == nil {
 		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
 	}
-	for update := range updates {
-		if update == nil {
-			continue
-		}
-		key := "driver_location:" + update.DriverId
-		locData, err := json.Marshal(update.Location)
-		if err != nil {
-			continue // skip invalid location
-		}
-		_ = s.RedisDrivers.Set(ctx, key, locData, time.Hour).Err()
+	key := "driver_location:" + update.DriverId
+	locData, err := json.Marshal(update.Location)
+	if err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Invalid location data"}, nil
+	}
+	err = s.RedisDrivers.Set(ctx, key, locData, time.Hour).Err()
+	if err != nil {
+		return &pb.StatusResponse{Status: false, Message: "Failed to save location"}, nil
 	}
 	return &pb.StatusResponse{
 		Status:  true,
-		Message: "Location updates received successfully",
+		Message: "Location updated successfully",
 	}, nil
+}
+
+func (s *DriverService) GetDriverLocation(ctx context.Context, driverID string) (*pb.Location, error) {
+	if s.RedisDrivers == nil {
+		return nil, fmt.Errorf("Redis unavailable")
+	}
+	key := "driver_location:" + driverID
+	locData, err := s.RedisDrivers.Get(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+	var location pb.Location
+	if err := json.Unmarshal([]byte(locData), &location); err != nil {
+		return nil, err
+	}
+	return &location, nil
 }

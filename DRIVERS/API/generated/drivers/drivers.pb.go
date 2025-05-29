@@ -11,6 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -327,50 +328,6 @@ func (x *Ride) GetTimestamp() int64 {
 	return 0
 }
 
-type AuthToken struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AuthToken) Reset() {
-	*x = AuthToken{}
-	mi := &file_drivers_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AuthToken) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AuthToken) ProtoMessage() {}
-
-func (x *AuthToken) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AuthToken.ProtoReflect.Descriptor instead.
-func (*AuthToken) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *AuthToken) GetToken() string {
-	if x != nil {
-		return x.Token
-	}
-	return ""
-}
-
 type UpdateDriverProfileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -381,7 +338,7 @@ type UpdateDriverProfileRequest struct {
 
 func (x *UpdateDriverProfileRequest) Reset() {
 	*x = UpdateDriverProfileRequest{}
-	mi := &file_drivers_proto_msgTypes[5]
+	mi := &file_drivers_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -393,7 +350,7 @@ func (x *UpdateDriverProfileRequest) String() string {
 func (*UpdateDriverProfileRequest) ProtoMessage() {}
 
 func (x *UpdateDriverProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[5]
+	mi := &file_drivers_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -406,7 +363,7 @@ func (x *UpdateDriverProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDriverProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpdateDriverProfileRequest) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{5}
+	return file_drivers_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateDriverProfileRequest) GetId() string {
@@ -432,7 +389,7 @@ type RideIdRequest struct {
 
 func (x *RideIdRequest) Reset() {
 	*x = RideIdRequest{}
-	mi := &file_drivers_proto_msgTypes[6]
+	mi := &file_drivers_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -444,7 +401,7 @@ func (x *RideIdRequest) String() string {
 func (*RideIdRequest) ProtoMessage() {}
 
 func (x *RideIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[6]
+	mi := &file_drivers_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -457,7 +414,7 @@ func (x *RideIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RideIdRequest.ProtoReflect.Descriptor instead.
 func (*RideIdRequest) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{6}
+	return file_drivers_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RideIdRequest) GetId() string {
@@ -476,7 +433,7 @@ type DriverIdRequest struct {
 
 func (x *DriverIdRequest) Reset() {
 	*x = DriverIdRequest{}
-	mi := &file_drivers_proto_msgTypes[7]
+	mi := &file_drivers_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -488,7 +445,7 @@ func (x *DriverIdRequest) String() string {
 func (*DriverIdRequest) ProtoMessage() {}
 
 func (x *DriverIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[7]
+	mi := &file_drivers_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -501,7 +458,7 @@ func (x *DriverIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DriverIdRequest.ProtoReflect.Descriptor instead.
 func (*DriverIdRequest) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{7}
+	return file_drivers_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DriverIdRequest) GetId() string {
@@ -520,7 +477,7 @@ type UserIdRequest struct {
 
 func (x *UserIdRequest) Reset() {
 	*x = UserIdRequest{}
-	mi := &file_drivers_proto_msgTypes[8]
+	mi := &file_drivers_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -532,7 +489,7 @@ func (x *UserIdRequest) String() string {
 func (*UserIdRequest) ProtoMessage() {}
 
 func (x *UserIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[8]
+	mi := &file_drivers_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -545,7 +502,7 @@ func (x *UserIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserIdRequest.ProtoReflect.Descriptor instead.
 func (*UserIdRequest) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{8}
+	return file_drivers_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UserIdRequest) GetId() string {
@@ -565,7 +522,7 @@ type StatusResponse struct {
 
 func (x *StatusResponse) Reset() {
 	*x = StatusResponse{}
-	mi := &file_drivers_proto_msgTypes[9]
+	mi := &file_drivers_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -577,7 +534,7 @@ func (x *StatusResponse) String() string {
 func (*StatusResponse) ProtoMessage() {}
 
 func (x *StatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[9]
+	mi := &file_drivers_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -590,7 +547,7 @@ func (x *StatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
 func (*StatusResponse) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{9}
+	return file_drivers_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *StatusResponse) GetStatus() bool {
@@ -616,7 +573,7 @@ type RideHistoryResponse struct {
 
 func (x *RideHistoryResponse) Reset() {
 	*x = RideHistoryResponse{}
-	mi := &file_drivers_proto_msgTypes[10]
+	mi := &file_drivers_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -628,7 +585,7 @@ func (x *RideHistoryResponse) String() string {
 func (*RideHistoryResponse) ProtoMessage() {}
 
 func (x *RideHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[10]
+	mi := &file_drivers_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -641,7 +598,7 @@ func (x *RideHistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RideHistoryResponse.ProtoReflect.Descriptor instead.
 func (*RideHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{10}
+	return file_drivers_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RideHistoryResponse) GetRides() []*Ride {
@@ -661,7 +618,7 @@ type LocationUpdateRequest struct {
 
 func (x *LocationUpdateRequest) Reset() {
 	*x = LocationUpdateRequest{}
-	mi := &file_drivers_proto_msgTypes[11]
+	mi := &file_drivers_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -673,7 +630,7 @@ func (x *LocationUpdateRequest) String() string {
 func (*LocationUpdateRequest) ProtoMessage() {}
 
 func (x *LocationUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[11]
+	mi := &file_drivers_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -686,7 +643,7 @@ func (x *LocationUpdateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocationUpdateRequest.ProtoReflect.Descriptor instead.
 func (*LocationUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{11}
+	return file_drivers_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *LocationUpdateRequest) GetDriverId() string {
@@ -712,7 +669,7 @@ type RideRequestsResponse struct {
 
 func (x *RideRequestsResponse) Reset() {
 	*x = RideRequestsResponse{}
-	mi := &file_drivers_proto_msgTypes[12]
+	mi := &file_drivers_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -724,7 +681,7 @@ func (x *RideRequestsResponse) String() string {
 func (*RideRequestsResponse) ProtoMessage() {}
 
 func (x *RideRequestsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[12]
+	mi := &file_drivers_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -737,7 +694,7 @@ func (x *RideRequestsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RideRequestsResponse.ProtoReflect.Descriptor instead.
 func (*RideRequestsResponse) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{12}
+	return file_drivers_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RideRequestsResponse) GetRideRequests() []*RideRequest {
@@ -758,7 +715,7 @@ type RideRequest struct {
 
 func (x *RideRequest) Reset() {
 	*x = RideRequest{}
-	mi := &file_drivers_proto_msgTypes[13]
+	mi := &file_drivers_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -770,7 +727,7 @@ func (x *RideRequest) String() string {
 func (*RideRequest) ProtoMessage() {}
 
 func (x *RideRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_drivers_proto_msgTypes[13]
+	mi := &file_drivers_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -783,7 +740,7 @@ func (x *RideRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RideRequest.ProtoReflect.Descriptor instead.
 func (*RideRequest) Descriptor() ([]byte, []int) {
-	return file_drivers_proto_rawDescGZIP(), []int{13}
+	return file_drivers_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *RideRequest) GetUserId() string {
@@ -811,7 +768,7 @@ var File_drivers_proto protoreflect.FileDescriptor
 
 const file_drivers_proto_rawDesc = "" +
 	"\n" +
-	"\rdrivers.proto\x12\x0edriver_service\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x89\x03\n" +
+	"\rdrivers.proto\x12\x0edriver_service\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x89\x03\n" +
 	"\x06Driver\x12.\n" +
 	"\x02id\x18\x01 \x01(\tB\x1e\x92A\x1b2\x19Unic driver identificatorR\x02id\x124\n" +
 	"\busername\x18\x02 \x01(\tB\x18\x92A\x152\x13Driver's first_nameR\busername\x12)\n" +
@@ -837,11 +794,7 @@ const file_drivers_proto_rawDesc = "" +
 	"\fend_location\x18\x05 \x01(\v2\x18.driver_service.LocationB\x0f\x92A\f2\n" +
 	"end coordsR\vendLocation\x12b\n" +
 	"\x06status\x18\x06 \x01(\tBJ\x92AG2\vride status\xf2\x02\apending\xf2\x02\baccepted\xf2\x02\vin_progress\xf2\x02\tcompleted\xf2\x02\bcanceledR\x06status\x12<\n" +
-	"\ttimestamp\x18\a \x01(\x03B\x1e\x92A\x1b2\x19time mark for start pointR\ttimestamp\"\xbd\x01\n" +
-	"\tAuthToken\x12\x8b\x01\n" +
-	"\x05token\x18\x01 \x01(\tBu\x92Ar2\x0eJWT auth tokenJ'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\x8a\x016^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$R\x05token:\"\x92A\x1f\n" +
-	"\x1d*\n" +
-	"Auth Token2\x0fJWT auth tokern\"\x84\x01\n" +
+	"\ttimestamp\x18\a \x01(\x03B\x1e\x92A\x1b2\x19time mark for start pointR\ttimestamp\"\x84\x01\n" +
 	"\x1aUpdateDriverProfileRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\x92A\v2\tDriver IDR\x02id\x12F\n" +
 	"\x06driver\x18\x02 \x01(\v2\x16.driver_service.DriverB\x16\x92A\x132\x11New driver's dataR\x06driver\";\n" +
@@ -865,95 +818,94 @@ const file_drivers_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tB4\x92A12\aUser IDJ&\"123e4567-e89b-12d3-a456-426614174000\"R\x06userId\x12R\n" +
 	"\x0estart_location\x18\x02 \x01(\v2\x18.driver_service.LocationB\x11\x92A\x0e2\fstart coordsR\rstartLocation\x12L\n" +
 	"\fend_location\x18\x03 \x01(\v2\x18.driver_service.LocationB\x0f\x92A\f2\n" +
-	"end coordsR\vendLocation2\x98\x11\n" +
-	"\aDrivers\x12\xce\x01\n" +
-	"\x10GetDriverProfile\x12\x19.driver_service.AuthToken\x1a\x16.driver_service.Driver\"\x86\x01\x92Al\n" +
+	"end coordsR\vendLocation2\xbe\x11\n" +
+	"\aDrivers\x12\xcf\x01\n" +
+	"\x10GetDriverProfile\x12\x16.google.protobuf.Empty\x1a\x16.driver_service.Driver\"\x8a\x01\x92Ap\n" +
 	"\x06driver\x12\x12Get driver profile*\x10getDriverProfileJ.\n" +
 	"\x03200\x12'\n" +
-	"%Successfully retrieved driver profileb\f\n" +
+	"%Successfully retrieved driver profileb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x11\x12\x0f/driver/profile\x12\xe9\x01\n" +
-	"\x13UpdateDriverProfile\x12*.driver_service.UpdateDriverProfileRequest\x1a\x16.driver_service.Driver\"\x8d\x01\x92Ap\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x11\x12\x0f/driver/profile\x12\xed\x01\n" +
+	"\x13UpdateDriverProfile\x12*.driver_service.UpdateDriverProfileRequest\x1a\x16.driver_service.Driver\"\x91\x01\x92At\n" +
 	"\x06driver\x12\x15Update driver profile*\x13updateDriverProfileJ,\n" +
 	"\x03200\x12%\n" +
-	"#Successfully updated driver profileb\f\n" +
+	"#Successfully updated driver profileb\x10\n" +
+	"\x0e\n" +
 	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14:\x01*\x1a\x0f/driver/profile\x12\xc2\x01\n" +
 	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x14:\x01*\x1a\x0f/driver/profile\x12\xbe\x01\n" +
-	"\n" +
-	"AcceptRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"q\x92AU\n" +
+	"AcceptRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"u\x92AY\n" +
 	"\x05rides\x12\rAccept a ride*\n" +
 	"acceptRideJ#\n" +
 	"\x03200\x12\x1c\n" +
-	"\x1aRide accepted successfullyb\f\n" +
+	"\x1aRide accepted successfullyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/accept\x12\xc7\x01\n" +
-	"\fCompleteRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"x\x92AZ\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/accept\x12\xcb\x01\n" +
+	"\fCompleteRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"|\x92A^\n" +
 	"\x05rides\x12\x0fComplete a ride*\fcompleteRideJ$\n" +
 	"\x03200\x12\x1d\n" +
-	"\x1bRide completed successfullyb\f\n" +
+	"\x1bRide completed successfullyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x15\"\x13/ride/{id}/complete\x12\xc2\x01\n" +
 	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x15\"\x13/ride/{id}/complete\x12\xbe\x01\n" +
-	"\n" +
-	"CancelRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"q\x92AU\n" +
+	"CancelRide\x12\x1d.driver_service.RideIdRequest\x1a\x1e.driver_service.StatusResponse\"u\x92AY\n" +
 	"\x05rides\x12\rCancel a ride*\n" +
 	"cancelRideJ#\n" +
 	"\x03200\x12\x1c\n" +
-	"\x1aRide canceled successfullyb\f\n" +
+	"\x1aRide canceled successfullyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12\xde\x01\n" +
-	"\x0eGetCurrentRide\x12\x1f.driver_service.DriverIdRequest\x1a\x14.driver_service.Ride\"\x94\x01\x92Ap\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12\xe2\x01\n" +
+	"\x0eGetCurrentRide\x12\x1f.driver_service.DriverIdRequest\x1a\x14.driver_service.Ride\"\x98\x01\x92At\n" +
 	"\x05rides\x12\x1cGet current ride information*\x0egetCurrentRideJ+\n" +
 	"\x03200\x12$\n" +
-	"\"Successfully received current rideb\f\n" +
+	"\"Successfully received current rideb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x1b\x12\x19/driver/current_ride/{id}\x12\xf7\x01\n" +
-	"\x0eUpdateLocation\x12%.driver_service.LocationUpdateRequest\x1a\x1e.driver_service.StatusResponse\"\x9b\x01\x92A}\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x1b\x12\x19/driver/current_ride/{id}\x12\xfc\x01\n" +
+	"\x0eUpdateLocation\x12%.driver_service.LocationUpdateRequest\x1a\x1e.driver_service.StatusResponse\"\xa0\x01\x92A\x81\x01\n" +
 	"\blocation\x12\"Update driver location (streaming)*\x0eupdateLocationJ/\n" +
 	"\x03200\x12(\n" +
-	"&Location updates received successfullyb\f\n" +
+	"&Location updates received successfullyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/driver/location(\x01\x12\xe9\x01\n" +
-	"\x11GetNearbyRequests\x12\x18.driver_service.Location\x1a$.driver_service.RideRequestsResponse\"\x93\x01\x92Av\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/driver/location(\x01\x12\xed\x01\n" +
+	"\x11GetNearbyRequests\x12\x18.driver_service.Location\x1a$.driver_service.RideRequestsResponse\"\x97\x01\x92Az\n" +
 	"\blocation\x12\x18Get nearby ride requests*\x11getNearbyRequestsJ/\n" +
 	"\x03200\x12(\n" +
-	"&Successfully retrieved nearby requestsb\f\n" +
+	"&Successfully retrieved nearby requestsb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/nearby_req\x12\xd6\x01\n" +
-	"\x10GetPassengerInfo\x12\x1d.driver_service.UserIdRequest\x1a\x14.driver_service.User\"\x8c\x01\x92Aw\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/nearby_req\x12\xda\x01\n" +
+	"\x10GetPassengerInfo\x12\x1d.driver_service.UserIdRequest\x1a\x14.driver_service.User\"\x90\x01\x92A{\n" +
 	"\n" +
 	"passengers\x12\x19Get passenger information*\x10getPassengerInfoJ.\n" +
 	"\x03200\x12'\n" +
-	"%Successfully retrieved passenger infob\f\n" +
+	"%Successfully retrieved passenger infob\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\f\x12\n" +
-	"/user/{id}\x12\xe3\x01\n" +
-	"\x0eGetRideHistory\x12\x1f.driver_service.DriverIdRequest\x1a#.driver_service.RideHistoryResponse\"\x8a\x01\x92Am\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\f\x12\n" +
+	"/user/{id}\x12\xe7\x01\n" +
+	"\x0eGetRideHistory\x12\x1f.driver_service.DriverIdRequest\x1a#.driver_service.RideHistoryResponse\"\x8e\x01\x92Aq\n" +
 	"\x05rides\x12\x19Get driver's ride history*\x0egetRideHistoryJ+\n" +
 	"\x03200\x12$\n" +
-	"\"Successfully received ride historyb\f\n" +
+	"\"Successfully received ride historyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/{id}/ridesB\xa7\x03\x92A\xe4\x02\x12\xe5\x01\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/{id}/ridesB\xa7\x03\x92A\xe4\x02\x12\xe5\x01\n" +
 	"\x12Driver Service API\x12,API for managing drivers and ride operations\"\\\n" +
 	"\x15YandexGo Project Team\x12)https://github.com/GameXost/YandexGo_proj\x1a\x18sergejs.dyldin@yandex.ru*>\n" +
 	"\n" +
-	"Apache 2.0\x120https://www.apache.org/licenses/LICENSE-2.0.html2\x032.0*\x01\x022\x10application/json:\x10application/jsonZE\n" +
-	"C\n" +
-	"\x06OAuth2\x129\b\x03(\x03:\tJWT/tokenB(\n" +
-	"&\n" +
-	"\tdrive-api\x12\x19access to driver servicesb\f\n" +
+	"Apache 2.0\x120https://www.apache.org/licenses/LICENSE-2.0.html2\x032.0*\x01\x022\x10application/json:\x10application/jsonZA\n" +
+	"?\n" +
 	"\n" +
+	"BearerAuth\x121\b\x02\x12\x1cJWT token as: Bearer <token>\x1a\rAuthorization \x02b\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\x06OAuth2\x12\x00Z=github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protosb\x06proto3"
+	"BearerAuth\x12\x00Z=github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protosb\x06proto3"
 
 var (
 	file_drivers_proto_rawDescOnce sync.Once
@@ -967,22 +919,22 @@ func file_drivers_proto_rawDescGZIP() []byte {
 	return file_drivers_proto_rawDescData
 }
 
-var file_drivers_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_drivers_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_drivers_proto_goTypes = []any{
 	(*Driver)(nil),                     // 0: driver_service.Driver
 	(*User)(nil),                       // 1: driver_service.User
 	(*Location)(nil),                   // 2: driver_service.Location
 	(*Ride)(nil),                       // 3: driver_service.Ride
-	(*AuthToken)(nil),                  // 4: driver_service.AuthToken
-	(*UpdateDriverProfileRequest)(nil), // 5: driver_service.UpdateDriverProfileRequest
-	(*RideIdRequest)(nil),              // 6: driver_service.RideIdRequest
-	(*DriverIdRequest)(nil),            // 7: driver_service.DriverIdRequest
-	(*UserIdRequest)(nil),              // 8: driver_service.UserIdRequest
-	(*StatusResponse)(nil),             // 9: driver_service.StatusResponse
-	(*RideHistoryResponse)(nil),        // 10: driver_service.RideHistoryResponse
-	(*LocationUpdateRequest)(nil),      // 11: driver_service.LocationUpdateRequest
-	(*RideRequestsResponse)(nil),       // 12: driver_service.RideRequestsResponse
-	(*RideRequest)(nil),                // 13: driver_service.RideRequest
+	(*UpdateDriverProfileRequest)(nil), // 4: driver_service.UpdateDriverProfileRequest
+	(*RideIdRequest)(nil),              // 5: driver_service.RideIdRequest
+	(*DriverIdRequest)(nil),            // 6: driver_service.DriverIdRequest
+	(*UserIdRequest)(nil),              // 7: driver_service.UserIdRequest
+	(*StatusResponse)(nil),             // 8: driver_service.StatusResponse
+	(*RideHistoryResponse)(nil),        // 9: driver_service.RideHistoryResponse
+	(*LocationUpdateRequest)(nil),      // 10: driver_service.LocationUpdateRequest
+	(*RideRequestsResponse)(nil),       // 11: driver_service.RideRequestsResponse
+	(*RideRequest)(nil),                // 12: driver_service.RideRequest
+	(*emptypb.Empty)(nil),              // 13: google.protobuf.Empty
 }
 var file_drivers_proto_depIdxs = []int32{
 	2,  // 0: driver_service.Ride.start_location:type_name -> driver_service.Location
@@ -990,29 +942,29 @@ var file_drivers_proto_depIdxs = []int32{
 	0,  // 2: driver_service.UpdateDriverProfileRequest.driver:type_name -> driver_service.Driver
 	3,  // 3: driver_service.RideHistoryResponse.rides:type_name -> driver_service.Ride
 	2,  // 4: driver_service.LocationUpdateRequest.location:type_name -> driver_service.Location
-	13, // 5: driver_service.RideRequestsResponse.ride_requests:type_name -> driver_service.RideRequest
+	12, // 5: driver_service.RideRequestsResponse.ride_requests:type_name -> driver_service.RideRequest
 	2,  // 6: driver_service.RideRequest.start_location:type_name -> driver_service.Location
 	2,  // 7: driver_service.RideRequest.end_location:type_name -> driver_service.Location
-	4,  // 8: driver_service.Drivers.GetDriverProfile:input_type -> driver_service.AuthToken
-	5,  // 9: driver_service.Drivers.UpdateDriverProfile:input_type -> driver_service.UpdateDriverProfileRequest
-	6,  // 10: driver_service.Drivers.AcceptRide:input_type -> driver_service.RideIdRequest
-	6,  // 11: driver_service.Drivers.CompleteRide:input_type -> driver_service.RideIdRequest
-	6,  // 12: driver_service.Drivers.CancelRide:input_type -> driver_service.RideIdRequest
-	7,  // 13: driver_service.Drivers.GetCurrentRide:input_type -> driver_service.DriverIdRequest
-	11, // 14: driver_service.Drivers.UpdateLocation:input_type -> driver_service.LocationUpdateRequest
+	13, // 8: driver_service.Drivers.GetDriverProfile:input_type -> google.protobuf.Empty
+	4,  // 9: driver_service.Drivers.UpdateDriverProfile:input_type -> driver_service.UpdateDriverProfileRequest
+	5,  // 10: driver_service.Drivers.AcceptRide:input_type -> driver_service.RideIdRequest
+	5,  // 11: driver_service.Drivers.CompleteRide:input_type -> driver_service.RideIdRequest
+	5,  // 12: driver_service.Drivers.CancelRide:input_type -> driver_service.RideIdRequest
+	6,  // 13: driver_service.Drivers.GetCurrentRide:input_type -> driver_service.DriverIdRequest
+	10, // 14: driver_service.Drivers.UpdateLocation:input_type -> driver_service.LocationUpdateRequest
 	2,  // 15: driver_service.Drivers.GetNearbyRequests:input_type -> driver_service.Location
-	8,  // 16: driver_service.Drivers.GetPassengerInfo:input_type -> driver_service.UserIdRequest
-	7,  // 17: driver_service.Drivers.GetRideHistory:input_type -> driver_service.DriverIdRequest
+	7,  // 16: driver_service.Drivers.GetPassengerInfo:input_type -> driver_service.UserIdRequest
+	6,  // 17: driver_service.Drivers.GetRideHistory:input_type -> driver_service.DriverIdRequest
 	0,  // 18: driver_service.Drivers.GetDriverProfile:output_type -> driver_service.Driver
 	0,  // 19: driver_service.Drivers.UpdateDriverProfile:output_type -> driver_service.Driver
-	9,  // 20: driver_service.Drivers.AcceptRide:output_type -> driver_service.StatusResponse
-	9,  // 21: driver_service.Drivers.CompleteRide:output_type -> driver_service.StatusResponse
-	9,  // 22: driver_service.Drivers.CancelRide:output_type -> driver_service.StatusResponse
+	8,  // 20: driver_service.Drivers.AcceptRide:output_type -> driver_service.StatusResponse
+	8,  // 21: driver_service.Drivers.CompleteRide:output_type -> driver_service.StatusResponse
+	8,  // 22: driver_service.Drivers.CancelRide:output_type -> driver_service.StatusResponse
 	3,  // 23: driver_service.Drivers.GetCurrentRide:output_type -> driver_service.Ride
-	9,  // 24: driver_service.Drivers.UpdateLocation:output_type -> driver_service.StatusResponse
-	12, // 25: driver_service.Drivers.GetNearbyRequests:output_type -> driver_service.RideRequestsResponse
+	8,  // 24: driver_service.Drivers.UpdateLocation:output_type -> driver_service.StatusResponse
+	11, // 25: driver_service.Drivers.GetNearbyRequests:output_type -> driver_service.RideRequestsResponse
 	1,  // 26: driver_service.Drivers.GetPassengerInfo:output_type -> driver_service.User
-	10, // 27: driver_service.Drivers.GetRideHistory:output_type -> driver_service.RideHistoryResponse
+	9,  // 27: driver_service.Drivers.GetRideHistory:output_type -> driver_service.RideHistoryResponse
 	18, // [18:28] is the sub-list for method output_type
 	8,  // [8:18] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
@@ -1031,7 +983,7 @@ func file_drivers_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_drivers_proto_rawDesc), len(file_drivers_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

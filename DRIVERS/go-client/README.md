@@ -17,7 +17,6 @@ Install the following dependencies:
 
 ```sh
 go get github.com/stretchr/testify/assert
-go get golang.org/x/oauth2
 go get golang.org/x/net/context
 ```
 
@@ -112,31 +111,24 @@ Class | Method | HTTP request | Description
 
 
 Authentication schemes defined for the API:
-### OAuth2
+### BearerAuth
 
+- **Type**: API key
+- **API key parameter name**: Authorization
+- **Location**: HTTP header
 
-- **Type**: OAuth
-- **Flow**: application
-- **Authorization URL**: 
-- **Scopes**: 
- - **drive-api**: access to driver services
+Note, each API key must be added to a map of `map[string]APIKey` where the key is: BearerAuth and passed in as the auth context for each request.
 
 Example
 
 ```go
-auth := context.WithValue(context.Background(), go_client.ContextAccessToken, "ACCESSTOKENSTRING")
-r, err := client.Service.Operation(auth, args)
-```
-
-Or via OAuth2 module to automatically refresh tokens and perform user authentication.
-
-```go
-import "golang.org/x/oauth2"
-
-/* Perform OAuth2 round trip request and obtain a token */
-
-tokenSource := oauth2cfg.TokenSource(createContext(httpClient), &token)
-auth := context.WithValue(oauth2.NoContext, go_client.ContextOAuth2, tokenSource)
+auth := context.WithValue(
+		context.Background(),
+		go_client.ContextAPIKeys,
+		map[string]go_client.APIKey{
+			"BearerAuth": {Key: "API_KEY_STRING"},
+		},
+	)
 r, err := client.Service.Operation(auth, args)
 ```
 
