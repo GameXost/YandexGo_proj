@@ -1,5 +1,6 @@
 package com.example.taxi.Client
 
+import android.content.pm.PackageManager
 import android.content.Context
 import android.os.Bundle
 import android.view.View
