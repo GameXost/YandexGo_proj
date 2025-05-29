@@ -51,10 +51,12 @@ docker_build:
 
 docker_run:
 	docker run --rm -it \
-		-p 8080:8080 \
+		-p 9096:9096 -p 9097:9097 -p 9095:9095 \
 		--name yandexgo_server \
 		yandexgo_proj
-
+		
 docker_stop:
 	docker stop yandexgo_server || true
 
+  run:
+  	go run ./cmd/main.go

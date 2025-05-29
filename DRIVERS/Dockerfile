@@ -12,5 +12,5 @@ FROM gcr.io/distroless/static-debian12
 ENV GIN_MODE=release
 COPY --from=build /app/bin/server /server
 COPY --from=build /app/config /config
-EXPOSE 8080
+EXPOSE 9096 9097 9095
 ENTRYPOINT ["/server"]
