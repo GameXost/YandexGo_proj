@@ -17,11 +17,12 @@ class Main_client : AppCompatActivity()
         enableEdgeToEdge()
         setContentView(R.layout.activity_main_client)
 
+        // хуйня которая берёт текст, который кладётся в файле регистрации, можно реализовать как запоминание текущего юзера
         var memory = getSharedPreferences("Login", Context.MODE_PRIVATE)
         memory.edit().putString("LO", "1").apply()
         var emailname : TextView = findViewById(R.id.check)
-        emailname.text = memory.getString("Email", "Ты хуесос")
 
+        // нижняя двигающиеся панелька
         val bottomSheetBehavior: BottomSheetBehavior<*>?
         val bottomSheet: View = findViewById(R.id.sheet)
         var a = 0

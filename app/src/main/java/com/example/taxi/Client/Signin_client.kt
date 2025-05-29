@@ -17,23 +17,18 @@ class Signin_client : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_signin_client)
 
-        val memory = getSharedPreferences("Login", Context.MODE_PRIVATE)
-        if (memory.getString("LO", "0") != "0"){
-            startActivity(Intent(this, Main_client::class.java))
-        }
-        else{
-            var signupText: TextView = findViewById(R.id.Sign_in_to_sign_up)
-            var back_to_choose : ImageButton = findViewById(R.id.Back_to_choose)
+        var signupText: TextView = findViewById(R.id.Sign_in_to_sign_up)
+        var back_to_choose : ImageButton = findViewById(R.id.Back_to_choose)
 
-            back_to_choose.setOnClickListener{
-                val intent1 = Intent(this, Activity_choose::class.java)
-                startActivity(intent1)
-            }
-            signupText.setOnClickListener {
-                val intent2 = Intent(this, Signup_client::class.java)
-                startActivity(intent2)
-            }
+        back_to_choose.setOnClickListener{
+            val intent1 = Intent(this, Activity_choose::class.java)
+            startActivity(intent1)
         }
+        signupText.setOnClickListener {
+            val intent2 = Intent(this, Signup_client::class.java)
+            startActivity(intent2)
+        }
+
     }
 
 }
