@@ -1,2 +1,5 @@
 DRIVERS/config/public_key.pem
 DRIVERS/config/private_key.pem
+USERS/config/public_key.pem
+USERS/config/private_key.pem
+
