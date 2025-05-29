@@ -1,6 +1,6 @@
 server:
-  port: ":9093"
-  http_port: ":9092"
+  port: ":9094"
+  http_port: ":9093"
 
 database:
   host: "79.174.85.58"

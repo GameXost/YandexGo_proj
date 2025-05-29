@@ -1,6 +1,6 @@
 server:
-  port: ":9093"
-  http_port: ":9092"
+  port: ":9097"
+  http_port: ":9096"
 
 database:
   host: "79.174.85.58"
@@ -39,7 +39,7 @@ auth:
   disabled: false
 
 prometheus:
-  port: ":9091"
+  port: ":9095"
 
 swagger:
   file: "docs/swagger.json"
