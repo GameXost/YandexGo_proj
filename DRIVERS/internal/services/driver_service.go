@@ -124,7 +124,7 @@ func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID 
 			EndLocation:   fmt.Sprintf("%f,%f", ride.EndLocation.Latitude, ride.EndLocation.Longitude),
 			Status:        "accepted",
 		}
-		_ = PublishRideAccepted(ctx, s.Kafka, event)
+		_ = s.PublishRideAccepted(ctx, event)
 	}
 	prometh.RideAcceptedCounter.Inc()
 	return &pb.StatusResponse{
@@ -192,7 +192,7 @@ func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*p
 		UserID: userID,
 	}
 
-	err := PublishEvent(ctx, s.Kafka, "user-requests", event, userID)
+	err := s.PublishEvent(ctx, "user-requests", event, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send get_user_profile request: %w", err)
 	}
@@ -276,7 +276,7 @@ func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverI
 			RideID:   rideID,
 			DriverID: driverID,
 		}
-		_ = PublishRideCompleted(ctx, s.Kafka, event)
+		_ = s.PublishRideCompleted(ctx, event)
 	}
 	prometh.RideCompletedCounter.Inc()
 
@@ -338,7 +338,7 @@ func (s *DriverService) CancelRide(ctx context.Context, rideID string, driverID 
 			DriverID: driverID,
 			Reason:   "driver_cancelled",
 		}
-		_ = PublishRideCanceled(ctx, s.Kafka, event)
+		_ = s.PublishRideCanceled(ctx, event)
 	}
 	prometh.RideCanceledCounter.Inc()
 	return &pb.StatusResponse{

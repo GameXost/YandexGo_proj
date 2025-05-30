@@ -9,7 +9,7 @@ import (
 )
 
 // Универсальная функция для отправки любого события
-func PublishEvent(ctx context.Context, writer *kafka.Writer, topic string, event interface{}, key string) error {
+func (s *DriverService) PublishEvent(ctx context.Context, topic string, event interface{}, key string) error {
 	data, err := json.Marshal(event)
 	if err != nil {
 		return err
@@ -18,23 +18,23 @@ func PublishEvent(ctx context.Context, writer *kafka.Writer, topic string, event
 		Key:   []byte(key),
 		Value: data,
 	}
-	return writer.WriteMessages(ctx, msg)
+	return s.Kafka.WriteMessages(ctx, msg)
 }
 
-func PublishRideAccepted(ctx context.Context, writer *kafka.Writer, event RideAcceptedEvent) error {
+func (s *DriverService) PublishRideAccepted(ctx context.Context, event RideAcceptedEvent) error {
 	event.Event = "ride_accepted"
 	event.Timestamp = time.Now().Unix()
-	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
+	return s.PublishEvent(ctx, "ride-events", event, event.RideID)
 }
 
-func PublishRideCompleted(ctx context.Context, writer *kafka.Writer, event RideCompletedEvent) error {
+func (s *DriverService) PublishRideCompleted(ctx context.Context, event RideCompletedEvent) error {
 	event.Event = "ride_completed"
 	event.Timestamp = time.Now().Unix()
-	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
+	return s.PublishEvent(ctx, "ride-events", event, event.RideID)
 }
 
-func PublishRideCanceled(ctx context.Context, writer *kafka.Writer, event RideCanceledEvent) error {
+func (s *DriverService) PublishRideCanceled(ctx context.Context, event RideCanceledEvent) error {
 	event.Event = "ride_canceled"
 	event.Timestamp = time.Now().Unix()
-	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
+	return s.PublishEvent(ctx, "ride-events", event, event.RideID)
 }

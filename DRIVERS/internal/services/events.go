@@ -1,10 +1,16 @@
 package services
 
+type BaseEvent struct {
+	Event         string `json:"event"`
+	Timestamp     int64  `json:"timestamp"`
+	CorrelationID string `json:"correlation_id,omitempty"`
+	ReplyTo       string `json:"reply_to,omitempty"`
+}
+
 type RideCreatedEvent struct {
 	BaseEvent
 	RideID        string `json:"ride_id"`
 	PassengerID   string `json:"passenger_id"`
-	DriverID      string `json:"driver_id"`
 	StartLocation string `json:"pickup_location"`
 	EndLocation   string `json:"dropoff_location"`
 	Status        string `json:"status"`
@@ -13,8 +19,8 @@ type RideCreatedEvent struct {
 type RideAcceptedEvent struct {
 	BaseEvent
 	RideID        string `json:"ride_id"`
-	PassengerID   string `json:"passenger_id"`
 	DriverID      string `json:"driver_id"`
+	PassengerID   string `json:"passenger_id"`
 	StartLocation string `json:"pickup_location"`
 	EndLocation   string `json:"dropoff_location"`
 	Status        string `json:"status"`
@@ -31,13 +37,6 @@ type RideCanceledEvent struct {
 	RideID   string `json:"ride_id"`
 	DriverID string `json:"driver_id,omitempty"`
 	Reason   string `json:"reason,omitempty"`
-}
-
-type BaseEvent struct {
-	Event         string `json:"event"`
-	CorrelationID string `json:"correlationId,omitempty"`
-	ReplyTo       string `json:"replyTo,omitempty"`
-	Timestamp     int64  `json:"timestamp"`
 }
 
 type RideCanceledResponse struct {

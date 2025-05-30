@@ -10,6 +10,11 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
+type RideWaiter struct {
+	Ch      chan string // канал для сигнализации о принятии или отмене
+	Timeout time.Duration
+}
+
 func (s *UserService) StartKafkaConsumer(ctx context.Context, reader *kafka.Reader) {
 	go func() {
 		for {
@@ -32,6 +37,7 @@ func (s *UserService) StartKafkaConsumer(ctx context.Context, reader *kafka.Read
 					continue
 				}
 				log.Printf("Ride created: ride_id=%s, passenger_id=%s", event.RideID, event.PassengerID)
+				s.startRideWaiter(ctx, event.RideID, 600*time.Second) // 30 секунд ожидания
 
 			case "ride_accepted":
 				var event RideAcceptedEvent
@@ -39,7 +45,17 @@ func (s *UserService) StartKafkaConsumer(ctx context.Context, reader *kafka.Read
 					log.Printf("Kafka unmarshal ride_accepted error: %v", err)
 					continue
 				}
+				s.signalRide(event.RideID, "accepted")
 				log.Printf("Ride accepted: ride_id=%s, driver_id=%s", event.RideID, event.DriverID)
+
+			case "ride_canceled":
+				var event RideCanceledEvent
+				if err := json.Unmarshal(m.Value, &event); err != nil {
+					log.Printf("Kafka unmarshal ride_canceled error: %v", err)
+					continue
+				}
+				s.signalRide(event.RideID, "canceled")
+				log.Printf("Ride canceled: ride_id=%s, driver_id=%s, reason=%s", event.RideID, event.DriverID, event.Reason)
 
 			case "ride_completed":
 				var event RideCompletedEvent
@@ -48,14 +64,6 @@ func (s *UserService) StartKafkaConsumer(ctx context.Context, reader *kafka.Read
 					continue
 				}
 				log.Printf("Ride completed: ride_id=%s, driver_id=%s", event.RideID, event.DriverID)
-
-			case "ride_canceled":
-				var event RideCanceledEvent
-				if err := json.Unmarshal(m.Value, &event); err != nil {
-					log.Printf("Kafka unmarshal ride_canceled error: %v", err)
-					continue
-				}
-				log.Printf("Ride canceled: ride_id=%s, driver_id=%s, reason=%s", event.RideID, event.DriverID, event.Reason)
 
 			case "get_user_profile":
 				var req struct {
@@ -96,14 +104,69 @@ func (s *UserService) StartKafkaConsumer(ctx context.Context, reader *kafka.Read
 	}()
 }
 
+// Запуск ожидания принятия заказа с таймаутом
+func (s *UserService) startRideWaiter(ctx context.Context, rideID string, timeout time.Duration) {
+	s.WaitersMutex.Lock()
+	if s.OrderWaiters == nil {
+		s.OrderWaiters = make(map[string]*RideWaiter)
+	}
+	if _, exists := s.OrderWaiters[rideID]; exists {
+		s.WaitersMutex.Unlock()
+		return // уже есть
+	}
+	waiter := &RideWaiter{Ch: make(chan string, 1), Timeout: timeout}
+	s.OrderWaiters[rideID] = waiter
+	s.WaitersMutex.Unlock()
+
+	go func() {
+		select {
+		case result := <-waiter.Ch:
+			log.Printf("Ride %s finished with result: %s", rideID, result)
+			// Здесь можно обновить статус заказа в БД или уведомить пользователя
+		case <-time.After(timeout):
+			log.Printf("Ride %s timed out, canceling", rideID)
+			// Отправляем событие отмены
+			cancelEvent := RideCanceledEvent{
+				BaseEvent: BaseEvent{
+					Event:     "ride_canceled",
+					Timestamp: time.Now().Unix(),
+				},
+				RideID: rideID,
+				Reason: "timeout",
+			}
+			if s.Kafka != nil {
+				err := s.PublishEvent(ctx, "ride-events", cancelEvent, rideID)
+				if err != nil {
+					log.Printf("Failed to publish ride_canceled: %v", err)
+				}
+			}
+		}
+		s.WaitersMutex.Lock()
+		delete(s.OrderWaiters, rideID)
+		s.WaitersMutex.Unlock()
+	}()
+}
+
+// Сигнализировать о принятии или отмене заказа
+func (s *UserService) signalRide(rideID, result string) {
+	s.WaitersMutex.Lock()
+	defer s.WaitersMutex.Unlock()
+	if waiter, ok := s.OrderWaiters[rideID]; ok {
+		select {
+		case waiter.Ch <- result:
+		default:
+		}
+	}
+}
+
 func (s *UserService) sendKafkaResponse(ctx context.Context, topic string, event interface{}) error {
 	data, err := json.Marshal(event)
 	if err != nil {
 		return err
 	}
 	msg := kafka.Message{
-
-		Value: data}
+		Value: data,
+	}
 	return s.Kafka.WriteMessages(ctx, msg)
 }
 
