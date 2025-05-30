@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -34,7 +35,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ClientClient interface {
 	// операции с пользовательским профилем
-	GetUserProfile(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*User, error)
+	GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*User, error)
 	UpdateUserProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*User, error)
 	// операции с заказами
 	RequestRide(ctx context.Context, in *RideRequest, opts ...grpc.CallOption) (*Ride, error)
@@ -54,7 +55,7 @@ func NewClientClient(cc grpc.ClientConnInterface) ClientClient {
 	return &clientClient{cc}
 }
 
-func (c *clientClient) GetUserProfile(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*User, error) {
+func (c *clientClient) GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*User, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(User)
 	err := c.cc.Invoke(ctx, Client_GetUserProfile_FullMethodName, in, out, cOpts...)
@@ -139,7 +140,7 @@ func (c *clientClient) GetDriverInfo(ctx context.Context, in *DriverIdRequest, o
 // for forward compatibility.
 type ClientServer interface {
 	// операции с пользовательским профилем
-	GetUserProfile(context.Context, *AuthToken) (*User, error)
+	GetUserProfile(context.Context, *emptypb.Empty) (*User, error)
 	UpdateUserProfile(context.Context, *UpdateProfileRequest) (*User, error)
 	// операции с заказами
 	RequestRide(context.Context, *RideRequest) (*Ride, error)
@@ -159,7 +160,7 @@ type ClientServer interface {
 // pointer dereference when methods are called.
 type UnimplementedClientServer struct{}
 
-func (UnimplementedClientServer) GetUserProfile(context.Context, *AuthToken) (*User, error) {
+func (UnimplementedClientServer) GetUserProfile(context.Context, *emptypb.Empty) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserProfile not implemented")
 }
 func (UnimplementedClientServer) UpdateUserProfile(context.Context, *UpdateProfileRequest) (*User, error) {
@@ -205,7 +206,7 @@ func RegisterClientServer(s grpc.ServiceRegistrar, srv ClientServer) {
 }
 
 func _Client_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthToken)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -217,7 +218,7 @@ func _Client_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: Client_GetUserProfile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClientServer).GetUserProfile(ctx, req.(*AuthToken))
+		return srv.(ClientServer).GetUserProfile(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

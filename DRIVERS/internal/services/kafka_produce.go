@@ -17,7 +17,6 @@ func PublishEvent(ctx context.Context, writer *kafka.Writer, topic string, event
 	msg := kafka.Message{
 		Key:   []byte(key),
 		Value: data,
-		Topic: topic,
 	}
 	return writer.WriteMessages(ctx, msg)
 }
@@ -39,5 +38,3 @@ func PublishRideCanceled(ctx context.Context, writer *kafka.Writer, event RideCa
 	event.Timestamp = time.Now().Unix()
 	return PublishEvent(ctx, writer, "ride-events", event, event.RideID)
 }
-
-// Теперь для новых событий (например, get_driver_location) можно использовать PublishEvent напрямую.

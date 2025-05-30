@@ -102,8 +102,36 @@ func (s *UserService) sendKafkaResponse(ctx context.Context, topic string, event
 		return err
 	}
 	msg := kafka.Message{
-		Value: data,
-		Topic: topic,
-	}
+
+		Value: data}
 	return s.Kafka.WriteMessages(ctx, msg)
+}
+
+func WaitForKafkaReply(ctx context.Context, brokers []string, replyTo, correlationId string, timeout time.Duration) (*pb.Driver, error) {
+	reader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: brokers,
+		Topic:   replyTo,
+		GroupID: "", // индивидуальный consumer
+	})
+	defer reader.Close()
+
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	for {
+		m, err := reader.ReadMessage(ctx)
+		if err != nil {
+			return nil, err
+		}
+		var resp struct {
+			BaseEvent
+			Driver *pb.Driver `json:"driver"`
+		}
+		if err := json.Unmarshal(m.Value, &resp); err != nil {
+			continue
+		}
+		if resp.CorrelationID == correlationId {
+			return resp.Driver, nil
+		}
+	}
 }

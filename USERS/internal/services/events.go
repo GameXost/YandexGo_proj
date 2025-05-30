@@ -35,9 +35,9 @@ type RideCanceledEvent struct {
 
 type BaseEvent struct {
 	Event         string `json:"event"`
-	CorrelationID string `json:"correlationId,omitempty"`
-	ReplyTo       string `json:"replyTo,omitempty"`
 	Timestamp     int64  `json:"timestamp"`
+	CorrelationID string `json:"correlation_id,omitempty"`
+	ReplyTo       string `json:"reply_to,omitempty"`
 }
 
 type RideCanceledResponse struct {
@@ -59,4 +59,9 @@ type DriverLocationResponse struct {
 	DriverID  string  `json:"driver_id"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
+}
+
+type GetDriverInfoEvent struct {
+	BaseEvent
+	DriverID string `json:"driver_id"`
 }

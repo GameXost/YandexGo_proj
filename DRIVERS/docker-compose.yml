@@ -1,14 +1,14 @@
 services:
 
-  swagger-editor:
+  swagger-editor-drivers:
     image: swaggerapi/swagger-editor
-    container_name: "swagger-editor-container"
+    container_name: "swagger-drivers-editor-container"
     ports:
-      - "8085:8080"
+      - "8084:8080"
 
-  swagger-ui:
+  swagger-ui-drivers:
     image: swaggerapi/swagger-ui
-    container_name: "swagger-ui-container"
+    container_name: "swagger-ui-drivers-container"
     ports:
       - "8086:8080"
     volumes:

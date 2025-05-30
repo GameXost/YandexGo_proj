@@ -1,31 +1,36 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "title": "Driver Service API",
-        "description": "API for managing drivers and ride operations",
-        "version": "2.0",
-        "contact": {
-            "name": "YandexGo Project Team",
-            "url": "https://github.com/GameXost/YandexGo_proj",
-            "email": "sergejs.dyldin@yandex.ru"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
-        }
+  "swagger": "2.0",
+  "info": {
+    "title": "DRIVER Service API",
+    "description": "API for managing drivers and ride operations",
+    "version": "2.0",
+    "contact": {
+      "name": "Yandex Go Project Team",
+      "url": "https://github.com/GameXost/YandexGo_proj",
+      "email": "sergejs.dyldin@yandex.ru"
     },
-    "host": "localhost:9092",
-    "basePath": "/",
-    "schemes": [
-        "http",
-        "https"
-    ],
-    "consumes": [
-        "application/json"
-    ],
-    "produces": [
-        "application/json"
-    ],
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "tags": [
+    {
+      "name": "Drivers"
+    }
+  ],
+  "host": "localhost:9096",
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "paths": {
     "/driver/current_ride/{id}": {
       "get": {

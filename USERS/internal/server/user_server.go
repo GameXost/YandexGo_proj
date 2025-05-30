@@ -6,6 +6,9 @@ import (
 	"github.com/GameXost/YandexGo_proj/USERS/internal/services"
 
 	pb "github.com/GameXost/YandexGo_proj/USERS/API/generated/clients"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 type UserServer struct {
@@ -13,12 +16,22 @@ type UserServer struct {
 	Service *services.UserService
 }
 
-func (s *UserServer) GetUserProfile(ctx context.Context, req *pb.AuthToken) (*pb.User, error) {
-	// req.UserId или req.Token — зависит от структуры AuthToken
-	return s.Service.GetUserProfile(ctx, req.Token)
+func (s *UserServer) GetUserProfile(ctx context.Context, _ *emptypb.Empty) (*pb.User, error) {
+	userID, ok := ctx.Value(UserIDKey).(string)
+	if !ok || userID == "" {
+		return nil, status.Error(codes.Unauthenticated, "userID not found in context")
+	}
+	return s.Service.GetUserProfile(ctx, userID)
 }
 
 func (s *UserServer) UpdateUserProfile(ctx context.Context, req *pb.UpdateProfileRequest) (*pb.User, error) {
+	userID, ok := ctx.Value(UserIDKey).(string)
+	if !ok || userID == "" {
+		return nil, status.Error(codes.Unauthenticated, "userID not found in context")
+	}
+	if req.Id != userID {
+		return nil, status.Error(codes.PermissionDenied, "cannot update another user's profile")
+	}
 	return s.Service.UpdateUserProfile(ctx, req)
 }
 

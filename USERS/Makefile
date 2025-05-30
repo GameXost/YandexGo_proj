@@ -45,18 +45,18 @@ build_proto: proto-google proto-openapiv2 generate_server generate_client_server
 
 docker_build:
 	docker build \
-		-t yandexgo_proj \
+		-t yandexgo_proj_users \
 		-f Dockerfile \
 		.
 
 docker_run:
 	docker run --rm -it \
 		-p 9093:9093 -p 9094:9094 -p 9091:9091 \
-		--name yandexgo_server \
+		--name yandexgo_users_server \
 		yandexgo_proj
-		
-docker_stop:
-	docker stop yandexgo_server || true
 
-  run:
-  	go run ./cmd/main.go
+docker_stop:
+	docker stop yandexgo_users_server || true
+
+run:
+	go run ./cmd/main.go

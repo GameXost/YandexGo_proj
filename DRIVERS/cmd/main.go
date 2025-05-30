@@ -42,7 +42,6 @@ var publicKey *rsa.PublicKey
 func main() {
 	ctx := context.Background()
 	// Prometheus порт теперь из config
-	prometh.InitPrometheus(cfg.Prometheus.Port)
 
 	// 1. Load config
 	cfg, err := config.LoadConfig("config/config.yaml")
@@ -59,6 +58,7 @@ func main() {
 		log.Fatalf("failed to load private key: %v", err)
 	}
 	_ = privateKey
+	prometh.InitPrometheus(cfg.Prometheus.Port)
 
 	// 3. DB connection
 	connStr := fmt.Sprintf(

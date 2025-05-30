@@ -895,17 +895,17 @@ const file_drivers_proto_rawDesc = "" +
 	"\"Successfully received ride historyb\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/{id}/ridesB\xa7\x03\x92A\xe4\x02\x12\xe5\x01\n" +
-	"\x12Driver Service API\x12,API for managing drivers and ride operations\"\\\n" +
-	"\x15YandexGo Project Team\x12)https://github.com/GameXost/YandexGo_proj\x1a\x18sergejs.dyldin@yandex.ru*>\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/{id}/ridesB\xab\x03\x92A\xf9\x02\x12\xe6\x01\n" +
+	"\x12DRIVER Service API\x12,API for managing drivers and ride operations\"]\n" +
+	"\x16Yandex Go Project Team\x12)https://github.com/GameXost/YandexGo_proj\x1a\x18sergejs.dyldin@yandex.ru*>\n" +
 	"\n" +
-	"Apache 2.0\x120https://www.apache.org/licenses/LICENSE-2.0.html2\x032.0*\x01\x022\x10application/json:\x10application/jsonZA\n" +
+	"Apache 2.0\x120https://www.apache.org/licenses/LICENSE-2.0.html2\x032.0\x1a\x0elocalhost:9096\"\x01/*\x02\x01\x022\x10application/json:\x10application/jsonZA\n" +
 	"?\n" +
 	"\n" +
 	"BearerAuth\x121\b\x02\x12\x1cJWT token as: Bearer <token>\x1a\rAuthorization \x02b\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00Z=github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protosb\x06proto3"
+	"BearerAuth\x12\x00Z,github.com/GameXost/YandexGo_proj/API/protosb\x06proto3"
 
 var (
 	file_drivers_proto_rawDescOnce sync.Once

@@ -4,16 +4,16 @@ info:
     email: sergejs.dyldin@yandex.ru
     name: Yandex Go Project Team
     url: https://github.com/GameXost/YandexGo_proj
-  description: API fir managing users and ride operations
+  description: API for managing users and ride operations
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
   title: USERS Service API
   version: "2.0"
 servers:
-- url: /
+- url: http://localhost:9093/
 security:
-- OAuth2: []
+- BearerAuth: []
 tags:
 - name: Client
 paths:
@@ -41,7 +41,7 @@ paths:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: get info about your driver
       tags:
       - driver
@@ -69,7 +69,7 @@ paths:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: "getting driver location lat, lon"
       tags:
       - location
@@ -96,7 +96,7 @@ paths:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Get history of last rides
       tags:
       - rides
@@ -123,7 +123,7 @@ paths:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: request a ride
       tags:
       - rides
@@ -152,7 +152,7 @@ paths:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: get ride information
       tags:
       - rides
@@ -180,20 +180,13 @@ paths:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Cancel ride
       tags:
       - rides
   /user/profile:
     get:
       operationId: getUserProfile
-      parameters:
-      - description: JWT auth token
-        in: query
-        name: token
-        schema:
-          pattern: "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
-          type: string
       responses:
         "200":
           content:
@@ -208,7 +201,7 @@ paths:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Get user profile
       tags:
       - user
@@ -234,7 +227,7 @@ paths:
                 $ref: '#/components/schemas/rpcStatus'
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Update user profile
       tags:
       - user
@@ -453,11 +446,9 @@ components:
           type: array
       type: object
   securitySchemes:
-    OAuth2:
-      flows:
-        clientCredentials:
-          scopes:
-            users-api: access to driver services
-          tokenUrl: JWT/token
-      type: oauth2
+    BearerAuth:
+      description: "JWT token as: Bearer <token>"
+      in: header
+      name: Authorization
+      type: apiKey
 x-original-swagger-version: "2.0"

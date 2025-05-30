@@ -1,6 +1,6 @@
 # \LocationAPI
 
-All URIs are relative to *http://localhost*
+All URIs are relative to *http://localhost:9093*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -64,7 +64,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-[OAuth2](../README.md#OAuth2)
+[BearerAuth](../README.md#BearerAuth)
 
 ### HTTP request headers
 

@@ -17,7 +17,6 @@ func PublishEvent(ctx context.Context, writer *kafka.Writer, topic string, event
 	msg := kafka.Message{
 		Key:   []byte(key),
 		Value: data,
-		Topic: topic,
 	}
 	return writer.WriteMessages(ctx, msg)
 }

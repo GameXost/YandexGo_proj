@@ -1,6 +1,6 @@
 # \DriverAPI
 
-All URIs are relative to *http://localhost*
+All URIs are relative to *http://localhost:9096*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------

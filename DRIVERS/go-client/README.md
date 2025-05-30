@@ -75,7 +75,7 @@ ctx = context.WithValue(context.Background(), go_client.ContextOperationServerVa
 
 ## Documentation for API Endpoints
 
-All URIs are relative to *http://localhost*
+All URIs are relative to *http://localhost:9096*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------

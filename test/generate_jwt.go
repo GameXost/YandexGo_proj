@@ -84,7 +84,7 @@ func main() {
 
 	// Собираем claims
 	claims := jwt.MapClaims{
-		"sub": "driver-1",                            // driverID, можешь поменять на любой другой id
+		"sub": "1",                                   // driverID, можешь поменять на любой другой id
 		"exp": time.Now().Add(time.Hour * 24).Unix(), // истекает через 24 часа
 	}
 

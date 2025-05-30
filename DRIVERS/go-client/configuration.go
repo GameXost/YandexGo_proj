@@ -1,5 +1,5 @@
 /*
-Driver Service API
+DRIVER Service API
 
 API for managing drivers and ride operations
 
@@ -94,7 +94,11 @@ func NewConfiguration() *Configuration {
 		Debug:            false,
 		Servers:          ServerConfigurations{
 			{
-				URL: "",
+				URL: "http://localhost:9096",
+				Description: "No description provided",
+			},
+			{
+				URL: "https://localhost:9096",
 				Description: "No description provided",
 			},
 		},

@@ -17,7 +17,7 @@ import (
 
 type contextKey string
 
-const DriverIDKey contextKey = "driver_id"
+const UserIDKey contextKey = "userID"
 
 func AuthInterceptor(publicKey *rsa.PublicKey, disableAuth bool) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
@@ -29,15 +29,6 @@ func AuthInterceptor(publicKey *rsa.PublicKey, disableAuth bool) grpc.UnaryServe
 			return handler(ctx, req)
 		}
 
-		//md, ok := metadata.FromIncomingContext(ctx)
-		//if !ok {
-		//	return nil, status.Error(codes.Unauthenticated, "missing metadata")
-		//}
-		//md, ok := metadata.FromIncomingContext(ctx)
-		//fmt.Println("metadata:", md)
-		//if !ok {
-		//	return nil, status.Error(codes.Unauthenticated, "missing metadata")
-		//}
 		md, ok := metadata.FromIncomingContext(ctx)
 		fmt.Printf("metadata in interceptor for %s: %#v, ok=%v\n", info.FullMethod, md, ok)
 		if !ok {
@@ -49,12 +40,12 @@ func AuthInterceptor(publicKey *rsa.PublicKey, disableAuth bool) grpc.UnaryServe
 			return nil, status.Error(codes.Unauthenticated, "missing token")
 		}
 
-		driverID, err := validateToken(strings.TrimPrefix(tokens[0], "Bearer "), publicKey)
+		userID, err := validateToken(strings.TrimPrefix(tokens[0], "Bearer "), publicKey)
 		if err != nil {
 			return nil, status.Errorf(codes.PermissionDenied, "invalid token: %v", err)
 		}
 
-		return handler(context.WithValue(ctx, DriverIDKey, driverID), req)
+		return handler(context.WithValue(ctx, UserIDKey, userID), req)
 	}
 }
 
@@ -67,13 +58,13 @@ func JWTHTTPMiddleware(publicKey *rsa.PublicKey) func(http.Handler) http.Handler
 			}
 
 			tokenString := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
-			driverID, err := validateToken(tokenString, publicKey)
+			userID, err := validateToken(tokenString, publicKey)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), DriverIDKey, driverID)
+			ctx := context.WithValue(r.Context(), UserIDKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

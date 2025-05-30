@@ -6,6 +6,7 @@ option go_package = "github.com/GameXost/YandexGo_proj/API/protos";
 
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/protobuf/empty.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     info: {
@@ -39,14 +40,16 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
             value: {};
         }
     };
-    schemes: HTTPS;
+    host: "localhost:9093";
+    base_path: "/";
+    schemes: HTTP;
     consumes: "application/json";
     produces: "application/json";
 };
 
 service Client {
     // операции с пользовательским профилем
-    rpc GetUserProfile(AuthToken) returns (User){
+    rpc GetUserProfile(google.protobuf.Empty) returns (User){
         option (google.api.http) = {
             get: "/user/profile"
           };

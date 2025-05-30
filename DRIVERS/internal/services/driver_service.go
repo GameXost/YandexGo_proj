@@ -201,7 +201,6 @@ func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*p
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokers,
 		Topic:   replyTo,
-		GroupID: "driver-service-" + replyTo,
 	})
 	defer reader.Close()
 

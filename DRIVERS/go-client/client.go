@@ -1,5 +1,5 @@
 /*
-Driver Service API
+DRIVER Service API
 
 API for managing drivers and ride operations
 
@@ -42,7 +42,7 @@ var (
 	queryDescape    = strings.NewReplacer( "%5B", "[", "%5D", "]" )
 )
 
-// APIClient manages communication with the Driver Service API API v2.0
+// APIClient manages communication with the DRIVER Service API API v2.0
 // In most cases there should be only one, shared, APIClient.
 type APIClient struct {
 	cfg    *Configuration

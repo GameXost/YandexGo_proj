@@ -1,14 +1,11 @@
 services:
-  swagger-ui-drivers:
-    image: swaggerapi/swagger-ui
-    container_name: "swagger-ui-drivers-container"
-    ports:
-      - "8086:8080"
-    volumes:
-      - ./API/generated/drivers/drivers.swagger.json:/tmp/drivers.swagger.json
-    environment:
-      - SWAGGER_JSON=/tmp/drivers.swagger.json
 
+  swagger-editor-users:
+    image: swaggerapi/swagger-editor
+    container_name: "swagger-users-editor-container"
+    ports:
+      - "8085:8080"
+    
   swagger-ui-users:
     image: swaggerapi/swagger-ui
     container_name: "swagger-ui-users-container"

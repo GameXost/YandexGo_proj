@@ -24,11 +24,11 @@ func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 }
 
 func (r *UserRepository) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
-	query := `SELECT id, first_name, phone FROM users WHERE id = $1`
+	query := `SELECT id, first_name,email, phone_number FROM registered_users WHERE id = $1`
 	row := r.DB.QueryRow(ctx, query, userID)
 
 	var user models.User
-	err := row.Scan(&user.ID, &user.UserName, &user.Phone)
+	err := row.Scan(&user.ID, &user.UserName, &user.Email, &user.Phone)
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
@@ -37,7 +37,7 @@ func (r *UserRepository) GetUserByID(ctx context.Context, userID string) (*model
 
 func (r *UserRepository) UpdateUserProfile(ctx context.Context, user *models.User) error {
 	_, err := r.DB.Exec(ctx, `
-	UPDATE users
+	UPDATE registered_users
 	SET first_name=$1, email=$2,
 	phone_number=$3	WHERE id=$4
 	`, user.UserName, user.Email,

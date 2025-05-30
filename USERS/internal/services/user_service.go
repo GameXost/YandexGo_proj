@@ -161,7 +161,6 @@ func (s *UserService) GetRideStatus(ctx context.Context, req *pb.UserIdRequest) 
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokers,
 		Topic:   replyTo,
-		GroupID: "user-service-" + replyTo,
 	})
 	defer reader.Close()
 
@@ -203,7 +202,6 @@ func (s *UserService) GetRideHistory(ctx context.Context, req *pb.UserIdRequest)
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokers,
 		Topic:   replyTo,
-		GroupID: "user-service-" + replyTo,
 	})
 	defer reader.Close()
 
@@ -247,7 +245,6 @@ func (s *UserService) GetDriverLocation(ctx context.Context, req *pb.DriverIdReq
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokers,
 		Topic:   replyTo,
-		GroupID: "user-service-" + replyTo,
 	})
 	defer reader.Close()
 
@@ -290,7 +287,6 @@ func (s *UserService) GetDriverInfo(ctx context.Context, req *pb.DriverIdRequest
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokers,
 		Topic:   replyTo,
-		GroupID: "user-service-" + replyTo,
 	})
 	defer reader.Close()
 
@@ -334,7 +330,6 @@ func (s *UserService) WaitForDriverLocationResponse(ctx context.Context, brokers
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokers,
 		Topic:   replyTo,
-		GroupID: "user-service-" + replyTo,
 	})
 	defer reader.Close()
 
@@ -360,7 +355,6 @@ func (s *UserService) WaitForRideCanceledResponse(ctx context.Context, brokers [
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokers,
 		Topic:   replyTo,
-		GroupID: "user-service-" + replyTo,
 	})
 	defer reader.Close()
 
@@ -386,7 +380,6 @@ func (s *UserService) WaitForRideCreatedResponse(ctx context.Context, brokers []
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokers,
 		Topic:   replyTo,
-		GroupID: "user-service-" + replyTo,
 	})
 	defer reader.Close()
 

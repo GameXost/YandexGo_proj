@@ -10,7 +10,7 @@ import "google/protobuf/empty.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     info: {
-        title: "Driver Service API";
+        title: "DRIVER Service API";
         version: "2.0";
         description: "API for managing drivers and ride operations";
         contact: {
@@ -40,6 +40,9 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
             value: {};
         }
     };
+    host: "localhost:9096";
+    base_path: "/";
+    schemes: HTTP;
     schemes: HTTPS;
     consumes: "application/json";
     produces: "application/json";
@@ -338,4 +341,4 @@ message RideRequest {
     Location start_location = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "start coords" }];
     Location end_location = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "end coords" }];
 }
-}
+

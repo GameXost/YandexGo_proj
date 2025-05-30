@@ -60,3 +60,8 @@ type DriverLocationResponse struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 }
+
+type GetDriverInfoEvent struct {
+	BaseEvent
+	DriverID string `json:"driver_id"`
+}
