@@ -18,7 +18,7 @@ redis:
 
 kafka:
   brokers:
-    - "localhost:9092"
+    - "kafka:9092"
   topics:
     ride_updates: "rides"
     user_notifications: "user_notifications"
