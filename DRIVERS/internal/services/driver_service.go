@@ -208,7 +208,7 @@ func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*p
 	})
 	defer reader.Close()
 
-	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(ctx, 600*time.Second)
 	defer cancel()
 
 	for {
