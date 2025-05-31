@@ -68,18 +68,18 @@ func main() {
 	// 4. Kafka connection
 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: cfg.Kafka.Brokers,
-		Topic:   cfg.Kafka.Topics.RideUpdates,
+		Topic:   cfg.Kafka.Topics.Rides,
 	})
 	defer kafkaWriter.Close()
 	log.Println("Kafka working")
 
 	repo := repository.NewUserRepository(dbpool)
-	userService := services.NewUserService(repo, kafkaWriter)
+	userService := services.NewUserService(repo, kafkaWriter, cfg.Kafka.Topics.Rides, cfg.Kafka.Topics.UserRequests, cfg.Kafka.Topics.UserNotifications)
 
 	// --- Kafka consumer ---
 	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  cfg.Kafka.Brokers,
-		Topic:    cfg.Kafka.Topics.RideUpdates,
+		Topic:    cfg.Kafka.Topics.Rides,
 		GroupID:  "user-service",
 		MinBytes: 10e3,
 		MaxBytes: 10e6,

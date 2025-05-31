@@ -15,17 +15,23 @@ import (
 )
 
 type UserService struct {
-	Repo         repository.UserRepositoryInterface
-	Kafka        *kafka.Writer
-	OrderWaiters map[string]*RideWaiter // rideID -> waiter
-	WaitersMutex sync.Mutex
+	Repo                   repository.UserRepositoryInterface
+	Kafka                  *kafka.Writer
+	OrderWaiters           map[string]*RideWaiter // rideID -> waiter
+	WaitersMutex           sync.Mutex
+	RidesTopic             string
+	UserRequestsTopic      string
+	UserNotificationsTopic string
 }
 
-func NewUserService(repo repository.UserRepositoryInterface, kafka *kafka.Writer) *UserService {
+func NewUserService(repo repository.UserRepositoryInterface, kafka *kafka.Writer, ridesTopic, userRequestsTopic, userNotificationsTopic string) *UserService {
 	return &UserService{
-		Repo:         repo,
-		Kafka:        kafka,
-		OrderWaiters: make(map[string]*RideWaiter),
+		Repo:                   repo,
+		Kafka:                  kafka,
+		OrderWaiters:           make(map[string]*RideWaiter),
+		RidesTopic:             ridesTopic,
+		UserRequestsTopic:      userRequestsTopic,
+		UserNotificationsTopic: userNotificationsTopic,
 	}
 }
 
@@ -86,7 +92,7 @@ func (s *UserService) RequestRide(ctx context.Context, req *pb.RideRequest) (*pb
 	}
 
 	// Отправляем событие в Kafka
-	err := s.PublishEvent(ctx, "ride-requests", event, event.RideID)
+	err := s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send ride request: %w", err)
 	}
@@ -126,7 +132,7 @@ func (s *UserService) CancelRide(ctx context.Context, req *pb.RideIdRequest) (*p
 		Reason: "user_cancelled",
 	}
 
-	err := s.PublishEvent(ctx, "ride-requests", event, event.RideID)
+	err := s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send cancel ride request: %w", err)
 	}
@@ -156,7 +162,7 @@ func (s *UserService) GetRideStatus(ctx context.Context, req *pb.UserIdRequest) 
 		Timestamp:     time.Now().Unix(),
 	}
 
-	err := s.PublishEvent(ctx, "ride-requests", event, userID)
+	err := s.PublishEvent(ctx, s.RidesTopic, event, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send get_ride_status request: %w", err)
 	}
@@ -197,7 +203,7 @@ func (s *UserService) GetRideHistory(ctx context.Context, req *pb.UserIdRequest)
 		Timestamp:     time.Now().Unix(),
 	}
 
-	err := s.PublishEvent(ctx, "ride-requests", event, userID)
+	err := s.PublishEvent(ctx, s.RidesTopic, event, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send get_ride_history request: %w", err)
 	}
@@ -240,7 +246,7 @@ func (s *UserService) GetDriverLocation(ctx context.Context, req *pb.DriverIdReq
 		DriverID: req.Id,
 	}
 
-	err := s.PublishEvent(ctx, "ride-requests", event, req.Id)
+	err := s.PublishEvent(ctx, s.RidesTopic, event, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send get_driver_location request: %w", err)
 	}
@@ -282,7 +288,7 @@ func (s *UserService) GetDriverInfo(ctx context.Context, req *pb.DriverIdRequest
 		Timestamp:     time.Now().Unix(),
 	}
 
-	err := s.PublishEvent(ctx, "ride-requests", event, req.Id)
+	err := s.PublishEvent(ctx, s.RidesTopic, event, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send get_driver_info request: %w", err)
 	}
@@ -325,7 +331,7 @@ func (s *UserService) RequestDriverLocation(ctx context.Context, userID, rideID,
 		RideID:   rideID,
 		DriverID: driverID,
 	}
-	err = s.PublishEvent(ctx, "ride-requests", event, event.RideID)
+	err = s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
 	return
 }
 

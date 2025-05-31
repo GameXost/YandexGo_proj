@@ -25,18 +25,22 @@ type RedisClient interface {
 }
 
 type DriverService struct {
-	Repo         repository.DriverRepositoryInterface
-	RedisDrivers RedisClient // For online drivers
-	RedisRides   RedisClient // For rides
-	Kafka        *kafka.Writer
+	Repo              repository.DriverRepositoryInterface
+	RedisDrivers      RedisClient // For online drivers
+	RedisRides        RedisClient // For rides
+	Kafka             *kafka.Writer
+	UserRequestsTopic string
+	RidesTopic        string
 }
 
-func NewDriverService(repo *repository.DriverRepository, redisDrivers *redis.Client, redisRides *redis.Client, kafka *kafka.Writer) *DriverService {
+func NewDriverService(repo *repository.DriverRepository, redisDrivers *redis.Client, redisRides *redis.Client, kafka *kafka.Writer, userRequestsTopic string, ridesTopic string) *DriverService {
 	return &DriverService{
-		Repo:         repo,
-		RedisDrivers: redisDrivers,
-		RedisRides:   redisRides,
-		Kafka:        kafka,
+		Repo:              repo,
+		RedisDrivers:      redisDrivers,
+		RedisRides:        redisRides,
+		Kafka:             kafka,
+		UserRequestsTopic: userRequestsTopic,
+		RidesTopic:        ridesTopic,
 	}
 }
 
@@ -192,7 +196,7 @@ func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*p
 		UserID: userID,
 	}
 
-	err := s.PublishEvent(ctx, "user-requests", event, userID)
+	err := s.PublishEvent(ctx, s.UserRequestsTopic, event, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send get_user_profile request: %w", err)
 	}

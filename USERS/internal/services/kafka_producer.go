@@ -29,26 +29,26 @@ func (s *UserService) kafkaMessage(key string, value []byte) kafka.Message {
 func (s *UserService) PublishRideCreated(ctx context.Context, event RideCreatedEvent) error {
 	event.Event = "ride_created"
 	event.Timestamp = time.Now().Unix()
-	return s.PublishEvent(ctx, "ride-events", event, event.RideID)
+	return s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
 }
 
 // Обёртка для принятия поездки
 func (s *UserService) PublishRideAccepted(ctx context.Context, event RideAcceptedEvent) error {
 	event.Event = "ride_accepted"
 	event.Timestamp = time.Now().Unix()
-	return s.PublishEvent(ctx, "ride-events", event, event.RideID)
+	return s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
 }
 
 // Обёртка для завершения поездки
 func (s *UserService) PublishRideCompleted(ctx context.Context, event RideCompletedEvent) error {
 	event.Event = "ride_completed"
 	event.Timestamp = time.Now().Unix()
-	return s.PublishEvent(ctx, "ride-events", event, event.RideID)
+	return s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
 }
 
 // Обёртка для отмены поездки
 func (s *UserService) PublishRideCanceled(ctx context.Context, event RideCanceledEvent) error {
 	event.Event = "ride_canceled"
 	event.Timestamp = time.Now().Unix()
-	return s.PublishEvent(ctx, "ride-events", event, event.RideID)
+	return s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
 }

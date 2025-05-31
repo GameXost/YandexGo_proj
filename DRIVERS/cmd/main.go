@@ -78,14 +78,14 @@ func main() {
 	// 5. Kafka connection
 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: cfg.Kafka.Brokers,
-		Topic:   cfg.Kafka.Topics.RideUpdates,
+		Topic:   cfg.Kafka.Topics.Rides,
 	})
 	defer kafkaWriter.Close()
 	log.Println("Kafka writer ready")
 
 	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  cfg.Kafka.Brokers,
-		Topic:    cfg.Kafka.Topics.RideUpdates,
+		Topic:    cfg.Kafka.Topics.Rides,
 		GroupID:  "driver-service",
 		MinBytes: 10e3,
 		MaxBytes: 10e6,
@@ -98,7 +98,7 @@ func main() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	repo := repository.NewDriverRepository(dbpool)
-	driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter)
+	driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter, cfg.Kafka.Topics.UserRequests, cfg.Kafka.Topics.Rides)
 
 	// --- Kafka consumer ---
 	go driverService.StartKafkaConsumer(ctx, kafkaReader)

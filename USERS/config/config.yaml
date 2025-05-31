@@ -20,7 +20,8 @@ kafka:
   brokers:
     - "kafka:9092"
   topics:
-    ride_updates: "rides"
+    rides: "rides"
+    user_requests: "user_requests"
     user_notifications: "user_notifications"
 
 jwt:
