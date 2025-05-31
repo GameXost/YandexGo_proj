@@ -53,8 +53,8 @@ docker_run:
 	docker run --rm -it \
 		-p 9096:9096 -p 9097:9097 -p 9095:9095 \
 		--name yandexgo_drivers_server \
-		yandexgo_proj
-		
+		yandexgo_proj_drivers
+
 docker_stop:
 	docker stop yandexgo_drivers_server || true
 

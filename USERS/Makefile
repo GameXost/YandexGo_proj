@@ -53,7 +53,7 @@ docker_run:
 	docker run --rm -it \
 		-p 9093:9093 -p 9094:9094 -p 9091:9091 \
 		--name yandexgo_users_server \
-		yandexgo_proj
+		yandexgo_proj_users
 
 docker_stop:
 	docker stop yandexgo_users_server || true

@@ -30,7 +30,7 @@ func AuthInterceptor(publicKey *rsa.PublicKey, disableAuth bool) grpc.UnaryServe
 		}
 
 		md, ok := metadata.FromIncomingContext(ctx)
-		fmt.Printf("metadata in interceptor for %s: %#v, ok=%v\n", info.FullMethod, md, ok)
+		//fmt.Printf("metadata in interceptor for %s: %#v, ok=%v\n", info.FullMethod, md, ok)
 		if !ok {
 			return nil, status.Error(codes.Unauthenticated, "missing metadata")
 		}
