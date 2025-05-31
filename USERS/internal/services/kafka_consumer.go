@@ -11,7 +11,7 @@ import (
 )
 
 type RideWaiter struct {
-	Ch      chan string // канал для сигнализации о принятии или отмене
+	Ch      chan string
 	Timeout time.Duration
 }
 
@@ -77,6 +77,20 @@ func (s *UserService) StartKafkaConsumer(ctx context.Context, reader *kafka.Read
 				user, err := s.GetUserProfile(ctx, req.UserID)
 				if err != nil {
 					log.Printf("Failed to get user profile: %v", err)
+					if req.ReplyTo != "" && req.CorrelationID != "" {
+						response := struct {
+							BaseEvent
+							Error string `json:"error"`
+						}{
+							BaseEvent: BaseEvent{
+								Event:         "user_profile_response",
+								CorrelationID: req.CorrelationID,
+								Timestamp:     time.Now().Unix(),
+							},
+							Error: err.Error(),
+						}
+						_ = s.sendKafkaResponse(ctx, req.ReplyTo, response)
+					}
 					continue
 				}
 				if req.ReplyTo != "" && req.CorrelationID != "" {
@@ -96,7 +110,6 @@ func (s *UserService) StartKafkaConsumer(ctx context.Context, reader *kafka.Read
 						log.Printf("Failed to send Kafka response: %v", err)
 					}
 				}
-
 			default:
 				log.Printf("Unknown event type: %s", baseEvent.Event)
 			}

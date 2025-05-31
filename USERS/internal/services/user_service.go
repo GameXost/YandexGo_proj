@@ -22,6 +22,8 @@ type UserService struct {
 	RidesTopic             string
 	UserRequestsTopic      string
 	UserNotificationsTopic string
+	ProfileWaiters         map[string]chan *pb.User
+	ProfileWaitersMutex    sync.Mutex
 }
 
 func NewUserService(repo repository.UserRepositoryInterface, kafka *kafka.Writer, ridesTopic, userRequestsTopic, userNotificationsTopic string) *UserService {
@@ -32,6 +34,7 @@ func NewUserService(repo repository.UserRepositoryInterface, kafka *kafka.Writer
 		RidesTopic:             ridesTopic,
 		UserRequestsTopic:      userRequestsTopic,
 		UserNotificationsTopic: userNotificationsTopic,
+		ProfileWaiters:         make(map[string]chan *pb.User),
 	}
 }
 
@@ -280,14 +283,12 @@ func (s *UserService) GetDriverLocation(ctx context.Context, req *pb.DriverIdReq
 func (s *UserService) GetDriverInfo(ctx context.Context, req *pb.DriverIdRequest) (*pb.Driver, error) {
 	correlationId := uuid.New().String()
 	replyTo := "user-driver-info-" + req.Id
-
 	event := BaseEvent{
 		Event:         "get_driver_info",
 		CorrelationID: correlationId,
 		ReplyTo:       replyTo,
 		Timestamp:     time.Now().Unix(),
 	}
-
 	err := s.PublishEvent(ctx, s.RidesTopic, event, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send get_driver_info request: %w", err)

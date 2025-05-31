@@ -52,7 +52,7 @@ services:
     ports:
       - "8087:8080"
     volumes:
-      - ./USERS/API/generated/clients.swagger.json:/tmp/clients.swagger.json
+      - ./USERS/API/generated/clients/clients.swagger.json:/tmp/clients.swagger.json
     environment:
       - SWAGGER_JSON=/tmp/clients.swagger.json
 
@@ -83,6 +83,14 @@ services:
     ports:
       - "8086:8080"
     volumes:
-      - ./DRIVERS/API/generated/drivers.swagger.json:/tmp/drivers.swagger.json
+      - ./DRIVERS/API/generated/drivers/drivers.swagger.json:/tmp/drivers.swagger.json
     environment:
       - SWAGGER_JSON=/tmp/drivers.swagger.json
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    ports:
+      - "8082:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
