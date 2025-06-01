@@ -31,6 +31,7 @@ type KafkaTopics struct {
 	Rides             string `yaml:"rides"`
 	UserRequests      string `yaml:"user_requests"`
 	UserNotifications string `yaml:"user_notifications"`
+	DriverRequests    string `yaml:"driver_requests"`
 }
 
 type KafkaConfig struct {

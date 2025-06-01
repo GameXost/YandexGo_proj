@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
@@ -21,20 +22,32 @@ type UserService struct {
 	WaitersMutex           sync.Mutex
 	RidesTopic             string
 	UserRequestsTopic      string
+	DriverRequestTopic     string
 	UserNotificationsTopic string
-	ProfileWaiters         map[string]chan *pb.User
-	ProfileWaitersMutex    sync.Mutex
+	ResponseWaiters        map[string]chan []byte
+	ResponseWaitersMutex   sync.Mutex
+	KafkaBrokers           []string
 }
 
-func NewUserService(repo repository.UserRepositoryInterface, kafka *kafka.Writer, ridesTopic, userRequestsTopic, userNotificationsTopic string) *UserService {
+func NewUserService(repo repository.UserRepositoryInterface,
+	kafkaWriter *kafka.Writer,
+	ridesTopic,
+	userRequestsTopic,
+	userNotificationsTopic string,
+	driverRequestTopic string,
+	kafkaBrokers []string,
+) *UserService {
 	return &UserService{
 		Repo:                   repo,
-		Kafka:                  kafka,
+		Kafka:                  kafkaWriter,
 		OrderWaiters:           make(map[string]*RideWaiter),
 		RidesTopic:             ridesTopic,
 		UserRequestsTopic:      userRequestsTopic,
+		DriverRequestTopic:     driverRequestTopic,
 		UserNotificationsTopic: userNotificationsTopic,
-		ProfileWaiters:         make(map[string]chan *pb.User),
+		ResponseWaiters:        make(map[string]chan []byte),
+		ResponseWaitersMutex:   sync.Mutex{},
+		KafkaBrokers:           kafkaBrokers, // Сохраняем список брокеров
 	}
 }
 
@@ -74,340 +87,274 @@ func modelToProtoUser(m *models.User) *pb.User {
 }
 
 func (s *UserService) RequestRide(ctx context.Context, req *pb.RideRequest) (*pb.Ride, error) {
-	// Генерируем correlationId и replyTo
 	userID := req.UserId
 	correlationId := uuid.New().String()
-	replyTo := "user-" + userID + "-responses"
+	replyTo := CreateReplyTopicName("user-ride-responses", correlationId)
 
 	// Формируем событие
 	event := RideCreatedEvent{
-		BaseEvent: BaseEvent{
-			Event:         "ride_created",
-			CorrelationID: correlationId,
-			ReplyTo:       replyTo,
-			Timestamp:     time.Now().Unix(),
-		},
+		BaseEvent:     NewBaseEvent("ride_created", correlationId, replyTo),
 		RideID:        uuid.New().String(),
 		PassengerID:   req.UserId,
 		StartLocation: req.StartLocation.String(), // если нужно сериализовать в строку
 		EndLocation:   req.EndLocation.String(),
 		Status:        "pending",
 	}
+	responseChan := make(chan []byte, 1)
+	s.ResponseWaitersMutex.Lock()
+	s.ResponseWaiters[correlationId] = responseChan
+	s.ResponseWaitersMutex.Unlock()
 
-	// Отправляем событие в Kafka
-	err := s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
+	defer func() {
+		s.ResponseWaitersMutex.Lock()
+		delete(s.ResponseWaiters, correlationId)
+		close(responseChan)
+		s.ResponseWaitersMutex.Unlock()
+	}()
+	err := s.sendKafkaMessage(ctx, s.RidesTopic, event)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send ride request: %w", err)
+		return nil, fmt.Errorf("failed to send kafka message: %w", err)
 	}
-
-	// Ждём ответ (например, ride_accepted или ride_created)
-	brokers := []string{"localhost:9092"} // или из конфига
-	resp, err := s.WaitForRideCreatedResponse(ctx, brokers, replyTo, correlationId, 10*time.Second)
-	if err != nil {
-		return nil, fmt.Errorf("timeout or error waiting for response: %w", err)
+	log.Printf("Sent ride_created for UserID: %s,CorrelationID,  waiting for response in : %s ", userID, correlationId, replyTo)
+	select {
+	case rawResponse := <-responseChan:
+		var resp RideCreatedEvent
+		if err := json.Unmarshal(rawResponse, &resp); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+		}
+		return &pb.Ride{
+			Id:            resp.RideID,
+			UserId:        resp.PassengerID,
+			DriverId:      "", // DriverID нет в RideCreatedEvent, он появится в RideAcceptedEvent
+			StartLocation: req.StartLocation,
+			EndLocation:   req.EndLocation,
+			Status:        resp.Status,
+			Timestamp:     resp.Timestamp,
+		}, nil
+	case <-time.After(10 * time.Second):
+		return nil, fmt.Errorf("failed to send kafka message: timeout")
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
-
-	// Собираем pb.Ride из ответа
-	return &pb.Ride{
-		Id:            resp.RideID,
-		UserId:        resp.PassengerID,
-		DriverId:      "", // DriverID нет в RideCreatedEvent
-		StartLocation: req.StartLocation,
-		EndLocation:   req.EndLocation,
-		Status:        resp.Status,
-		Timestamp:     resp.Timestamp,
-	}, nil
 }
 
 func (s *UserService) CancelRide(ctx context.Context, req *pb.RideIdRequest) (*pb.StatusResponse, error) {
 	rideID := req.Id
 	correlationId := uuid.New().String()
-	replyTo := "ride-cancel-responses-" + rideID // replyTo теперь уникален по rideID
+	replyTo := CreateReplyTopicName("ride-cancel-responses", correlationId)
 
 	event := RideCanceledEvent{
-		BaseEvent: BaseEvent{
-			Event:         "ride_canceled",
-			CorrelationID: correlationId,
-			ReplyTo:       replyTo,
-			Timestamp:     time.Now().Unix(),
-		},
-		RideID: rideID,
-		Reason: "user_cancelled",
+		BaseEvent: NewBaseEvent("ride_cancelled", correlationId, replyTo),
+		RideID:    rideID,
+		Reason:    "user_cancelled",
 	}
+	responseChan := make(chan []byte, 1)
+	s.ResponseWaitersMutex.Lock()
+	s.ResponseWaiters[correlationId] = responseChan
+	s.ResponseWaitersMutex.Unlock()
 
-	err := s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
+	defer func() {
+		s.ResponseWaitersMutex.Lock()
+		delete(s.ResponseWaiters, correlationId)
+		close(responseChan)
+		s.ResponseWaitersMutex.Unlock()
+	}()
+	err := s.sendKafkaMessage(ctx, s.RidesTopic, event)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send cancel ride request: %w", err)
+		return nil, fmt.Errorf("failed to send kafka message: %w", err)
 	}
+	log.Printf("sent ride_canceled for RideID : %s, CorrelationID %s waiting for person in %s", rideID, correlationId, replyTo)
 
-	brokers := []string{"localhost:9092"} // или из конфига
-	resp, err := s.WaitForRideCanceledResponse(ctx, brokers, replyTo, correlationId, 10*time.Second)
-	if err != nil {
-		return nil, fmt.Errorf("timeout or error waiting for response: %w", err)
+	select {
+	case rawResponse := <-responseChan:
+		var resp RideCanceledResponse
+		if err := json.Unmarshal(rawResponse, &resp); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+		}
+		return &pb.StatusResponse{
+			Status:  resp.Status == "canceled" || resp.Status == "success",
+			Message: resp.Reason,
+		}, nil
+	case <-time.After(10 * time.Second):
+		return nil, fmt.Errorf("timeout waiting for ride canceled response for RideID: %s (CorrelationID: %s)", rideID, correlationId)
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
-
-	return &pb.StatusResponse{
-		Status:  resp.Status == "canceled",
-		Message: resp.Reason,
-	}, nil
 }
 
 func (s *UserService) GetRideStatus(ctx context.Context, req *pb.UserIdRequest) (*pb.Ride, error) {
 	userID := req.Id
 	correlationId := uuid.New().String()
-	replyTo := "user-" + userID + "-responses"
+	replyTo := CreateReplyTopicName("user-ride-status-response", correlationId)
 
-	// Формируем событие-запрос
-	event := BaseEvent{
-		Event:         "get_ride_status",
-		CorrelationID: correlationId,
-		ReplyTo:       replyTo,
-		Timestamp:     time.Now().Unix(),
+	statusRequest := GetRideStatusRequest{
+		BaseEvent: NewBaseEvent("get_ride_status_request", correlationId, replyTo),
+		UserID:    userID,
 	}
+	responseChan := make(chan []byte, 1)
+	s.ResponseWaitersMutex.Lock()
+	s.ResponseWaiters[correlationId] = responseChan
+	s.ResponseWaitersMutex.Unlock()
 
-	err := s.PublishEvent(ctx, s.RidesTopic, event, userID)
+	defer func() {
+		s.ResponseWaitersMutex.Lock()
+		delete(s.ResponseWaiters, correlationId)
+		close(responseChan)
+		s.ResponseWaitersMutex.Unlock()
+	}()
+
+	err := s.sendKafkaMessage(ctx, s.RidesTopic, statusRequest)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send get_ride_status request: %w", err)
 	}
+	log.Printf("sent get_ride_status_request for userid: %s, correlationID: %s, waiting for response in %s", userID, correlationId, replyTo)
 
-	brokers := []string{"localhost:9092"}
-	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: brokers,
-		Topic:   replyTo,
-	})
-	defer reader.Close()
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
-	for {
-		m, err := reader.ReadMessage(timeoutCtx)
-		if err != nil {
-			return nil, err
-		}
+	select {
+	case rawResponse := <-responseChan:
 		var resp pb.Ride
-		if err := json.Unmarshal(m.Value, &resp); err != nil {
-			continue
+		if err := json.Unmarshal(rawResponse, &resp); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal ride status response: %w", err)
 		}
-		// Можно добавить проверку correlationId, если оно есть в ответе
 		return &resp, nil
+	case <-time.After(10 * time.Second):
+		return nil, fmt.Errorf("timeout waitning for ride status response for userid: %s, correlationID: %s", userID, correlationId)
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
 }
 
 func (s *UserService) GetRideHistory(ctx context.Context, req *pb.UserIdRequest) (*pb.RideHistoryResponse, error) {
 	userID := req.Id
 	correlationId := uuid.New().String()
-	replyTo := "user-" + userID + "-responses"
+	replyTo := CreateReplyTopicName("user-ride-history-responses", correlationId)
 
-	event := BaseEvent{
-		Event:         "get_ride_history",
-		CorrelationID: correlationId,
-		ReplyTo:       replyTo,
-		Timestamp:     time.Now().Unix(),
+	historyRequest := GetRideHistoryRequest{
+		BaseEvent: NewBaseEvent("get_ride_history_request", correlationId, replyTo),
+		UserID:    userID,
 	}
+	responseChan := make(chan []byte, 1)
+	s.ResponseWaitersMutex.Lock()
+	s.ResponseWaiters[correlationId] = responseChan
+	s.ResponseWaitersMutex.Unlock()
 
-	err := s.PublishEvent(ctx, s.RidesTopic, event, userID)
+	defer func() {
+		s.ResponseWaitersMutex.Lock()
+		delete(s.ResponseWaiters, correlationId)
+		close(responseChan)
+		s.ResponseWaitersMutex.Unlock()
+	}()
+
+	err := s.sendKafkaMessage(ctx, s.RidesTopic, historyRequest)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send get_ride_history request: %w", err)
 	}
+	log.Printf("Sent get_ride_history_request for UserID: %s, CorrelationID: %s, waiting for response in %s", userID, correlationId, replyTo)
 
-	brokers := []string{"localhost:9092"}
-	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: brokers,
-		Topic:   replyTo,
-	})
-	defer reader.Close()
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
-	for {
-		m, err := reader.ReadMessage(timeoutCtx)
-		if err != nil {
-			return nil, err
-		}
+	select {
+	case rawResponse := <-responseChan:
 		var resp pb.RideHistoryResponse
-		if err := json.Unmarshal(m.Value, &resp); err != nil {
-			continue
+		if err := json.Unmarshal(rawResponse, &resp); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal ride history response: %w", err)
 		}
 		return &resp, nil
+	case <-time.After(10 * time.Second):
+		return nil, fmt.Errorf("timeout waiting for ride history response for UserID: %s (CorrelationID: %s)", userID, correlationId)
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
 }
 
 func (s *UserService) GetDriverLocation(ctx context.Context, req *pb.DriverIdRequest) (*pb.Location, error) {
-	correlationId := uuid.New().String()
-	replyTo := "user-driver-location-" + req.Id
+	correlationID := uuid.New().String()
+	replyToTopic := CreateReplyTopicName("reply-to-users", correlationID)
+	request := GetDriverLocationRequest{
+		BaseEvent: NewBaseEvent("get_driver_location_request", correlationID, replyToTopic),
+		DriverID:  req.Id,
+	}
+	responseChan := make(chan []byte, 1)
+	s.ResponseWaitersMutex.Lock()
+	s.ResponseWaiters[correlationID] = responseChan
+	s.ResponseWaitersMutex.Unlock()
 
-	event := GetDriverLocationEvent{
-		BaseEvent: BaseEvent{
-			Event:         "get_driver_location",
-			CorrelationID: correlationId,
-			ReplyTo:       replyTo,
-			Timestamp:     time.Now().Unix(),
-		},
-		RideID:   "", // если есть rideID, подставь его
-		DriverID: req.Id,
+	defer func() {
+		s.ResponseWaitersMutex.Lock()
+		delete(s.ResponseWaiters, correlationID)
+		close(responseChan)
+		s.ResponseWaitersMutex.Unlock()
+	}()
+	if err := s.sendKafkaMessage(ctx, s.DriverRequestTopic, request); err != nil {
+		return nil, fmt.Errorf("failed to publish get_driver_location_request: %w", err)
 	}
 
-	err := s.PublishEvent(ctx, s.RidesTopic, event, req.Id)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send get_driver_location request: %w", err)
-	}
+	log.Printf("Sent get_driver_location_request for DriverID: %s, CorrelationID: %s, waiting for response in %s", req.Id, correlationID, replyToTopic)
 
-	brokers := []string{"localhost:9092"}
-	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: brokers,
-		Topic:   replyTo,
-	})
-	defer reader.Close()
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
-	for {
-		m, err := reader.ReadMessage(timeoutCtx)
-		if err != nil {
-			return nil, err
+	select {
+	case rawResponse := <-responseChan:
+		var response DriverLocationResponse
+		if err := json.Unmarshal(rawResponse, &response); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal driver location response: %w", err)
 		}
-		var resp DriverLocationResponse
-		if err := json.Unmarshal(m.Value, &resp); err != nil {
-			continue
+		if response.Error != "" {
+			return nil, fmt.Errorf("driver service error: %s", response.Error)
 		}
 		return &pb.Location{
-			Latitude:  resp.Latitude,
-			Longitude: resp.Longitude,
+			Latitude:  response.Latitude,
+			Longitude: response.Longitude,
 		}, nil
+	case <-time.After(10 * time.Second):
+		return nil, fmt.Errorf("timeout waiting for driver location response for DriverID: %s (CorrelationID: %s)", req.Id, correlationID)
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
 }
 
 func (s *UserService) GetDriverInfo(ctx context.Context, req *pb.DriverIdRequest) (*pb.Driver, error) {
-	correlationId := uuid.New().String()
-	replyTo := "user-driver-info-" + req.Id
-	event := BaseEvent{
-		Event:         "get_driver_info",
-		CorrelationID: correlationId,
-		ReplyTo:       replyTo,
-		Timestamp:     time.Now().Unix(),
+	correlationID := uuid.New().String()
+	replyToTopic := CreateReplyTopicName("reply-to-users", correlationID)
+
+	driverInfoRequest := GetDriverInfoRequest{ // <--- ИСПОЛЬЗУЕМ GetDriverInfoRequest
+		BaseEvent: NewBaseEvent("get_driver_info_request", correlationID, replyToTopic), // <--- ИСПОЛЬЗУЕМ NewBaseEvent
+		DriverID:  req.Id,
 	}
-	err := s.PublishEvent(ctx, s.RidesTopic, event, req.Id)
+
+	responseChan := make(chan []byte, 1)
+	s.ResponseWaitersMutex.Lock()
+	s.ResponseWaiters[correlationID] = responseChan
+	s.ResponseWaitersMutex.Unlock()
+	defer func() {
+		s.ResponseWaitersMutex.Lock()
+		delete(s.ResponseWaiters, correlationID)
+		close(responseChan)
+		s.ResponseWaitersMutex.Unlock()
+	}()
+
+	if err := s.sendKafkaMessage(ctx, s.DriverRequestTopic, driverInfoRequest); err != nil {
+		return nil, fmt.Errorf("failed to send driver info request: %w", err)
+	}
+	log.Printf("Sent get_driver_info_request for DriverID %s, CorrelationID %s, waitong for response in %s", req.Id, correlationID, replyToTopic)
+
+	select {
+	case rawResponse := <-responseChan:
+		var response pb.Driver
+		if err := json.Unmarshal(rawResponse, &response); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+		}
+		return &response, nil
+	case <-time.After(10 * time.Second):
+		return nil, fmt.Errorf("timeout waitng for driver info response fior DriverID: %s (CorrelationID %s)", req.Id, correlationID)
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+}
+
+func (s *UserService) sendKafkaMessage(ctx context.Context, topic string, event interface{}) error {
+	data, err := json.Marshal(event)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send get_driver_info request: %w", err)
+		return fmt.Errorf("failed to marshal event: %w", err)
 	}
-
-	brokers := []string{"localhost:9092"}
-	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: brokers,
-		Topic:   replyTo,
-	})
-	defer reader.Close()
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
-	for {
-		m, err := reader.ReadMessage(timeoutCtx)
-		if err != nil {
-			return nil, err
-		}
-		var resp pb.Driver
-		if err := json.Unmarshal(m.Value, &resp); err != nil {
-			continue
-		}
-		return &resp, nil
+	msg := &kafka.Message{
+		Topic: topic,
+		Value: data,
 	}
-}
-
-// Отправка запроса на получение координат водителя с correlationId и replyTo
-func (s *UserService) RequestDriverLocation(ctx context.Context, userID, rideID, driverID string) (correlationId, replyTo string, err error) {
-	correlationId = uuid.New().String()
-	replyTo = "user-" + userID + "-responses"
-
-	event := GetDriverLocationEvent{
-		BaseEvent: BaseEvent{
-			Event:         "get_driver_location",
-			CorrelationID: correlationId,
-			ReplyTo:       replyTo,
-			Timestamp:     time.Now().Unix(),
-		},
-		RideID:   rideID,
-		DriverID: driverID,
-	}
-	err = s.PublishEvent(ctx, s.RidesTopic, event, event.RideID)
-	return
-}
-
-// Ожидание ответа по replyTo-топику и correlationId
-func (s *UserService) WaitForDriverLocationResponse(ctx context.Context, brokers []string, replyTo, correlationId string, timeout time.Duration) (*DriverLocationResponse, error) {
-	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: brokers,
-		Topic:   replyTo,
-	})
-	defer reader.Close()
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-
-	for {
-		m, err := reader.ReadMessage(timeoutCtx)
-		if err != nil {
-			return nil, err
-		}
-		var resp DriverLocationResponse
-		if err := json.Unmarshal(m.Value, &resp); err != nil {
-			continue
-		}
-		if resp.CorrelationID == correlationId {
-			return &resp, nil
-		}
-	}
-}
-
-func (s *UserService) WaitForRideCanceledResponse(ctx context.Context, brokers []string, replyTo, correlationId string, timeout time.Duration) (*RideCanceledResponse, error) {
-	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: brokers,
-		Topic:   replyTo,
-	})
-	defer reader.Close()
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-
-	for {
-		m, err := reader.ReadMessage(timeoutCtx)
-		if err != nil {
-			return nil, err
-		}
-		var resp RideCanceledResponse
-		if err := json.Unmarshal(m.Value, &resp); err != nil {
-			continue
-		}
-		if resp.CorrelationID == correlationId {
-			return &resp, nil
-		}
-	}
-}
-
-func (s *UserService) WaitForRideCreatedResponse(ctx context.Context, brokers []string, replyTo, correlationId string, timeout time.Duration) (*RideCreatedEvent, error) {
-	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: brokers,
-		Topic:   replyTo,
-	})
-	defer reader.Close()
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-
-	for {
-		m, err := reader.ReadMessage(timeoutCtx)
-		if err != nil {
-			return nil, err
-		}
-		var resp RideCreatedEvent
-		if err := json.Unmarshal(m.Value, &resp); err != nil {
-			continue
-		}
-		if resp.CorrelationID == correlationId {
-			return &resp, nil
-		}
-	}
+	return s.Kafka.WriteMessages(ctx, *msg)
 }

@@ -21,8 +21,9 @@ kafka:
     - "kafka:9092"
   topics:
     rides: "rides"
-    user_requests: "user_requests"
+    user_requests: "user-service-request"
     user_notifications: "user_notifications"
+    driver_requests: "driver-service-request"
 
 jwt:
   secret_key: "supersecretkey"

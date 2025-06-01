@@ -16,7 +16,11 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"sync"
+	"syscall"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -34,7 +38,7 @@ import (
 var publicKey *rsa.PublicKey
 
 func main() {
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 
 	// 1. Load config
 	cfg, err := config.LoadConfig("config/config.yaml")
@@ -43,8 +47,9 @@ func main() {
 	}
 
 	// 2. Load JWT keys
-	publicKey, err := server.LoadPublicKey(cfg.JWT.PublicKeyPath)
-	if err != nil {
+	var loadKeyErr error
+	publicKey, loadKeyErr = server.LoadPublicKey(cfg.JWT.PublicKeyPath)
+	if loadKeyErr != nil {
 		log.Fatalf("failed to load public key: %v", err)
 	}
 	privateKey, err := server.LoadPrivateKey(cfg.JWT.PrivateKeyPath)
@@ -68,25 +73,63 @@ func main() {
 	// 4. Kafka connection
 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: cfg.Kafka.Brokers,
-		Topic:   cfg.Kafka.Topics.Rides,
+		//Topic:    cfg.Kafka.Topics.Rides,
+		Balancer: &kafka.LeastBytes{},
 	})
-	defer kafkaWriter.Close()
+
+	defer func() {
+		if err := kafkaWriter.Close(); err != nil {
+			log.Printf("Error closing kafka writer: %v", err)
+		}
+	}()
 	log.Println("Kafka working")
 
 	repo := repository.NewUserRepository(dbpool)
-	userService := services.NewUserService(repo, kafkaWriter, cfg.Kafka.Topics.Rides, cfg.Kafka.Topics.UserRequests, cfg.Kafka.Topics.UserNotifications)
 
+	userService := services.NewUserService(
+		repo,
+		kafkaWriter,
+		cfg.Kafka.Topics.Rides,
+		cfg.Kafka.Topics.UserRequests,
+		cfg.Kafka.Topics.UserNotifications,
+		cfg.Kafka.Topics.DriverRequests,
+		cfg.Kafka.Brokers,
+	)
 	// --- Kafka consumer ---
-	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  cfg.Kafka.Brokers,
-		Topic:    cfg.Kafka.Topics.Rides,
-		GroupID:  "user-service",
-		MinBytes: 10e3,
-		MaxBytes: 10e6,
-	})
-	go userService.StartKafkaConsumer(ctx, kafkaReader)
+	consumerGroup := "user-service-consumer-group"
+	topicsToConsume := []string{
+		cfg.Kafka.Topics.Rides,
+		cfg.Kafka.Topics.UserNotifications,
+		cfg.Kafka.Topics.UserRequests,
+	}
 
-	// server up
+	var wg sync.WaitGroup
+
+	for _, topic := range topicsToConsume {
+		log.Printf("Setting up Kafka consumer for topic: %s with GroupID: %s", topic, consumerGroup)
+		reader := kafka.NewReader(kafka.ReaderConfig{
+			Brokers:  cfg.Kafka.Brokers,
+			GroupID:  consumerGroup,
+			Topic:    topic,
+			MinBytes: 10e3,
+			MaxBytes: 10e6,
+		})
+		defer func(r *kafka.Reader) {
+			if err := r.Close(); err != nil {
+				log.Printf("Error closing kafka reader: %v", err)
+			}
+		}(reader)
+		wg.Add(1)
+		go func(r *kafka.Reader) {
+			defer wg.Done()
+			userService.StartKafkaConsumer(ctx, r)
+			log.Printf("Kafka consumer for topic %s stopped.", r.Config().Topic)
+		}(reader)
+		log.Printf("Kafka consumer started for topic: %s", topic)
+	}
+	log.Println("All Kafka consumers initialized and started.")
+
+	//GRPC  server up
 	sv := &server.UserServer{
 		Service: userService,
 	}
@@ -103,7 +146,7 @@ func main() {
 	go func() {
 		log.Printf("GRPC server listening on %s", cfg.Server.Port)
 		if err := grpcServer.Serve(grpcListener); err != nil {
-			log.Fatalf("Unable to start grpc server: %v", err)
+			log.Printf("Unable to start grpc server: %v", err)
 		}
 	}()
 
@@ -114,13 +157,41 @@ func main() {
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	err = pb.RegisterClientHandlerFromEndpoint(ctx, mux, "localhost"+cfg.Server.Port, opts)
 	if err != nil {
-		log.Fatalf("Unable to register handler: %v", err)
+		log.Fatalf("Unable to register gRPC gateway handler: %v", err)
 	}
 
-	log.Println("Mux gateway Listening on", cfg.Server.HTTPPort)
-	if err := http.ListenAndServe(cfg.Server.HTTPPort, allowCORS(mux)); err != nil {
-		log.Fatalf("Unable to listen on %s: %v", cfg.Server.HTTPPort, err)
+	log.Printf("gRPC Gateway listening on %s", cfg.Server.HTTPPort)
+	httpServer := &http.Server{
+		Addr:    cfg.Server.HTTPPort,
+		Handler: allowCORS(mux),
 	}
+
+	go func() {
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Printf("HTTP Gateway failed to listen: %v", err)
+		}
+	}()
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM) // Ловим Ctrl+C и сигнал завершения
+
+	<-sigChan
+	log.Println("Received shutdown signal. Shutting down gracefully...")
+
+	cancel()
+
+	log.Println("Waiting for Kafka consumers to stop...")
+	wg.Wait()
+	log.Println("All Kafka consumers stopped.")
+
+	grpcServer.GracefulStop()
+	log.Println("gRPC server stopped.")
+
+	if shutdownErr := httpServer.Shutdown(context.Background()); shutdownErr != nil {
+		log.Fatalf("HTTP server shutdown error: %v", shutdownErr)
+	}
+	log.Println("HTTP Gateway stopped.")
+
+	log.Println("Application gracefully shut down.")
 }
 
 func allowCORS(h http.Handler) http.Handler {
