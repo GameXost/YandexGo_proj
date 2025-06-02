@@ -4,7 +4,7 @@
 // - protoc             v5.29.3
 // source: drivers.proto
 
-package protos
+package drivers
 
 import (
 	context "context"

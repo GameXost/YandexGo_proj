@@ -2,11 +2,11 @@
 // source: drivers.proto
 
 /*
-Package protos is a reverse proxy.
+Package drivers is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package protos
+package drivers
 
 import (
 	"context"

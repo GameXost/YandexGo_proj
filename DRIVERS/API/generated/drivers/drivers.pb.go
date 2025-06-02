@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: drivers.proto
 
-package protos
+package drivers
 
 import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
@@ -895,7 +895,7 @@ const file_drivers_proto_rawDesc = "" +
 	"\"Successfully received ride historyb\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/{id}/ridesB\xab\x03\x92A\xf9\x02\x12\xe6\x01\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/driver/{id}/ridesB\xbe\x03\x92A\xf9\x02\x12\xe6\x01\n" +
 	"\x12DRIVER Service API\x12,API for managing drivers and ride operations\"]\n" +
 	"\x16Yandex Go Project Team\x12)https://github.com/GameXost/YandexGo_proj\x1a\x18sergejs.dyldin@yandex.ru*>\n" +
 	"\n" +
@@ -905,7 +905,7 @@ const file_drivers_proto_rawDesc = "" +
 	"BearerAuth\x121\b\x02\x12\x1cJWT token as: Bearer <token>\x1a\rAuthorization \x02b\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00Z,github.com/GameXost/YandexGo_proj/API/protosb\x06proto3"
+	"BearerAuth\x12\x00Z?github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/driversb\x06proto3"
 
 var (
 	file_drivers_proto_rawDescOnce sync.Once

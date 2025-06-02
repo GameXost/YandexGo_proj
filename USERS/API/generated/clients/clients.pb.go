@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: clients.proto
 
-package protos
+package users
 
 import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
@@ -935,7 +935,7 @@ const file_clients_proto_rawDesc = "" +
 	"\"drinver info received successfullyb\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x0e\x12\f/driver/{id}B\xa7\x03\x92A\xf5\x02\x12\xe3\x01\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x0e\x12\f/driver/{id}B\xb6\x03\x92A\xf5\x02\x12\xe3\x01\n" +
 	"\x11USERS Service API\x12*API for managing users and ride operations\"]\n" +
 	"\x16Yandex Go Project Team\x12)https://github.com/GameXost/YandexGo_proj\x1a\x18sergejs.dyldin@yandex.ru*>\n" +
 	"\n" +
@@ -945,7 +945,7 @@ const file_clients_proto_rawDesc = "" +
 	"BearerAuth\x121\b\x02\x12\x1cJWT token as: Bearer <token>\x1a\rAuthorization \x02b\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00Z,github.com/GameXost/YandexGo_proj/API/protosb\x06proto3"
+	"BearerAuth\x12\x00Z;github.com/GameXost/YandexGo_proj/USERS/API/generated/usersb\x06proto3"
 
 var (
 	file_clients_proto_rawDescOnce sync.Once

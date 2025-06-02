@@ -4,7 +4,7 @@
 // - protoc             v5.29.3
 // source: clients.proto
 
-package protos
+package users
 
 import (
 	context "context"

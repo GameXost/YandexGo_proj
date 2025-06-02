@@ -98,7 +98,7 @@ func main() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	repo := repository.NewDriverRepository(dbpool)
-	driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter, cfg.Kafka.Topics.UserRequests, cfg.Kafka.Topics.Rides)
+	driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter, cfg.Kafka.Topics.UserRequests, cfg.Kafka.Topics.Rides, cfg.Kafka.Brokers)
 
 	// --- Kafka consumer ---
 	go driverService.StartKafkaConsumer(ctx, kafkaReader)

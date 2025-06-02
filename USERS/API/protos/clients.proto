@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package client_service;
 
-option go_package = "github.com/GameXost/YandexGo_proj/API/protos";
+option go_package = "github.com/GameXost/YandexGo_proj/USERS/API/generated/clients";
 
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";

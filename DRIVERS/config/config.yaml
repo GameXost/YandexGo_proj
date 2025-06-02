@@ -23,6 +23,8 @@ kafka:
     rides: "rides"
     user_requests: "user_requests"
     user_notifications: "user_notifications"
+    driver_requests: "driver_requests"
+    driver_notifications: driver_notifications
 
 jwt:
   secret_key: "supersecretkey"
