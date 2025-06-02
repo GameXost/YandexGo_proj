@@ -3,8 +3,8 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from utils import JWT_utils
-from Users_repo import UsersRepository, DriversRepository
+from Auth.utils import JWT_utils
+from Auth.Users_repo import UsersRepository, DriversRepository
 
 # OAuth2 схема для получения токена через пароль
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="JWT/token")

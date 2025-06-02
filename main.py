@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from Auth.routers.Auth_router import Auth_router
-from Auth.routers.Admin_router import Admin_router
-from Auth.routers.JWT_router import JWT_router
+from routers.Auth_router import Auth_router
+from routers.Admin_router import Admin_router
+from routers.JWT_router import JWT_router
 import uvicorn
 app = FastAPI()
 app.include_router(Admin_router)
