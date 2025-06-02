@@ -64,9 +64,9 @@ services:
     image: yandexgo_proj_drivers
     container_name: yandexgo_drivers_server
     ports:
-      - "9095:9095"
-      - "9096:9096"
       - "9099:9099"
+      - "9096:9096"
+      - "9097:9097"
     restart: unless-stopped
     depends_on:
       - kafka

@@ -83,7 +83,7 @@ func main() {
 	// Собираем claims
 	claims := jwt.MapClaims{
 		"sub": "1",                                   // driverID, можешь поменять на любой другой id
-		"exp": time.Now().Add(time.Hour * 24).Unix(), // истекает через 24 часа
+		"exp": time.Now().Add(time.Hour * 48).Unix(), // истекает через 24 часа
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)

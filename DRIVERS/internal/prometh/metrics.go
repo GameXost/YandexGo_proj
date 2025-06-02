@@ -1,21 +1,23 @@
 package prometh
 
 import (
-	"log"      // Add log import
-	"net/http" // Add net/http import
+	"log"
+	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/client_golang/prometheus/promhttp" // Add promhttp import
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// InitPrometheus initializes and starts the Prometheus metrics HTTP server.
-// It exposes metrics on /metrics endpoint.
+// InitPrometheus инициализирует и запускает HTTP-сервер метрик Prometheus.
+// Метрики доступны по эндпоинту /metrics.
 func InitPrometheus(port string) {
 	http.Handle("/metrics", promhttp.Handler())
 	go func() {
-		log.Printf("Prometheus metrics server listening on :%s", port)
-		if err := http.ListenAndServe(":"+port, nil); err != nil && err != http.ErrServerClosed {
+		// ОДНО ДВОЕТОЧИЕ ЗДЕСЬ
+		log.Printf("Prometheus metrics server listening on 0.0.0.0:%s", port)
+		// И ОДНО ДВОЕТОЧИЕ ЗДЕСЬ
+		if err := http.ListenAndServe("0.0.0.0:"+port, nil); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Prometheus server error: %v", err)
 		}
 	}()
