@@ -8,6 +8,13 @@
     android:background="#ECF9F3"
     tools:context=".Client.Main_client">
 
+    <com.yandex.mapkit.mapview.MapView
+        android:id="@+id/mapview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/check"
         android:layout_width="match_parent"
@@ -22,7 +29,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="20dp"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_avatar"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,18 +41,18 @@
         android:id="@+id/Favorites"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginTop="55dp"
         android:layout_marginStart="4dp"
-        app:layout_anchor="@id/Avatar"
+        android:layout_marginTop="75dp"
         android:background="@android:color/transparent"
-        android:src="@drawable/ic_favourites" />
+        android:src="@drawable/ic_favourites"
+        app:layout_anchor="@id/Avatar" />
 
     <ImageView
         android:id="@+id/Letter_T"
         android:layout_width="27dp"
         android:layout_height="40dp"
         android:layout_gravity="end"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
         app:srcCompat="@drawable/ic_logo_1" />
 
@@ -54,25 +61,25 @@
         android:layout_width="40dp"
         android:layout_height="19dp"
         android:layout_gravity="end"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="65dp"
         android:layout_marginEnd="5dp"
         app:srcCompat="@drawable/ic_logo_2" />
 
     <SearchView
         android:id="@+id/Search_Start"
-        android:layout_width="300dp"
+        android:layout_width="280dp"
         android:layout_height="47dp"
-        android:layout_marginTop="5dp"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/boarder_1"/>
+        android:layout_marginTop="20dp"
+        android:background="@drawable/boarder_1" />
 
     <SearchView
         android:id="@+id/Search_Finish"
-        android:layout_width="300dp"
+        android:layout_width="280dp"
         android:layout_height="47dp"
-        android:layout_marginTop="55dp"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/boarder_1"/>
+        android:layout_marginTop="75dp"
+        android:background="@drawable/boarder_1" />
 
     <LinearLayout
         android:id="@+id/sheet"
