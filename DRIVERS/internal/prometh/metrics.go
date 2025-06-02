@@ -1,9 +1,25 @@
 package prometh
 
 import (
+	"log"      // Add log import
+	"net/http" // Add net/http import
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp" // Add promhttp import
 )
+
+// InitPrometheus initializes and starts the Prometheus metrics HTTP server.
+// It exposes metrics on /metrics endpoint.
+func InitPrometheus(port string) {
+	http.Handle("/metrics", promhttp.Handler())
+	go func() {
+		log.Printf("Prometheus metrics server listening on :%s", port)
+		if err := http.ListenAndServe(":"+port, nil); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Prometheus server error: %v", err)
+		}
+	}()
+}
 
 // Общие метрики для GRPC сервера
 var (
@@ -79,7 +95,7 @@ var (
 			Name: "drivers_kafka_consume_errors_total",
 			Help: "Total number of errors when consuming messages from Kafka.",
 		},
-		[]string{"topic"}, // Может быть полезно знать, в каком топике произошла ошибка
+		[]string{"topic"},
 	)
 
 	// KafkaRequestTimeouts - количество таймаутов при ожидании ответов по Kafka.
@@ -88,6 +104,6 @@ var (
 			Name: "drivers_kafka_request_timeouts_total",
 			Help: "Total number of timeouts when waiting for Kafka responses.",
 		},
-		[]string{"event_type"}, // Полезно знать, для какого типа события произошел таймаут
+		[]string{"event_type"},
 	)
 )

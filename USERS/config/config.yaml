@@ -20,10 +20,11 @@ kafka:
   brokers:
     - "kafka:9092"
   topics:
-    rides: "rides"
-    user_requests: "user-service-request"
-    user_notifications: "user_notifications"
-    driver_requests: "driver-service-request"
+    rides: "rides_topic"
+    user_requests: "user_requests_topic"
+    user_notifications: "user_notifications_topic"
+    driver_requests: "driver_requests_topic"
+    driver_notifications: "driver_notifications_topic"
 
 jwt:
   secret_key: "supersecretkey"

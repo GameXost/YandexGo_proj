@@ -20,11 +20,11 @@ kafka:
   brokers:
     - "kafka:9092"
   topics:
-    rides: "rides"
-    user_requests: "user_requests"
-    user_notifications: "user_notifications"
-    driver_requests: "driver_requests"
-    driver_notifications: driver_notifications
+    rides: "rides_topic"
+    user_requests: "user_requests_topic"
+    user_notifications: "user_notifications_topic"
+    driver_requests: "driver_requests_topic"
+    driver_notifications: "driver_notifications_topic"
 
 jwt:
   secret_key: "supersecretkey"
@@ -42,7 +42,7 @@ auth:
   disabled: false
 
 prometheus:
-  port: ":9095"
+  port: ":9099"
 
 swagger:
   file: "docs/swagger.json"

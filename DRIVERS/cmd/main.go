@@ -10,7 +10,9 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
+	"time"
 
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
 
@@ -32,17 +34,16 @@ var publicKey *rsa.PublicKey
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
-	// 1. Load config
 	cfg, err := config.LoadConfig("config/config.yaml")
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
-	// 2. Load keys
-	publicKey, err := server.LoadPublicKey(cfg.JWT.PublicKeyPath)
-	if err != nil {
-		log.Fatalf("failed to load public key: %v", err)
+
+	var loadKeyErr error
+	publicKey, loadKeyErr = server.LoadPublicKey(cfg.JWT.PublicKeyPath)
+	if loadKeyErr != nil {
+		log.Fatalf("failed to load public key: %v", loadKeyErr)
 	}
 	privateKey, err := server.LoadPrivateKey(cfg.JWT.PrivateKeyPath)
 	if err != nil {
@@ -51,7 +52,6 @@ func main() {
 	_ = privateKey
 	prometh.InitPrometheus(cfg.Prometheus.Port)
 
-	// 3. DB connection
 	connStr := fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name, cfg.Database.SSLMode,
@@ -63,7 +63,6 @@ func main() {
 	defer dbpool.Close()
 	log.Println("PGX working")
 
-	// 4. REDIS connection
 	redisAddr := fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port)
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
@@ -75,35 +74,55 @@ func main() {
 	}
 	log.Println("Redis working")
 
-	// 5. Kafka connection
 	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: cfg.Kafka.Brokers,
-		Topic:   cfg.Kafka.Topics.Rides,
+		Brokers:  cfg.Kafka.Brokers,
+		Balancer: &kafka.LeastBytes{},
 	})
-	defer kafkaWriter.Close()
+
+	defer func() {
+		if err := kafkaWriter.Close(); err != nil {
+			log.Printf("Error closing kafka writer: %v", err)
+		}
+	}()
 	log.Println("Kafka writer ready")
 
-	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  cfg.Kafka.Brokers,
-		Topic:    cfg.Kafka.Topics.Rides,
-		GroupID:  "driver-service",
-		MinBytes: 10e3,
-		MaxBytes: 10e6,
-	})
-	defer kafkaReader.Close()
-	log.Println("Kafka reader ready")
+	repo := repository.NewDriverRepository(dbpool)
+	driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter, cfg)
 
-	// Сигналы для graceful shutdown
+	consumerGroup := "driver-service-consumer-group"
+	topicsToConsume := []string{
+		cfg.Kafka.Topics.Rides,
+		cfg.Kafka.Topics.UserNotifications,
+		cfg.Kafka.Topics.DriverRequests,
+	}
+
+	var wg sync.WaitGroup
+	var kafkaReaders []*kafka.Reader
+
+	for _, topic := range topicsToConsume {
+		log.Printf("Setting up Kafka consumer for topic: %s with GroupID: %s", topic, consumerGroup)
+		reader := kafka.NewReader(kafka.ReaderConfig{
+			Brokers:  cfg.Kafka.Brokers,
+			GroupID:  consumerGroup,
+			Topic:    topic,
+			MinBytes: 10e3,
+			MaxBytes: 10e6,
+		})
+		kafkaReaders = append(kafkaReaders, reader)
+
+		wg.Add(1)
+		go func(r *kafka.Reader) {
+			defer wg.Done()
+			driverService.StartKafkaConsumer(ctx, r)
+			log.Printf("Kafka consumer for topic %s stopped.", r.Config().Topic)
+		}(reader)
+		log.Printf("Kafka consumer started for topic: %s", topic)
+	}
+	log.Println("All Kafka consumers initialized and started.")
+
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	repo := repository.NewDriverRepository(dbpool)
-	driverService := services.NewDriverService(repo, redisClient, redisClient, kafkaWriter, cfg.Kafka.Topics.UserRequests, cfg.Kafka.Topics.Rides, cfg.Kafka.Brokers)
-
-	// --- Kafka consumer ---
-	go driverService.StartKafkaConsumer(ctx, kafkaReader)
-
-	// server up
 	sv := &server.DriverServer{
 		Service: driverService,
 	}
@@ -118,7 +137,7 @@ func main() {
 	}
 	go func() {
 		log.Printf("GRPC server listening on %s", cfg.Server.Port)
-		if err := grpcServer.Serve(grpcListener); err != nil {
+		if err := grpcServer.Serve(grpcListener); err != nil && err != grpc.ErrServerStopped {
 			log.Fatalf("Unable to start grpc server: %v", err)
 		}
 	}()
@@ -131,25 +150,45 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to register handler: %v", err)
 	}
+
 	log.Println("Mux gateway Listening on", cfg.Server.HTTPPort)
-	srv := &http.Server{
+	httpServer := &http.Server{
 		Addr:    cfg.Server.HTTPPort,
 		Handler: allowCORS(server.JWTHTTPMiddleware(publicKey)(mux)),
 	}
+
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Unable to listen on %s: %v", cfg.Server.HTTPPort, err)
 		}
 	}()
 
-	// Ждём сигнал завершения
 	<-sigs
 	log.Println("Graceful shutdown started...")
+
 	cancel()
-	grpcServer.GracefulStop()
-	if err := srv.Shutdown(context.Background()); err != nil {
-		log.Printf("HTTP server Shutdown: %v", err)
+
+	log.Println("Waiting for Kafka consumers to stop...")
+	wg.Wait()
+	log.Println("All Kafka consumers stopped.")
+
+	for _, r := range kafkaReaders {
+		if err := r.Close(); err != nil {
+			log.Printf("Error closing Kafka reader for topic %s: %v", r.Config().Topic, err)
+		}
 	}
+	log.Println("All Kafka readers closed.")
+
+	grpcServer.GracefulStop()
+	log.Println("gRPC server stopped.")
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+	if err := httpServer.Shutdown(shutdownCtx); err != nil {
+		log.Printf("HTTP server Shutdown error: %v", err)
+	}
+	log.Println("HTTP Gateway stopped.")
+
 	log.Println("Shutdown complete")
 }
 

@@ -150,5 +150,5 @@ func (s *DriverService) sendKafkaResponse(ctx context.Context, topic string, eve
 	msg := kafka.Message{
 		Value: data,
 	}
-	return s.Kafka.WriteMessages(ctx, msg)
+	return s.kafkaWriter.WriteMessages(ctx, msg)
 }

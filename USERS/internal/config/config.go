@@ -28,10 +28,11 @@ type RedisConfig struct {
 }
 
 type KafkaTopics struct {
-	Rides             string `yaml:"rides"`
-	UserRequests      string `yaml:"user_requests"`
-	UserNotifications string `yaml:"user_notifications"`
-	DriverRequests    string `yaml:"driver_requests"`
+	Rides               string `yaml:"rides"`
+	UserRequests        string `yaml:"user_requests"`
+	UserNotifications   string `yaml:"user_notifications"`
+	DriverRequests      string `yaml:"driver_requests"`
+	DriverNotifications string `yaml:"driver_notifications"`
 }
 
 type KafkaConfig struct {

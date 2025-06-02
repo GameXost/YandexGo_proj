@@ -17,7 +17,7 @@ import (
 	drivers_pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/models"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/repository"
-	users_pb "github.com/GameXost/YandexGo_proj/USERS/API/generated/clients" // Corrected import based on new go_package
+	users_pb "github.com/GameXost/YandexGo_proj/USERS/API/generated/clients"
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/kafka-go"
 )
@@ -26,7 +26,6 @@ type RedisClient interface {
 	Get(ctx context.Context, key string) *redis.StringCmd
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
 	Del(ctx context.Context, keys ...string) *redis.IntCmd
-	Scan(ctx context.Context, cursor uint64, match string, count int64) *redis.ScanIterator
 }
 
 type EventWrapper struct {
@@ -77,6 +76,7 @@ func NewDriverService(
 func (s *DriverService) sendKafkaMessage(ctx context.Context, topic string, eventData interface{}) error {
 	payload, err := json.Marshal(eventData)
 	if err != nil {
+		prometh.KafkaProduceErrors.Inc()
 		return fmt.Errorf("failed to marshal event data for topic %s: %w", topic, err)
 	}
 
@@ -90,7 +90,6 @@ func (s *DriverService) sendKafkaMessage(ctx context.Context, topic string, even
 		prometh.KafkaProduceErrors.Inc()
 		return fmt.Errorf("failed to write message to Kafka topic %s: %w", topic, err)
 	}
-
 	log.Printf("Successfully sent message to Kafka topic %s: %s", topic, string(payload))
 	prometh.KafkaProducedMessages.WithLabelValues(topic).Inc()
 	return nil
@@ -139,9 +138,9 @@ func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*u
 	}
 
 	respChan := make(chan interface{}, 1)
-	s.responseChannels.Store(correlationID, respChan) // Changed from userID to correlationID
+	s.responseChannels.Store(correlationID, respChan)
 
-	timeoutCtx, cancel := context.WithTimeout(ctx, time.Second*5) // Reduced timeout
+	timeoutCtx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
 	if err := s.sendKafkaMessage(timeoutCtx, s.userRequestsTopic, event); err != nil {
@@ -312,8 +311,8 @@ func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverI
 		log.Printf("Error publishing RideCompletedEvent: %v", err)
 		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to publish ride completed event"}, err
 	}
-	prometh.RideCompletedCounter.Inc()
 
+	prometh.RideCompletedCounter.Inc()
 	return &drivers_pb.StatusResponse{
 		Status:  true,
 		Message: "Ride completed successfully",
@@ -382,7 +381,11 @@ func (s *DriverService) GetRideHistory(ctx context.Context, driverID string) (*d
 
 	var rides []*drivers_pb.Ride
 
-	iter := s.RedisRides.(*redis.Client).Scan(ctx, 0, "ride:*", 0).Iterator()
+	redisClient, ok := s.RedisRides.(*redis.Client)
+	if !ok {
+		return nil, fmt.Errorf("underlying RedisClient is not a *redis.Client, cannot perform scan")
+	}
+	iter := redisClient.Scan(ctx, 0, "ride:*", 0).Iterator()
 	for iter.Next(ctx) {
 		rideKey := iter.Val()
 		rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
@@ -425,7 +428,11 @@ func (s *DriverService) GetNearbyRequests(ctx context.Context, loc *drivers_pb.L
 
 	var requests []*drivers_pb.RideRequest
 
-	iter := s.RedisRides.(*redis.Client).Scan(ctx, 0, "ride:*", 0).Iterator()
+	redisClient, ok := s.RedisRides.(*redis.Client)
+	if !ok {
+		return nil, fmt.Errorf("underlying RedisClient is not a *redis.Client, cannot perform scan")
+	}
+	iter := redisClient.Scan(ctx, 0, "ride:*", 0).Iterator()
 	for iter.Next(ctx) {
 		rideKey := iter.Val()
 		rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
@@ -464,7 +471,7 @@ func (s *DriverService) UpdateLocation(ctx context.Context, update *drivers_pb.L
 	if err != nil {
 		return &drivers_pb.StatusResponse{Status: false, Message: "Invalid location data"}, fmt.Errorf("failed to marshal location: %w", err)
 	}
-	err = s.RedisDrivers.Set(ctx, key, locData, time.Second*30).Err() // Added 30 second expiry
+	err = s.RedisDrivers.Set(ctx, key, locData, time.Second*30).Err()
 	if err != nil {
 		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to save location"}, err
 	}
@@ -492,6 +499,7 @@ func (s *DriverService) GetDriverLocation(ctx context.Context, driverID string) 
 
 func (s *DriverService) HandleUserProfileResponse(ctx context.Context, response UserProfileResponse) {
 	log.Printf("DRIVERS: Received UserProfileResponse for CorrelationID: %s. Error: %s", response.CorrelationID, response.Error)
+	prometh.KafkaConsumedMessages.WithLabelValues("UserProfileResponse").Inc()
 
 	if ch, ok := s.responseChannels.Load(response.CorrelationID); ok {
 		ch.(chan interface{}) <- response
@@ -504,6 +512,7 @@ func (s *DriverService) HandleUserProfileResponse(ctx context.Context, response 
 
 func (s *DriverService) HandleGetDriverLocationEvent(ctx context.Context, event GetDriverLocationEvent) {
 	log.Printf("DRIVERS: Received GetDriverLocationEvent for DriverID: %s, RideID: %s", event.DriverID, event.RideID)
+	prometh.KafkaConsumedMessages.WithLabelValues("GetDriverLocationEvent").Inc()
 
 	location, err := s.GetDriverLocation(ctx, event.DriverID)
 	var errStr string
@@ -538,6 +547,7 @@ func (s *DriverService) HandleGetDriverLocationEvent(ctx context.Context, event 
 
 func (s *DriverService) HandleGetDriverInfoEvent(ctx context.Context, event GetDriverInfoEvent) {
 	log.Printf("DRIVERS: Received GetDriverInfoEvent for DriverID: %s", event.DriverID)
+	prometh.KafkaConsumedMessages.WithLabelValues("GetDriverInfoEvent").Inc()
 
 	driver, err := s.GetDriverProfile(ctx, event.DriverID)
 	var errStr string
