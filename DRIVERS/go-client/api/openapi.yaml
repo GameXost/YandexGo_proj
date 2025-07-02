@@ -32,13 +32,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceRide'
+                $ref: "#/components/schemas/driver_serviceRide"
           description: Successfully received current ride
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -52,7 +52,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/driver_serviceLocationUpdateRequest'
+              $ref: "#/components/schemas/driver_serviceLocationUpdateRequest"
         description: ' (streaming inputs)'
         required: true
       responses:
@@ -60,13 +60,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceStatusResponse'
+                $ref: "#/components/schemas/driver_serviceStatusResponse"
           description: Location updates received successfully
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -95,13 +95,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceRideRequestsResponse'
+                $ref: "#/components/schemas/driver_serviceRideRequestsResponse"
           description: Successfully retrieved nearby requests
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -123,13 +123,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceDriver'
+                $ref: "#/components/schemas/driver_serviceDriver"
           description: Successfully retrieved driver profile
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -142,20 +142,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/driver_serviceUpdateDriverProfileRequest'
+              $ref: "#/components/schemas/driver_serviceUpdateDriverProfileRequest"
         required: true
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceDriver'
+                $ref: "#/components/schemas/driver_serviceDriver"
           description: Successfully updated driver profile
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -178,13 +178,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceRideHistoryResponse'
+                $ref: "#/components/schemas/driver_serviceRideHistoryResponse"
           description: Successfully received ride history
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -206,13 +206,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceStatusResponse'
+                $ref: "#/components/schemas/driver_serviceStatusResponse"
           description: Ride accepted successfully
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -234,13 +234,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceStatusResponse'
+                $ref: "#/components/schemas/driver_serviceStatusResponse"
           description: Ride canceled successfully
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -262,13 +262,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceStatusResponse'
+                $ref: "#/components/schemas/driver_serviceStatusResponse"
           description: Ride completed successfully
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -290,13 +290,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/driver_serviceUser'
+                $ref: "#/components/schemas/driver_serviceUser"
           description: Successfully retrieved passenger info
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rpcStatus'
+                $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
       - OAuth2: []
@@ -364,7 +364,7 @@ components:
           example: driver_123
           type: string
         location:
-          $ref: '#/components/schemas/driver_serviceLocation'
+          $ref: "#/components/schemas/driver_serviceLocation"
       type: object
     driver_serviceRide:
       example:
@@ -390,9 +390,9 @@ components:
           description: unic drivers id
           type: string
         startLocation:
-          $ref: '#/components/schemas/driver_serviceLocation'
+          $ref: "#/components/schemas/driver_serviceLocation"
         endLocation:
-          $ref: '#/components/schemas/driver_serviceLocation'
+          $ref: "#/components/schemas/driver_serviceLocation"
         status:
           description: ride status
           enum:
@@ -436,7 +436,7 @@ components:
         rides:
           description: previous rides
           items:
-            $ref: '#/components/schemas/driver_serviceRide'
+            $ref: "#/components/schemas/driver_serviceRide"
           type: array
       type: object
     driver_serviceRideRequest:
@@ -454,9 +454,9 @@ components:
           example: 123e4567-e89b-12d3-a456-426614174000
           type: string
         startLocation:
-          $ref: '#/components/schemas/driver_serviceLocation'
+          $ref: "#/components/schemas/driver_serviceLocation"
         endLocation:
-          $ref: '#/components/schemas/driver_serviceLocation'
+          $ref: "#/components/schemas/driver_serviceLocation"
       type: object
     driver_serviceRideRequestsResponse:
       example:
@@ -479,7 +479,7 @@ components:
         rideRequests:
           description: available rides
           items:
-            $ref: '#/components/schemas/driver_serviceRideRequest'
+            $ref: "#/components/schemas/driver_serviceRideRequest"
           type: array
       type: object
     driver_serviceStatusResponse:
@@ -500,7 +500,7 @@ components:
           description: Driver ID
           type: string
         driver:
-          $ref: '#/components/schemas/driver_serviceDriver'
+          $ref: "#/components/schemas/driver_serviceDriver"
       type: object
     driver_serviceUser:
       example:
@@ -542,7 +542,7 @@ components:
           type: string
         details:
           items:
-            $ref: '#/components/schemas/protobufAny'
+            $ref: "#/components/schemas/protobufAny"
           type: array
       type: object
   securitySchemes:
