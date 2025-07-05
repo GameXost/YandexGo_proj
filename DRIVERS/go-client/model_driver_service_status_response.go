@@ -1,5 +1,5 @@
 /*
-Driver Service API
+DRIVER Service API
 
 API for managing drivers and ride operations
 

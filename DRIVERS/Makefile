@@ -45,18 +45,20 @@ build_proto: proto-google proto-openapiv2 generate_server generate_client_server
 
 docker_build:
 	docker build \
-		-t yandexgo_proj \
+		-t yandexgo_proj_drivers \
 		-f Dockerfile \
 		.
 
 docker_run:
 	docker run --rm -it \
-		-p 8080:8080 \
-		--name yandexgo_server \
-		yandexgo_proj
+		-p 9096:9096 -p 9097:9097 -p 9095:9095 \
+		--name yandexgo_drivers_server \
+		yandexgo_proj_drivers
 
 docker_stop:
-	docker stop yandexgo_server || true
+	docker stop yandexgo_drivers_server || true
 
 prometheus_launch:
 	.\prometheus-bin\prometheus.exe --config.file="go_files\YandexGo_proj\DRIVERS\monitoring\prometheus.yml" --web.listen-address=":9090"
+run:
+	go run ./cmd/main.go

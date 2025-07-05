@@ -2,6 +2,10 @@ package server
 
 import (
 	"context"
+	"fmt"
+	"io"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/services"
@@ -14,7 +18,9 @@ type DriverServer struct {
 	Service *services.DriverService
 }
 
-func (s *DriverServer) GetDriverProfile(ctx context.Context, req *pb.AuthToken) (*pb.Driver, error) {
+func (s *DriverServer) GetDriverProfile(ctx context.Context, req *emptypb.Empty) (*pb.Driver, error) {
+	fmt.Printf("driverID in gRPC method: %v\n", ctx.Value(DriverIDKey))
+	//fmt.Println("GetDriverProfile called!")
 	driverID, ok := ctx.Value(DriverIDKey).(string)
 	if !ok || driverID == "" {
 		return nil, status.Error(codes.Unauthenticated, "driverID not found in context")
@@ -74,25 +80,22 @@ func (s *DriverServer) UpdateLocation(stream pb.Drivers_UpdateLocationServer) er
 	if !ok || driverID == "" {
 		return status.Error(codes.Unauthenticated, "driverID not found in context")
 	}
-	updates := make(chan *pb.LocationUpdateRequest)
-	go func() {
-		defer close(updates)
-		for {
-			req, err := stream.Recv()
-			if err != nil {
-				break
-			}
-			// Ensure only the authenticated driver can update their own location
-			if req.DriverId == driverID {
-				updates <- req
-			}
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&pb.StatusResponse{
+				Status:  true,
+				Message: "Location updates received successfully",
+			})
 		}
-	}()
-	resp, err := s.Service.UpdateLocation(ctx, updates)
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
+		// Ensure only the authenticated driver can update their own location
+		if req.DriverId == driverID {
+			_, _ = s.Service.UpdateLocation(ctx, req)
+		}
 	}
-	return stream.SendAndClose(resp)
 }
 
 func (s *DriverServer) GetNearbyRequests(ctx context.Context, req *pb.Location) (*pb.RideRequestsResponse, error) {
@@ -105,7 +108,16 @@ func (s *DriverServer) GetNearbyRequests(ctx context.Context, req *pb.Location) 
 }
 
 func (s *DriverServer) GetPassengerInfo(ctx context.Context, req *pb.UserIdRequest) (*pb.User, error) {
-	return s.Service.GetPassengerInfo(ctx, req.Id)
+	userFromUserService, err := s.Service.GetPassengerInfo(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	convertedUser := &pb.User{
+		Id:       userFromUserService.GetId(),
+		Username: userFromUserService.GetUsername(),
+		Phone:    userFromUserService.GetPhone(),
+	}
+	return convertedUser, nil
 }
 
 func (s *DriverServer) GetRideHistory(ctx context.Context, req *pb.DriverIdRequest) (*pb.RideHistoryResponse, error) {

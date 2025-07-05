@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "USERS Service API",
-    "description": "API fir managing users and ride operations",
+    "description": "API for managing users and ride operations",
     "version": "2.0",
     "contact": {
       "name": "Yandex Go Project Team",
@@ -19,8 +19,10 @@
       "name": "Client"
     }
   ],
+  "host": "localhost:9093",
+  "basePath": "/",
   "schemes": [
-    "https"
+    "http"
   ],
   "consumes": [
     "application/json"
@@ -61,7 +63,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -98,7 +100,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -135,7 +137,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -173,7 +175,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -210,7 +212,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -247,7 +249,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -270,22 +272,12 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "token",
-            "description": "JWT auth token",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "pattern": "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
-          }
-        ],
         "tags": [
           "user"
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       },
@@ -321,7 +313,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -539,18 +531,16 @@
     }
   },
   "securityDefinitions": {
-    "OAuth2": {
-      "type": "oauth2",
-      "flow": "application",
-      "tokenUrl": "JWT/token",
-      "scopes": {
-        "users-api": "access to driver services"
-      }
+    "BearerAuth": {
+      "type": "apiKey",
+      "description": "JWT token as: Bearer \u003ctoken\u003e",
+      "name": "Authorization",
+      "in": "header"
     }
   },
   "security": [
     {
-      "OAuth2": []
+      "BearerAuth": []
     }
   ]
 }

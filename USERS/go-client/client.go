@@ -1,7 +1,7 @@
 /*
 USERS Service API
 
-API fir managing users and ride operations
+API for managing users and ride operations
 
 API version: 2.0
 Contact: sergejs.dyldin@yandex.ru
@@ -33,7 +33,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"golang.org/x/oauth2"
 )
 
 var (
@@ -428,17 +427,6 @@ func (c *APIClient) prepareRequest(
 		localVarRequest = localVarRequest.WithContext(ctx)
 
 		// Walk through any authentication.
-
-		// OAuth2 authentication
-		if tok, ok := ctx.Value(ContextOAuth2).(oauth2.TokenSource); ok {
-			// We were able to grab an oauth2 token from the context
-			var latestToken *oauth2.Token
-			if latestToken, err = tok.Token(); err != nil {
-				return nil, err
-			}
-
-			latestToken.SetAuthHeader(localVarRequest)
-		}
 
 	}
 

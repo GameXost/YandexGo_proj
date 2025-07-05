@@ -2,18 +2,19 @@ openapi: 3.0.1
 info:
   contact:
     email: sergejs.dyldin@yandex.ru
-    name: YandexGo Project Team
+    name: Yandex Go Project Team
     url: https://github.com/GameXost/YandexGo_proj
   description: API for managing drivers and ride operations
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  title: Driver Service API
+  title: DRIVER Service API
   version: "2.0"
 servers:
-- url: /
+- url: http://localhost:9096/
+- url: https://localhost:9096/
 security:
-- OAuth2: []
+- BearerAuth: []
 tags:
 - name: Drivers
 paths:
@@ -41,7 +42,7 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Get current ride information
       tags:
       - rides
@@ -69,7 +70,7 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Update driver location (streaming)
       tags:
       - location
@@ -104,20 +105,13 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Get nearby ride requests
       tags:
       - location
   /driver/profile:
     get:
       operationId: getDriverProfile
-      parameters:
-      - description: JWT auth token
-        in: query
-        name: token
-        schema:
-          pattern: "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
-          type: string
       responses:
         "200":
           content:
@@ -132,7 +126,7 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Get driver profile
       tags:
       - driver
@@ -158,7 +152,7 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Update driver profile
       tags:
       - driver
@@ -187,7 +181,7 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Get driver's ride history
       tags:
       - rides
@@ -215,7 +209,7 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Accept a ride
       tags:
       - rides
@@ -243,7 +237,7 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Cancel a ride
       tags:
       - rides
@@ -271,7 +265,7 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Complete a ride
       tags:
       - rides
@@ -299,7 +293,7 @@ paths:
                 $ref: "#/components/schemas/rpcStatus"
           description: An unexpected error response.
       security:
-      - OAuth2: []
+      - BearerAuth: []
       summary: Get passenger information
       tags:
       - passengers
@@ -546,11 +540,9 @@ components:
           type: array
       type: object
   securitySchemes:
-    OAuth2:
-      flows:
-        clientCredentials:
-          scopes:
-            drive-api: access to driver services
-          tokenUrl: JWT/token
-      type: oauth2
+    BearerAuth:
+      description: "JWT token as: Bearer <token>"
+      in: header
+      name: Authorization
+      type: apiKey
 x-original-swagger-version: "2.0"

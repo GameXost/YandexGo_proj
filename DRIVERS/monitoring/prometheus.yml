@@ -4,4 +4,6 @@ global:
 scrape_configs:
   - job_name: 'grpc_microservices'
     static_configs:
-      - targets: ['localhost:9091']
+      - targets:
+          - 'localhost:9099' # Drivers service metrics port
+          - 'localhost:9091' # Users service metrics port - ADDED!

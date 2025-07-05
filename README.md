@@ -14,9 +14,11 @@
 * **Frontend:** Kotlin
 * **Backend:** Python, Go
 * **База данных:** PostgreSQL
+* **База данных:** PostgreSQL
 * **Инфраструктура и межсервисное взаимодействие:** Redis, Kafka, gRPC, REST API, API Gateway
 * **Контейнеризация:** Docker, Docker Compose
 * **Документация API:** OpenAPI (Swagger)
+* **Метрики:** Grafana, Prometheus
 * **Метрики:** Grafana, Prometheus
 
 ## 🧩 Архитектура
@@ -704,8 +706,8 @@ http://79.174.85.58:8080/docs
 ```
 
 ## 👥 Авторы и контакты
-* Дылдин Сергей: backend: grpc +metrics (drivers, client services)
+* Дылдин Сергей: backend: grpc +HTTP requests, metrics, driver and user services
 * Дробышев Егор: backend: авторизация, sql +metrics (auth service)
-* Богданов Михаил: backend: admin, auth, jwt, order services
+* Богданов Михаил: backend: admin, auth, jwt
 * Татульян Артём: frontend
 * Стрельников Никита: frontend

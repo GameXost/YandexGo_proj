@@ -4,13 +4,14 @@
 // - protoc             v5.29.3
 // source: drivers.proto
 
-package protos
+package drivers
 
 import (
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -35,7 +36,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DriversClient interface {
-	GetDriverProfile(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Driver, error)
+	GetDriverProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Driver, error)
 	UpdateDriverProfile(ctx context.Context, in *UpdateDriverProfileRequest, opts ...grpc.CallOption) (*Driver, error)
 	AcceptRide(ctx context.Context, in *RideIdRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	CompleteRide(ctx context.Context, in *RideIdRequest, opts ...grpc.CallOption) (*StatusResponse, error)
@@ -55,7 +56,7 @@ func NewDriversClient(cc grpc.ClientConnInterface) DriversClient {
 	return &driversClient{cc}
 }
 
-func (c *driversClient) GetDriverProfile(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Driver, error) {
+func (c *driversClient) GetDriverProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Driver, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Driver)
 	err := c.cc.Invoke(ctx, Drivers_GetDriverProfile_FullMethodName, in, out, cOpts...)
@@ -162,7 +163,7 @@ func (c *driversClient) GetRideHistory(ctx context.Context, in *DriverIdRequest,
 // All implementations must embed UnimplementedDriversServer
 // for forward compatibility.
 type DriversServer interface {
-	GetDriverProfile(context.Context, *AuthToken) (*Driver, error)
+	GetDriverProfile(context.Context, *emptypb.Empty) (*Driver, error)
 	UpdateDriverProfile(context.Context, *UpdateDriverProfileRequest) (*Driver, error)
 	AcceptRide(context.Context, *RideIdRequest) (*StatusResponse, error)
 	CompleteRide(context.Context, *RideIdRequest) (*StatusResponse, error)
@@ -182,7 +183,7 @@ type DriversServer interface {
 // pointer dereference when methods are called.
 type UnimplementedDriversServer struct{}
 
-func (UnimplementedDriversServer) GetDriverProfile(context.Context, *AuthToken) (*Driver, error) {
+func (UnimplementedDriversServer) GetDriverProfile(context.Context, *emptypb.Empty) (*Driver, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDriverProfile not implemented")
 }
 func (UnimplementedDriversServer) UpdateDriverProfile(context.Context, *UpdateDriverProfileRequest) (*Driver, error) {
@@ -234,7 +235,7 @@ func RegisterDriversServer(s grpc.ServiceRegistrar, srv DriversServer) {
 }
 
 func _Drivers_GetDriverProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthToken)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -246,7 +247,7 @@ func _Drivers_GetDriverProfile_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: Drivers_GetDriverProfile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DriversServer).GetDriverProfile(ctx, req.(*AuthToken))
+		return srv.(DriversServer).GetDriverProfile(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

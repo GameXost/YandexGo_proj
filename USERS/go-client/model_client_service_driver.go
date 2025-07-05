@@ -1,7 +1,7 @@
 /*
 USERS Service API
 
-API fir managing users and ride operations
+API for managing users and ride operations
 
 API version: 2.0
 Contact: sergejs.dyldin@yandex.ru

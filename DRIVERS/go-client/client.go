@@ -1,5 +1,5 @@
 /*
-Driver Service API
+DRIVER Service API
 
 API for managing drivers and ride operations
 
@@ -33,7 +33,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"golang.org/x/oauth2"
 )
 
 var (
@@ -43,7 +42,7 @@ var (
 	queryDescape    = strings.NewReplacer( "%5B", "[", "%5D", "]" )
 )
 
-// APIClient manages communication with the Driver Service API API v2.0
+// APIClient manages communication with the DRIVER Service API API v2.0
 // In most cases there should be only one, shared, APIClient.
 type APIClient struct {
 	cfg    *Configuration
@@ -428,17 +427,6 @@ func (c *APIClient) prepareRequest(
 		localVarRequest = localVarRequest.WithContext(ctx)
 
 		// Walk through any authentication.
-
-		// OAuth2 authentication
-		if tok, ok := ctx.Value(ContextOAuth2).(oauth2.TokenSource); ok {
-			// We were able to grab an oauth2 token from the context
-			var latestToken *oauth2.Token
-			if latestToken, err = tok.Token(); err != nil {
-				return nil, err
-			}
-
-			latestToken.SetAuthHeader(localVarRequest)
-		}
 
 	}
 

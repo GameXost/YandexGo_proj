@@ -4,7 +4,9 @@ go 1.23.4
 
 require (
 	github.com/gin-gonic/gin v1.10.0
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/golang/protobuf v1.5.4
+	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
 	github.com/jackc/pgx/v5 v5.7.5
@@ -12,6 +14,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20250404141209-ee84b53bf3d0
 	google.golang.org/grpc v1.71.0
 	google.golang.org/protobuf v1.36.6
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 //replace (
@@ -58,5 +61,4 @@ require (
 	golang.org/x/text v0.24.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250404141209-ee84b53bf3d0 // indirect
 	gopkg.in/yaml.v2 v2.2.3 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -1,7 +1,7 @@
 /*
 USERS Service API
 
-API fir managing users and ride operations
+API for managing users and ride operations
 
 API version: 2.0
 Contact: sergejs.dyldin@yandex.ru
@@ -29,8 +29,8 @@ func (c contextKey) String() string {
 }
 
 var (
-	// ContextOAuth2 takes an oauth2.TokenSource as authentication for the request.
-	ContextOAuth2 = contextKey("token")
+	// ContextAPIKeys takes a string apikey as authentication for the request
+	ContextAPIKeys = contextKey("apiKeys")
 
 	// ContextServerIndex uses a server configuration from the index.
 	ContextServerIndex = contextKey("serverIndex")
@@ -94,7 +94,7 @@ func NewConfiguration() *Configuration {
 		Debug:            false,
 		Servers:          ServerConfigurations{
 			{
-				URL: "",
+				URL: "http://localhost:9093",
 				Description: "No description provided",
 			},
 		},

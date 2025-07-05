@@ -10,20 +10,208 @@
 package main
 
 import (
+	"context"
+	"crypto/rsa"
+	"fmt"
 	"log"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
+	"strings"
+	"sync"
+	"syscall"
 
-	// WARNING!
-	// Pass --git-repo-id and --git-user-id properties when generating the code
-	//
-	sw "github.com/GameXost/YandexGo_proj/USERS/server/go"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/segmentio/kafka-go"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	pb "github.com/GameXost/YandexGo_proj/USERS/API/generated/clients"
+	"github.com/GameXost/YandexGo_proj/USERS/internal/config"
+	"github.com/GameXost/YandexGo_proj/USERS/internal/repository"
+	server "github.com/GameXost/YandexGo_proj/USERS/internal/server"
+	"github.com/GameXost/YandexGo_proj/USERS/internal/services"
 )
 
+var publicKey *rsa.PublicKey
+
 func main() {
-	routes := sw.ApiHandleFunctions{}
+	ctx, cancel := context.WithCancel(context.Background())
 
-	log.Printf("Server started")
+	// 1. Load config
+	cfg, err := config.LoadConfig("config/config.yaml")
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
 
-	router := sw.NewRouter(routes)
+	// 2. Load JWT keys
+	var loadKeyErr error
+	publicKey, loadKeyErr = server.LoadPublicKey(cfg.JWT.PublicKeyPath)
+	if loadKeyErr != nil {
+		log.Fatalf("failed to load public key: %v", err)
+	}
+	privateKey, err := server.LoadPrivateKey(cfg.JWT.PrivateKeyPath)
+	if err != nil {
+		log.Fatalf("failed to load private key: %v", err)
+	}
+	_ = privateKey
 
-	log.Fatal(router.Run(":8080"))
+	// 3. DB connection
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name, cfg.Database.SSLMode,
+	)
+	dbpool, err := pgxpool.New(ctx, connStr)
+	if err != nil {
+		log.Fatalf("Unable to create pool: %v", err)
+	}
+	defer dbpool.Close()
+	log.Println("PGX working")
+
+	// 4. Kafka connection
+	kafkaWriter := kafka.NewWriter(kafka.WriterConfig{
+		Brokers: cfg.Kafka.Brokers,
+		//Topic:    cfg.Kafka.Topics.Rides,
+		Balancer: &kafka.LeastBytes{},
+	})
+
+	defer func() {
+		if err := kafkaWriter.Close(); err != nil {
+			log.Printf("Error closing kafka writer: %v", err)
+		}
+	}()
+	log.Println("Kafka working")
+
+	repo := repository.NewUserRepository(dbpool)
+
+	userService := services.NewUserService(
+		repo,
+		kafkaWriter,
+		cfg.Kafka.Topics.Rides,
+		cfg.Kafka.Topics.UserRequests,
+		cfg.Kafka.Topics.UserNotifications,
+		cfg.Kafka.Topics.DriverRequests,
+		cfg.Kafka.Brokers,
+	)
+	// --- Kafka consumer ---
+	consumerGroup := "user-service-consumer-group"
+	topicsToConsume := []string{
+		cfg.Kafka.Topics.Rides,
+		cfg.Kafka.Topics.UserNotifications,
+		cfg.Kafka.Topics.UserRequests,
+	}
+
+	var wg sync.WaitGroup
+
+	for _, topic := range topicsToConsume {
+		log.Printf("Setting up Kafka consumer for topic: %s with GroupID: %s", topic, consumerGroup)
+		reader := kafka.NewReader(kafka.ReaderConfig{
+			Brokers:  cfg.Kafka.Brokers,
+			GroupID:  consumerGroup,
+			Topic:    topic,
+			MinBytes: 10e3,
+			MaxBytes: 10e6,
+		})
+		defer func(r *kafka.Reader) {
+			if err := r.Close(); err != nil {
+				log.Printf("Error closing kafka reader: %v", err)
+			}
+		}(reader)
+		wg.Add(1)
+		go func(r *kafka.Reader) {
+			defer wg.Done()
+			userService.StartKafkaConsumer(ctx, r)
+			log.Printf("Kafka consumer for topic %s stopped.", r.Config().Topic)
+		}(reader)
+		log.Printf("Kafka consumer started for topic: %s", topic)
+	}
+	log.Println("All Kafka consumers initialized and started.")
+
+	//GRPC  server up
+	sv := &server.UserServer{
+		Service: userService,
+	}
+
+	// gRPC server up
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(server.AuthInterceptor(publicKey, cfg.Auth.Disabled)),
+	)
+	pb.RegisterClientServer(grpcServer, sv)
+	grpcListener, err := net.Listen("tcp", cfg.Server.Port)
+	if err != nil {
+		log.Fatalf("Unable to listen on %s: %v", cfg.Server.Port, err)
+	}
+	go func() {
+		log.Printf("GRPC server listening on %s", cfg.Server.Port)
+		if err := grpcServer.Serve(grpcListener); err != nil {
+			log.Printf("Unable to start grpc server: %v", err)
+		}
+	}()
+
+	// gRPC gateway up
+	mux := runtime.NewServeMux(
+		runtime.WithIncomingHeaderMatcher(customHeaderMatcher),
+	)
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	err = pb.RegisterClientHandlerFromEndpoint(ctx, mux, "localhost"+cfg.Server.Port, opts)
+	if err != nil {
+		log.Fatalf("Unable to register gRPC gateway handler: %v", err)
+	}
+
+	log.Printf("gRPC Gateway listening on %s", cfg.Server.HTTPPort)
+	httpServer := &http.Server{
+		Addr:    cfg.Server.HTTPPort,
+		Handler: allowCORS(mux),
+	}
+
+	go func() {
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Printf("HTTP Gateway failed to listen: %v", err)
+		}
+	}()
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM) // Ловим Ctrl+C и сигнал завершения
+
+	<-sigChan
+	log.Println("Received shutdown signal. Shutting down gracefully...")
+
+	cancel()
+
+	log.Println("Waiting for Kafka consumers to stop...")
+	wg.Wait()
+	log.Println("All Kafka consumers stopped.")
+
+	grpcServer.GracefulStop()
+	log.Println("gRPC server stopped.")
+
+	if shutdownErr := httpServer.Shutdown(context.Background()); shutdownErr != nil {
+		log.Fatalf("HTTP server shutdown error: %v", shutdownErr)
+	}
+	log.Println("HTTP Gateway stopped.")
+
+	log.Println("Application gracefully shut down.")
+}
+
+func allowCORS(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
+func customHeaderMatcher(key string) (string, bool) {
+	switch strings.ToLower(key) {
+	case "authorization":
+		return "authorization", true
+	default:
+		return runtime.DefaultHeaderMatcher(key)
+	}
 }

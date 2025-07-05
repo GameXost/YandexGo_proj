@@ -1,11 +1,11 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Driver Service API",
+    "title": "DRIVER Service API",
     "description": "API for managing drivers and ride operations",
     "version": "2.0",
     "contact": {
-      "name": "YandexGo Project Team",
+      "name": "Yandex Go Project Team",
       "url": "https://github.com/GameXost/YandexGo_proj",
       "email": "sergejs.dyldin@yandex.ru"
     },
@@ -19,7 +19,10 @@
       "name": "Drivers"
     }
   ],
+  "host": "localhost:9096",
+  "basePath": "/",
   "schemes": [
+    "http",
     "https"
   ],
   "consumes": [
@@ -61,7 +64,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -100,7 +103,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -146,7 +149,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -169,22 +172,12 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "token",
-            "description": "JWT auth token",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "pattern": "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
-          }
-        ],
         "tags": [
           "driver"
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       },
@@ -220,7 +213,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -257,7 +250,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -294,7 +287,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -331,7 +324,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -368,7 +361,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -405,7 +398,7 @@
         ],
         "security": [
           {
-            "OAuth2": []
+            "BearerAuth": []
           }
         ]
       }
@@ -638,18 +631,16 @@
     }
   },
   "securityDefinitions": {
-    "OAuth2": {
-      "type": "oauth2",
-      "flow": "application",
-      "tokenUrl": "JWT/token",
-      "scopes": {
-        "drive-api": "access to driver services"
-      }
+    "BearerAuth": {
+      "type": "apiKey",
+      "description": "JWT token as: Bearer \u003ctoken\u003e",
+      "name": "Authorization",
+      "in": "header"
     }
   },
   "security": [
     {
-      "OAuth2": []
+      "BearerAuth": []
     }
   ]
 }

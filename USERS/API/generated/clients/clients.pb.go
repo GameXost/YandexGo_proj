@@ -4,13 +4,14 @@
 // 	protoc        v5.29.3
 // source: clients.proto
 
-package protos
+package users
 
 import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -817,7 +818,7 @@ var File_clients_proto protoreflect.FileDescriptor
 
 const file_clients_proto_rawDesc = "" +
 	"\n" +
-	"\rclients.proto\x12\x0eclient_service\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xc0\x01\n" +
+	"\rclients.proto\x12\x0eclient_service\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc0\x01\n" +
 	"\x04User\x12,\n" +
 	"\x02id\x18\x01 \x01(\tB\x1c\x92A\x192\x17uniq user identificatorR\x02id\x121\n" +
 	"\busername\x18\x02 \x01(\tB\x15\x92A\x122\x10user's firstnameR\busername\x12'\n" +
@@ -874,78 +875,77 @@ const file_clients_proto_rawDesc = "" +
 	"\x06status\x18\x01 \x01(\bB\x1b\x92A\x182\x16Operation success flagR\x06status\x12B\n" +
 	"\amessage\x18\x02 \x01(\tB(\x92A%2#Additional details or error messageR\amessage\"Z\n" +
 	"\x13RideHistoryResponse\x12C\n" +
-	"\x05rides\x18\x01 \x03(\v2\x14.client_service.RideB\x17\x92A\x142\x12List of past ridesR\x05rides2\x83\r\n" +
-	"\x06Client\x12\xbe\x01\n" +
-	"\x0eGetUserProfile\x12\x19.client_service.AuthToken\x1a\x14.client_service.User\"{\x92Ac\n" +
+	"\x05rides\x18\x01 \x03(\v2\x14.client_service.RideB\x17\x92A\x142\x12List of past ridesR\x05rides2\xa2\r\n" +
+	"\x06Client\x12\xbf\x01\n" +
+	"\x0eGetUserProfile\x12\x16.google.protobuf.Empty\x1a\x14.client_service.User\"\x7f\x92Ag\n" +
 	"\x04user\x12\x10Get user profile*\x0egetUserProfileJ+\n" +
 	"\x03200\x12$\n" +
-	"\"successfully returned user profileb\f\n" +
+	"\"successfully returned user profileb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x0f\x12\r/user/profile\x12\xd5\x01\n" +
-	"\x11UpdateUserProfile\x12$.client_service.UpdateProfileRequest\x1a\x14.client_service.User\"\x83\x01\x92Ah\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x0f\x12\r/user/profile\x12\xd9\x01\n" +
+	"\x11UpdateUserProfile\x12$.client_service.UpdateProfileRequest\x1a\x14.client_service.User\"\x87\x01\x92Al\n" +
 	"\x04user\x12\x13Update user profile*\x11updateUserProfileJ*\n" +
 	"\x03200\x12#\n" +
-	"!Successfully updated user profileb\f\n" +
+	"!Successfully updated user profileb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x12:\x01*\x1a\r/user/profile\x12\xb4\x01\n" +
-	"\vRequestRide\x12\x1b.client_service.RideRequest\x1a\x14.client_service.Ride\"r\x92AW\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x12:\x01*\x1a\r/user/profile\x12\xb8\x01\n" +
+	"\vRequestRide\x12\x1b.client_service.RideRequest\x1a\x14.client_service.Ride\"v\x92A[\n" +
 	"\x05rides\x12\x0erequest a ride*\vrequestRideJ#\n" +
 	"\x03200\x12\x1c\n" +
-	"\x1aRide request made properlyb\f\n" +
+	"\x1aRide request made properlyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/ride/request\x12\xc0\x01\n" +
 	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/ride/request\x12\xbc\x01\n" +
-	"\n" +
-	"CancelRide\x12\x1d.client_service.RideIdRequest\x1a\x1e.client_service.StatusResponse\"o\x92AS\n" +
+	"CancelRide\x12\x1d.client_service.RideIdRequest\x1a\x1e.client_service.StatusResponse\"s\x92AW\n" +
 	"\x05rides\x12\vCancel ride*\n" +
 	"cancelRideJ#\n" +
 	"\x03200\x12\x1c\n" +
-	"\x1aRide canceled successfullyb\f\n" +
+	"\x1aRide canceled successfullyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12\xc2\x01\n" +
-	"\rGetRideStatus\x12\x1d.client_service.UserIdRequest\x1a\x14.client_service.Ride\"|\x92Ag\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x13\"\x11/ride/{id}/cancel\x12\xc7\x01\n" +
+	"\rGetRideStatus\x12\x1d.client_service.UserIdRequest\x1a\x14.client_service.Ride\"\x80\x01\x92Ak\n" +
 	"\x05rides\x12\x14get ride information*\x0egetCurrentRideJ*\n" +
 	"\x03200\x12#\n" +
-	"!Successfully received ride statusb\f\n" +
+	"!Successfully received ride statusb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\f\x12\n" +
-	"/ride/{id}\x12\xe0\x01\n" +
-	"\x0eGetRideHistory\x12\x1d.client_service.UserIdRequest\x1a#.client_service.RideHistoryResponse\"\x89\x01\x92Aq\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\f\x12\n" +
+	"/ride/{id}\x12\xe4\x01\n" +
+	"\x0eGetRideHistory\x12\x1d.client_service.UserIdRequest\x1a#.client_service.RideHistoryResponse\"\x8d\x01\x92Au\n" +
 	"\x05rides\x12\x19Get history of last rides*\x11get rides historyJ,\n" +
 	"\x03200\x12%\n" +
-	"#rides history received successfullyb\f\n" +
+	"#rides history received successfullyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x0f\x12\r/ride/history\x12\xee\x01\n" +
-	"\x11GetDriverLocation\x12\x1f.client_service.DriverIdRequest\x1a\x18.client_service.Location\"\x9d\x01\x92A}\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x0f\x12\r/ride/history\x12\xf3\x01\n" +
+	"\x11GetDriverLocation\x12\x1f.client_service.DriverIdRequest\x1a\x18.client_service.Location\"\xa2\x01\x92A\x81\x01\n" +
 	"\blocation\x12 getting driver location lat, lon*\x11getDriverLocationJ.\n" +
 	"\x03200\x12'\n" +
-	"%driver location received successfullyb\f\n" +
+	"%driver location received successfullyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x17\x12\x15/driver/{id}/location\x12\xd0\x01\n" +
-	"\rGetDriverInfo\x12\x1f.client_service.DriverIdRequest\x1a\x16.client_service.Driver\"\x85\x01\x92An\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x17\x12\x15/driver/{id}/location\x12\xd4\x01\n" +
+	"\rGetDriverInfo\x12\x1f.client_service.DriverIdRequest\x1a\x16.client_service.Driver\"\x89\x01\x92Ar\n" +
 	"\x06driver\x12\x1aget info about your driver*\rgetDriverInfoJ+\n" +
 	"\x03200\x12$\n" +
-	"\"drinver info received successfullyb\f\n" +
+	"\"drinver info received successfullyb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\n" +
-	"\x06OAuth2\x12\x00\x82\xd3\xe4\x93\x02\x0e\x12\f/driver/{id}B\xa5\x03\x92A\xe2\x02\x12\xe3\x01\n" +
-	"\x11USERS Service API\x12*API fir managing users and ride operations\"]\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x0e\x12\f/driver/{id}B\xb6\x03\x92A\xf5\x02\x12\xe3\x01\n" +
+	"\x11USERS Service API\x12*API for managing users and ride operations\"]\n" +
 	"\x16Yandex Go Project Team\x12)https://github.com/GameXost/YandexGo_proj\x1a\x18sergejs.dyldin@yandex.ru*>\n" +
 	"\n" +
-	"Apache 2.0\x120https://www.apache.org/licenses/LICENSE-2.0.html2\x032.0*\x01\x022\x10application/json:\x10application/jsonZE\n" +
-	"C\n" +
-	"\x06OAuth2\x129\b\x03(\x03:\tJWT/tokenB(\n" +
-	"&\n" +
-	"\tusers-api\x12\x19access to driver servicesb\f\n" +
+	"Apache 2.0\x120https://www.apache.org/licenses/LICENSE-2.0.html2\x032.0\x1a\x0elocalhost:9093\"\x01/*\x01\x012\x10application/json:\x10application/jsonZA\n" +
+	"?\n" +
 	"\n" +
+	"BearerAuth\x121\b\x02\x12\x1cJWT token as: Bearer <token>\x1a\rAuthorization \x02b\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"\x06OAuth2\x12\x00Z=github.com/GameXost/YandexGo_proj/tree/gRPCservice/API/protosb\x06proto3"
+	"BearerAuth\x12\x00Z;github.com/GameXost/YandexGo_proj/USERS/API/generated/usersb\x06proto3"
 
 var (
 	file_clients_proto_rawDescOnce sync.Once
@@ -974,6 +974,7 @@ var file_clients_proto_goTypes = []any{
 	(*DriverIdRequest)(nil),      // 10: client_service.DriverIdRequest
 	(*StatusResponse)(nil),       // 11: client_service.StatusResponse
 	(*RideHistoryResponse)(nil),  // 12: client_service.RideHistoryResponse
+	(*emptypb.Empty)(nil),        // 13: google.protobuf.Empty
 }
 var file_clients_proto_depIdxs = []int32{
 	2,  // 0: client_service.Driver.location:type_name -> client_service.Location
@@ -982,7 +983,7 @@ var file_clients_proto_depIdxs = []int32{
 	2,  // 3: client_service.RideRequest.start_location:type_name -> client_service.Location
 	2,  // 4: client_service.RideRequest.end_location:type_name -> client_service.Location
 	3,  // 5: client_service.RideHistoryResponse.rides:type_name -> client_service.Ride
-	5,  // 6: client_service.Client.GetUserProfile:input_type -> client_service.AuthToken
+	13, // 6: client_service.Client.GetUserProfile:input_type -> google.protobuf.Empty
 	6,  // 7: client_service.Client.UpdateUserProfile:input_type -> client_service.UpdateProfileRequest
 	7,  // 8: client_service.Client.RequestRide:input_type -> client_service.RideRequest
 	8,  // 9: client_service.Client.CancelRide:input_type -> client_service.RideIdRequest

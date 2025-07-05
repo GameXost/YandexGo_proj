@@ -8,15 +8,7 @@
     <list default="true" id="be3fccf3-4d09-4387-bc46-7d7af7b84c2c" name="Changes" comment="USERS updated" />
 =======
     <list default="true" id="be3fccf3-4d09-4387-bc46-7d7af7b84c2c" name="Changes" comment="USERS updated">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/YandexGo_proj.iml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/YandexGo_proj.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/protoeditor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/protoeditor.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqlDataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/sqlDataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/sqldialects.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/swagger-settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/swagger-settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/XYINYAMISHI/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
 >>>>>>> gRPCservice
     <option name="SHOW_DIALOG" value="false" />

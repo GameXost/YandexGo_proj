@@ -4,42 +4,98 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
+	"sync"
 	"time"
 
+	"github.com/google/uuid"
+
+	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/config"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/prometh"
 
-	pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
+	drivers_pb "github.com/GameXost/YandexGo_proj/DRIVERS/API/generated/drivers"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/models"
 	"github.com/GameXost/YandexGo_proj/DRIVERS/internal/repository"
+	users_pb "github.com/GameXost/YandexGo_proj/USERS/API/generated/clients"
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/kafka-go"
 )
 
-// хунйя ля работы редиса вроде чет робит
 type RedisClient interface {
 	Get(ctx context.Context, key string) *redis.StringCmd
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
 	Del(ctx context.Context, keys ...string) *redis.IntCmd
 }
 
-type DriverService struct {
-	Repo         repository.DriverRepositoryInterface
-	RedisDrivers RedisClient // For online drivers
-	RedisRides   RedisClient // For rides
-	Kafka        *kafka.Writer
+type EventWrapper struct {
+	Event         string `json:"event"`
+	CorrelationID string `json:"correlation_id,omitempty"`
+	ReplyTo       string `json:"reply_to,omitempty"`
+	RideID        string `json:"ride_id,omitempty"`
+	DriverID      string `json:"driver_id,omitempty"`
+	PassengerID   string `json:"passenger_id,omitempty"`
 }
 
-func NewDriverService(repo *repository.DriverRepository, redisDrivers *redis.Client, redisRides *redis.Client, kafka *kafka.Writer) *DriverService {
+type DriverService struct {
+	Repo                     repository.DriverRepositoryInterface
+	RedisDrivers             RedisClient
+	RedisRides               RedisClient
+	kafkaWriter              *kafka.Writer
+	kafkaBrokers             []string
+	ridesTopic               string
+	userRequestsTopic        string
+	userNotificationsTopic   string
+	driverRequestsTopic      string
+	driverNotificationsTopic string
+	responseChannels         *sync.Map
+}
+
+func NewDriverService(
+	repo repository.DriverRepositoryInterface,
+	redisDrivers RedisClient,
+	redisRides RedisClient,
+	kafkaWriter *kafka.Writer,
+	cfg *config.Config,
+) *DriverService {
 	return &DriverService{
-		Repo:         repo,
-		RedisDrivers: redisDrivers,
-		RedisRides:   redisRides,
-		Kafka:        kafka,
+		Repo:                     repo,
+		RedisDrivers:             redisDrivers,
+		RedisRides:               redisRides,
+		kafkaWriter:              kafkaWriter,
+		kafkaBrokers:             cfg.Kafka.Brokers,
+		ridesTopic:               cfg.Kafka.Topics.Rides,
+		userRequestsTopic:        cfg.Kafka.Topics.UserRequests,
+		userNotificationsTopic:   cfg.Kafka.Topics.UserNotifications,
+		driverRequestsTopic:      cfg.Kafka.Topics.DriverRequests,
+		driverNotificationsTopic: cfg.Kafka.Topics.DriverNotifications,
+		responseChannels:         &sync.Map{},
 	}
 }
 
-func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (*pb.Driver, error) {
+func (s *DriverService) sendKafkaMessage(ctx context.Context, topic string, eventData interface{}) error {
+	payload, err := json.Marshal(eventData)
+	if err != nil {
+		prometh.KafkaProduceErrors.Inc()
+		return fmt.Errorf("failed to marshal event data for topic %s: %w", topic, err)
+	}
+
+	msg := kafka.Message{
+		Topic: topic,
+		Value: payload,
+		Time:  time.Now(),
+	}
+
+	if err := s.kafkaWriter.WriteMessages(ctx, msg); err != nil {
+		prometh.KafkaProduceErrors.Inc()
+		return fmt.Errorf("failed to write message to Kafka topic %s: %w", topic, err)
+	}
+	log.Printf("Successfully sent message to Kafka topic %s: %s", topic, string(payload))
+	prometh.KafkaProducedMessages.WithLabelValues(topic).Inc()
+	return nil
+}
+
+func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (*drivers_pb.Driver, error) {
 	driver, err := s.Repo.GetDriverByID(ctx, driverID)
 	if err != nil {
 		return nil, fmt.Errorf("driver not found: %w", err)
@@ -47,7 +103,7 @@ func (s *DriverService) GetDriverProfile(ctx context.Context, driverID string) (
 	return modelToProtoDriver(driver), nil
 }
 
-func (s *DriverService) UpdateDriverProfile(ctx context.Context, req *pb.Driver) (*pb.Driver, error) {
+func (s *DriverService) UpdateDriverProfile(ctx context.Context, req *drivers_pb.Driver) (*drivers_pb.Driver, error) {
 	err := s.Repo.UpdateDriverProfile(ctx, &models.Driver{
 		ID:         req.Id,
 		UserName:   req.Username,
@@ -73,66 +129,101 @@ func (s *DriverService) UpdateDriverProfile(ctx context.Context, req *pb.Driver)
 	}), nil
 }
 
-func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID string) (*pb.StatusResponse, error) {
+func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*users_pb.User, error) {
+	correlationID := uuid.New().String()
+	replyTo := s.driverNotificationsTopic
+	event := GetPassengerInfoRequest{
+		BaseEvent:   NewBaseEvent("GetPasssengerInfoRequest", correlationID, replyTo),
+		PassengerID: userID,
+	}
+
+	respChan := make(chan interface{}, 1)
+	s.responseChannels.Store(correlationID, respChan)
+
+	timeoutCtx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	if err := s.sendKafkaMessage(timeoutCtx, s.userRequestsTopic, event); err != nil {
+		s.responseChannels.Delete(correlationID)
+		prometh.KafkaProduceErrors.Inc()
+		return nil, fmt.Errorf("failed to send GetPassengerInfoRequest: %w", err)
+	}
+	select {
+	case <-timeoutCtx.Done():
+		s.responseChannels.Delete(correlationID)
+		prometh.KafkaRequestTimeouts.WithLabelValues("UserProfileResponse").Inc()
+		return nil, fmt.Errorf("timeout waiting for UserProfileResponse for PassengerID %s (CorrelationID: %s)", userID, correlationID)
+	case resp := <-respChan:
+		profileResp, ok := resp.(UserProfileResponse)
+		if !ok {
+			return nil, fmt.Errorf("received unexpected response type for PassengerID %s (CorrelationID: %s)", userID, correlationID)
+		}
+		if profileResp.Error != "" {
+			return nil, fmt.Errorf("error in UserProfileResponse for PassengerID %s: %s", userID, profileResp.Error)
+		}
+		return profileResp.User, nil
+	}
+}
+
+func (s *DriverService) AcceptRide(ctx context.Context, rideID string, driverID string) (*drivers_pb.StatusResponse, error) {
 	if s.RedisRides == nil {
-		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
 	}
 
 	rideKey := "ride:" + rideID
 	rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
 	if err == redis.Nil {
-		return &pb.StatusResponse{Status: false, Message: "Ride not found"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Ride not found"}, nil
 	} else if err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Redis error"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Redis error"}, nil
 	}
 
-	var ride pb.Ride
+	var ride drivers_pb.Ride
 	if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Invalid ride data"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Invalid ride data"}, nil
 	}
 	if ride.Status != "pending" {
-		return &pb.StatusResponse{Status: false, Message: "Ride already accepted or completed"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Ride already accepted or completed"}, nil
 	}
 	ride.Status = "accepted"
 	ride.DriverId = driverID
 
 	updatedData, err := json.Marshal(ride)
 	if err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
 	}
 	if err := s.RedisRides.Set(ctx, rideKey, updatedData, time.Hour).Err(); err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
 	}
 
 	driverKey := "driver:" + driverID + ":current_ride"
 	if err := s.RedisRides.Set(ctx, driverKey, rideID, time.Hour).Err(); err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Failed to set current ride for driver"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to set current ride for driver"}, nil
 	}
 
-	// Публикация события в Kafka
-	if s.Kafka != nil {
-		event := RideAcceptedEvent{
-			Event:         "ride_accepted",
-			RideID:        rideID,
-			PassengerID:   ride.UserId,
-			DriverID:      driverID,
-			StartLocation: fmt.Sprintf("%f,%f", ride.StartLocation.Latitude, ride.StartLocation.Longitude),
-			EndLocation:   fmt.Sprintf("%f,%f", ride.EndLocation.Latitude, ride.EndLocation.Longitude),
-			Timestamp:     time.Now().Unix(),
-			Status:        "accepted",
-		}
-		_ = PublishRideAccepted(ctx, s.Kafka, event)
+	acceptedEvent := RideAcceptedEvent{
+		BaseEvent:     NewBaseEvent("RideAcceptedEvent", uuid.New().String(), ""),
+		RideID:        rideID,
+		PassengerID:   ride.UserId,
+		DriverID:      driverID,
+		StartLocation: fmt.Sprintf("%f,%f", ride.StartLocation.Latitude, ride.StartLocation.Longitude),
+		EndLocation:   fmt.Sprintf("%f,%f", ride.EndLocation.Latitude, ride.EndLocation.Longitude),
+		Status:        "accepted",
 	}
+	if err := s.sendKafkaMessage(ctx, s.ridesTopic, acceptedEvent); err != nil {
+		log.Printf("Error publishing RideAcceptedEvent: %v", err)
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to publish ride accepted event"}, err
+	}
+
 	prometh.RideAcceptedCounter.Inc()
-	return &pb.StatusResponse{
+	return &drivers_pb.StatusResponse{
 		Status:  true,
 		Message: "Ride accepted successfully",
 	}, nil
 }
 
-// хуйня чтоб из протоформатика в модельку для норм работы
-func modelToProtoDriver(m *models.Driver) *pb.Driver {
-	return &pb.Driver{
+func modelToProtoDriver(m *models.Driver) *drivers_pb.Driver {
+	return &drivers_pb.Driver{
 		Id:        m.ID,
 		Username:  m.UserName,
 		Email:     m.Email,
@@ -144,7 +235,7 @@ func modelToProtoDriver(m *models.Driver) *pb.Driver {
 	}
 }
 
-func (s *DriverService) GetCurrentRide(ctx context.Context, driverID string) (*pb.Ride, error) {
+func (s *DriverService) GetCurrentRide(ctx context.Context, driverID string) (*drivers_pb.Ride, error) {
 	if s.RedisRides == nil {
 		return nil, fmt.Errorf("Redis unavailable")
 	}
@@ -162,165 +253,146 @@ func (s *DriverService) GetCurrentRide(ctx context.Context, driverID string) (*p
 	} else if err != nil {
 		return nil, fmt.Errorf("Redis error: %w", err)
 	}
-	var ride pb.Ride
+	var ride drivers_pb.Ride
 	if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
 		return nil, fmt.Errorf("invalid ride data: %w", err)
 	}
 	return &ride, nil
 }
 
-func (s *DriverService) GetPassengerInfo(ctx context.Context, userID string) (*pb.User, error) {
-	if s.Repo == nil {
-		return nil, fmt.Errorf("repository unavailable")
-	}
-	user, err := s.Repo.GetUserByID(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-	return &pb.User{
-		Id:       user.ID,
-		Username: user.Username,
-		Phone:    user.Phone,
-	}, nil
-
+type GetUserProfileEvent struct {
+	BaseEvent
+	UserID string `json:"user_id"`
 }
 
-func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverID string) (*pb.StatusResponse, error) {
+func (s *DriverService) CompleteRide(ctx context.Context, rideID string, driverID string) (*drivers_pb.StatusResponse, error) {
 	if s.RedisRides == nil {
-		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
 	}
 
-	// 1. Get ride from Redis
 	rideKey := "ride:" + rideID
 	rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
 	if err == redis.Nil {
-		return &pb.StatusResponse{Status: false, Message: "Ride not found"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Ride not found"}, nil
 	} else if err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Redis error"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Redis error"}, nil
 	}
 
-	var ride pb.Ride
+	var ride drivers_pb.Ride
 	if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Invalid ride data"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Invalid ride data"}, nil
 	}
 
-	// 2. Check if the ride is assigned to this driver and is in progress/accepted
 	if ride.DriverId != driverID {
-		return &pb.StatusResponse{Status: false, Message: "Ride not assigned to this driver"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Ride not assigned to this driver"}, nil
 	}
 	if ride.Status != "accepted" && ride.Status != "in_progress" {
-		return &pb.StatusResponse{Status: false, Message: "Ride not in progress"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Ride not in progress"}, nil
 	}
 
-	// 3. Update status to completed
 	ride.Status = "completed"
 	updatedData, err := json.Marshal(ride)
 	if err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
 	}
 	if err := s.RedisRides.Set(ctx, rideKey, updatedData, time.Hour).Err(); err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
 	}
 
-	// 4. Remove current ride from driver
 	driverKey := "driver:" + driverID + ":current_ride"
 	_ = s.RedisRides.Del(ctx, driverKey).Err()
 
-	// 5. Notify via Kafka (структурированное событие)
-	if s.Kafka != nil {
-		event := RideCompletedEvent{
-			Event:     "ride_completed",
-			RideID:    rideID,
-			DriverID:  driverID,
-			Timestamp: time.Now().Unix(),
-			// Можно добавить duration, стоимость, координаты завершения и т.д.
-		}
-		_ = PublishRideCompleted(ctx, s.Kafka, event)
+	completedEvent := RideCompletedEvent{
+		BaseEvent: NewBaseEvent("RideCompletedEvent", uuid.New().String(), ""),
+		RideID:    rideID,
+		DriverID:  driverID,
 	}
-	prometh.RideCompletedCounter.Inc()
+	if err := s.sendKafkaMessage(ctx, s.ridesTopic, completedEvent); err != nil {
+		log.Printf("Error publishing RideCompletedEvent: %v", err)
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to publish ride completed event"}, err
+	}
 
-	return &pb.StatusResponse{
+	prometh.RideCompletedCounter.Inc()
+	return &drivers_pb.StatusResponse{
 		Status:  true,
 		Message: "Ride completed successfully",
 	}, nil
 }
 
-func (s *DriverService) CancelRide(ctx context.Context, rideID string, driverID string) (*pb.StatusResponse, error) {
+func (s *DriverService) CancelRide(ctx context.Context, rideID string, driverID string) (*drivers_pb.StatusResponse, error) {
 	if s.RedisRides == nil {
-		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
 	}
 
-	// 1. Get ride from Redis
 	rideKey := "ride:" + rideID
 	rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
 	if err == redis.Nil {
-		return &pb.StatusResponse{Status: false, Message: "Ride not found"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Ride not found"}, nil
 	} else if err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Redis error"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Redis error"}, nil
 	}
 
-	var ride pb.Ride
+	var ride drivers_pb.Ride
 	if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Invalid ride data"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Invalid ride data"}, nil
 	}
 
-	// 2. Check if the ride is assigned to this driver and is in progress/accepted
 	if ride.DriverId != driverID {
-		return &pb.StatusResponse{Status: false, Message: "Ride not assigned to this driver"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Ride not assigned to this driver"}, nil
 	}
 	if ride.Status != "accepted" && ride.Status != "in_progress" {
-		return &pb.StatusResponse{Status: false, Message: "Ride not in progress"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Ride not in progress"}, nil
 	}
 
-	// 3. Update status to canceled
 	ride.Status = "canceled"
 	updatedData, err := json.Marshal(ride)
 	if err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to serialize ride"}, nil
 	}
 	if err := s.RedisRides.Set(ctx, rideKey, updatedData, time.Hour).Err(); err != nil {
-		return &pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to update ride in Redis"}, nil
 	}
 
-	// 4. Remove current ride from driver
 	driverKey := "driver:" + driverID + ":current_ride"
 	_ = s.RedisRides.Del(ctx, driverKey).Err()
 
-	// 5. Notify via Kafka (структурированное событие)
-	if s.Kafka != nil {
-		event := RideCanceledEvent{
-			Event:     "ride_canceled",
-			RideID:    rideID,
-			DriverID:  driverID,
-			Reason:    "driver_cancelled",
-			Timestamp: time.Now().Unix(),
-		}
-		_ = PublishRideCanceled(ctx, s.Kafka, event)
+	canceledEvent := RideCanceledEvent{
+		BaseEvent: NewBaseEvent("RideCanceledEvent", uuid.New().String(), ""),
+		RideID:    rideID,
+		DriverID:  driverID,
+		Reason:    "driver_cancelled",
+	}
+	if err := s.sendKafkaMessage(ctx, s.ridesTopic, canceledEvent); err != nil {
+		log.Printf("Error publishing RideCanceledEvent: %v", err)
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to publish ride canceled event"}, err
 	}
 	prometh.RideCanceledCounter.Inc()
-	return &pb.StatusResponse{
+
+	return &drivers_pb.StatusResponse{
 		Status:  true,
 		Message: "Ride canceled successfully",
 	}, nil
 }
 
-// мб это у водятела вообще не нужно, надо фиксить мбмб
-func (s *DriverService) GetRideHistory(ctx context.Context, driverID string) (*pb.RideHistoryResponse, error) {
+func (s *DriverService) GetRideHistory(ctx context.Context, driverID string) (*drivers_pb.RideHistoryResponse, error) {
 	if s.RedisRides == nil {
 		return nil, fmt.Errorf("Redis unavailable")
 	}
 
-	var rides []*pb.Ride
+	var rides []*drivers_pb.Ride
 
-	// Scan all rides in RedisRides
-	iter := s.RedisRides.(*redis.Client).Scan(ctx, 0, "ride:*", 0).Iterator()
+	redisClient, ok := s.RedisRides.(*redis.Client)
+	if !ok {
+		return nil, fmt.Errorf("underlying RedisClient is not a *redis.Client, cannot perform scan")
+	}
+	iter := redisClient.Scan(ctx, 0, "ride:*", 0).Iterator()
 	for iter.Next(ctx) {
 		rideKey := iter.Val()
 		rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
 		if err != nil {
-			continue // skip if not found or error
+			continue
 		}
-		var ride pb.Ride
+		var ride drivers_pb.Ride
 		if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
 			continue
 		}
@@ -332,12 +404,11 @@ func (s *DriverService) GetRideHistory(ctx context.Context, driverID string) (*p
 		return nil, fmt.Errorf("error scanning rides: %w", err)
 	}
 
-	return &pb.RideHistoryResponse{Rides: rides}, nil
+	return &drivers_pb.RideHistoryResponse{Rides: rides}, nil
 }
 
-// Helper function to calculate distance between two coordinates (Haversine formula)
 func haversine(lat1, lon1, lat2, lon2 float64) float64 {
-	const R = 6371 // Earth radius in km LOL
+	const R = 6371
 	dLat := (lat2 - lat1) * math.Pi / 180.0
 	dLon := (lon2 - lon1) * math.Pi / 180.0
 	lat1 = lat1 * math.Pi / 180.0
@@ -349,23 +420,26 @@ func haversine(lat1, lon1, lat2, lon2 float64) float64 {
 	return R * c
 }
 
-func (s *DriverService) GetNearbyRequests(ctx context.Context, loc *pb.Location) (*pb.RideRequestsResponse, error) {
+func (s *DriverService) GetNearbyRequests(ctx context.Context, loc *drivers_pb.Location) (*drivers_pb.RideRequestsResponse, error) {
 	if s.RedisRides == nil {
 		return nil, fmt.Errorf("Redis unavailable")
 	}
-	// const variable for pending requests, maximum availability in radius km
 	const radiusKm = 3.0
 
-	var requests []*pb.RideRequest
+	var requests []*drivers_pb.RideRequest
 
-	iter := s.RedisRides.(*redis.Client).Scan(ctx, 0, "ride:*", 0).Iterator()
+	redisClient, ok := s.RedisRides.(*redis.Client)
+	if !ok {
+		return nil, fmt.Errorf("underlying RedisClient is not a *redis.Client, cannot perform scan")
+	}
+	iter := redisClient.Scan(ctx, 0, "ride:*", 0).Iterator()
 	for iter.Next(ctx) {
 		rideKey := iter.Val()
 		rideData, err := s.RedisRides.Get(ctx, rideKey).Result()
 		if err != nil {
 			continue
 		}
-		var ride pb.Ride
+		var ride drivers_pb.Ride
 		if err := json.Unmarshal([]byte(rideData), &ride); err != nil {
 			continue
 		}
@@ -374,7 +448,7 @@ func (s *DriverService) GetNearbyRequests(ctx context.Context, loc *pb.Location)
 		}
 		dist := haversine(loc.Latitude, loc.Longitude, ride.StartLocation.Latitude, ride.StartLocation.Longitude)
 		if dist <= radiusKm {
-			requests = append(requests, &pb.RideRequest{
+			requests = append(requests, &drivers_pb.RideRequest{
 				UserId:        ride.UserId,
 				StartLocation: ride.StartLocation,
 				EndLocation:   ride.EndLocation,
@@ -385,26 +459,123 @@ func (s *DriverService) GetNearbyRequests(ctx context.Context, loc *pb.Location)
 		return nil, fmt.Errorf("error scanning rides: %w", err)
 	}
 
-	return &pb.RideRequestsResponse{RideRequests: requests}, nil
+	return &drivers_pb.RideRequestsResponse{RideRequests: requests}, nil
 }
 
-func (s *DriverService) UpdateLocation(ctx context.Context, updates <-chan *pb.LocationUpdateRequest) (*pb.StatusResponse, error) {
+func (s *DriverService) UpdateLocation(ctx context.Context, update *drivers_pb.LocationUpdateRequest) (*drivers_pb.StatusResponse, error) {
 	if s.RedisDrivers == nil {
-		return &pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
+		return &drivers_pb.StatusResponse{Status: false, Message: "Redis unavailable"}, nil
 	}
-	for update := range updates {
-		if update == nil {
-			continue
-		}
-		key := "driver_location:" + update.DriverId
-		locData, err := json.Marshal(update.Location)
-		if err != nil {
-			continue // skip invalid location
-		}
-		_ = s.RedisDrivers.Set(ctx, key, locData, time.Hour).Err()
+	key := "driver_location:" + update.DriverId
+	locData, err := json.Marshal(update.Location)
+	if err != nil {
+		return &drivers_pb.StatusResponse{Status: false, Message: "Invalid location data"}, fmt.Errorf("failed to marshal location: %w", err)
 	}
-	return &pb.StatusResponse{
+	err = s.RedisDrivers.Set(ctx, key, locData, time.Second*30).Err()
+	if err != nil {
+		return &drivers_pb.StatusResponse{Status: false, Message: "Failed to save location"}, err
+	}
+	return &drivers_pb.StatusResponse{
 		Status:  true,
-		Message: "Location updates received successfully",
+		Message: "Location updated successfully",
 	}, nil
+}
+
+func (s *DriverService) GetDriverLocation(ctx context.Context, driverID string) (*drivers_pb.Location, error) {
+	if s.RedisDrivers == nil {
+		return nil, fmt.Errorf("Redis unavailable")
+	}
+	key := "driver_location:" + driverID
+	locData, err := s.RedisDrivers.Get(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+	var location drivers_pb.Location
+	if err := json.Unmarshal([]byte(locData), &location); err != nil {
+		return nil, err
+	}
+	return &location, nil
+}
+
+func (s *DriverService) HandleUserProfileResponse(ctx context.Context, response UserProfileResponse) {
+	log.Printf("DRIVERS: Received UserProfileResponse for CorrelationID: %s. Error: %s", response.CorrelationID, response.Error)
+	prometh.KafkaConsumedMessages.WithLabelValues("UserProfileResponse").Inc()
+
+	if ch, ok := s.responseChannels.Load(response.CorrelationID); ok {
+		ch.(chan interface{}) <- response
+		s.responseChannels.Delete(response.CorrelationID)
+		log.Printf("DRIVERS: Dispatched UserProfileResponse for CorrelationID: %s", response.CorrelationID)
+	} else {
+		log.Printf("DRIVERS: No waiting channel found for CorrelationID: %s. Response might be unsolicited or timed out.", response.CorrelationID)
+	}
+}
+
+func (s *DriverService) HandleGetDriverLocationEvent(ctx context.Context, event GetDriverLocationEvent) {
+	log.Printf("DRIVERS: Received GetDriverLocationEvent for DriverID: %s, RideID: %s", event.DriverID, event.RideID)
+	prometh.KafkaConsumedMessages.WithLabelValues("GetDriverLocationEvent").Inc()
+
+	location, err := s.GetDriverLocation(ctx, event.DriverID)
+	var errStr string
+	var lat, lon float64
+	if err != nil {
+		errStr = fmt.Sprintf("Failed to get driver location: %v", err)
+		log.Printf("DRIVERS: %s", errStr)
+	} else {
+		lat = location.Latitude
+		lon = location.Longitude
+	}
+
+	response := DriverLocationResponse{
+		BaseEvent: NewBaseEvent("DriverLocationResponse", event.CorrelationID, ""),
+		DriverID:  event.DriverID,
+		Latitude:  lat,
+		Longitude: lon,
+		Error:     errStr,
+	}
+
+	if event.ReplyTo == "" {
+		log.Printf("Warning: GetDriverLocationEvent has no ReplyTo topic. Cannot send response for DriverID: %s", event.DriverID)
+		return
+	}
+
+	if err := s.sendKafkaMessage(ctx, event.ReplyTo, response); err != nil {
+		log.Printf("Error sending DriverLocationResponse to topic %s: %v", event.ReplyTo, err)
+	} else {
+		log.Printf("Sent DriverLocationResponse for DriverID: %s to topic %s", response.DriverID, event.ReplyTo)
+	}
+}
+
+func (s *DriverService) HandleGetDriverInfoEvent(ctx context.Context, event GetDriverInfoEvent) {
+	log.Printf("DRIVERS: Received GetDriverInfoEvent for DriverID: %s", event.DriverID)
+	prometh.KafkaConsumedMessages.WithLabelValues("GetDriverInfoEvent").Inc()
+
+	driver, err := s.GetDriverProfile(ctx, event.DriverID)
+	var errStr string
+	if err != nil {
+		errStr = fmt.Sprintf("Failed to get driver profile: %v", err)
+		log.Printf("DRIVERS: %s", errStr)
+	}
+
+	type DriverInfoResponse struct {
+		BaseEvent
+		Driver *drivers_pb.Driver `json:"driver,omitempty"`
+		Error  string             `json:"error,omitempty"`
+	}
+
+	response := DriverInfoResponse{
+		BaseEvent: NewBaseEvent("DriverInfoResponse", event.CorrelationID, ""),
+		Driver:    driver,
+		Error:     errStr,
+	}
+
+	if event.ReplyTo == "" {
+		log.Printf("Warning: GetDriverInfoEvent has no ReplyTo topic. Cannot send response for DriverID: %s", event.DriverID)
+		return
+	}
+
+	if err := s.sendKafkaMessage(ctx, event.ReplyTo, response); err != nil {
+		log.Printf("Error sending DriverInfoResponse to topic %s: %v", event.ReplyTo, err)
+	} else {
+		log.Printf("Sent DriverInfoResponse for DriverID: %s to topic %s", response.Driver.Id, event.ReplyTo)
+	}
 }
